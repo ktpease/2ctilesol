@@ -80,7 +80,7 @@ class Game extends React.Component {
       tileMap[x] = (
         <div key={"board-vert-row" + x}>
           {this.state.tiles
-            .filter((_el, index) => index % 17 === x)
+            .filter((_el, index) => index % this.state.boardWidth === x)
             .reverse()
             .map((i) => this.renderTile(i))}
         </div>

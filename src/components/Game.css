@@ -24,7 +24,7 @@
   display: none;
 }
 
-@media (max-aspect-ratio: 13/20) {
+@media (max-aspect-ratio: 60/100) {
   .game-board-emoji {
     font-size: calc(7vmin);
     line-height: 8.4vmin;
@@ -35,7 +35,9 @@
     font-size: calc(9vmin);
     line-height: 8.5vmin;
   }
+}
 
+@media (max-aspect-ratio: 80/100) {
   .game-board-vertical {
     display: flex;
   }
@@ -45,7 +47,20 @@
   }
 }
 
-@media (min-aspect-ratio: 12/10) {
+@media (min-aspect-ratio: 80/100) and (max-aspect-ratio: 105/100) {
+  .game-board-emoji {
+  font-size: calc(4vmin);
+  line-height: 4.8vmin;
+  letter-spacing: -0.6vmin;
+}
+
+.game-board-glyph {
+  font-size: calc(6vmin);
+  line-height: 5.5vmin;
+}
+}
+
+@media (min-aspect-ratio: 135/100) {
   .game-board-emoji {
     font-size: calc(7vmin);
     line-height: 8.4vmin;
