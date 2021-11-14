@@ -1,20 +1,39 @@
 .game-board {
   display: flex;
   flex-direction: column;
-  font-size: calc(5vmin);
   user-select: none;
   white-space: nowrap;
   overflow: hidden;
   padding: 0.2em;
 }
 
+.game-board-emoji {
+  font-size: calc(5vmin);
+  font-family: "Segoe UI Emoji";
+  line-height: 6vmin;
+  letter-spacing: -0.8vmin;
+}
+
+.game-board-glyph {
+  font-size: calc(7vmin);
+  line-height: 6.5vmin;
+  letter-spacing: 0.5vmin;
+}
+
 .game-board-vertical {
   display: none;
 }
 
-@media (max-aspect-ratio: 3/5) {
-  .game-board {
+@media (max-aspect-ratio: 13/20) {
+  .game-board-emoji {
     font-size: calc(7vmin);
+    line-height: 8.4vmin;
+    letter-spacing: -1.4vmin;
+  }
+
+  .game-board-glyph {
+    font-size: calc(9vmin);
+    line-height: 8.5vmin;
   }
 
   .game-board-vertical {
@@ -26,16 +45,22 @@
   }
 }
 
-@media (min-aspect-ratio: 13/10) {
-  .game-board {
+@media (min-aspect-ratio: 12/10) {
+  .game-board-emoji {
     font-size: calc(7vmin);
+    line-height: 8.4vmin;
+    letter-spacing: -1.4vmin;
+  }
+
+  .game-board-glyph {
+    font-size: calc(9vmin);
+    line-height: 8.5vmin;
   }
 }
 
 .game-tile-emoji {
   color: black;
   text-shadow: 0.1em 0.1em 0 grey;
-  font-family: "Segoe UI Emoji";
 }
 
 .game-tile-emoji:hover {

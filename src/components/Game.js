@@ -12,7 +12,7 @@ class Game extends React.Component {
       tiles: [],
       boardWidth: 17,
       boardHeight: 8,
-      useEmoji: true
+      useEmoji: document.fonts.check("12px Segoe UI Emoji")
     };
   }
 
@@ -78,10 +78,10 @@ class Game extends React.Component {
     return (
       <>
         <div>
-          <div className="game-board game-board-horizontal">
+          <div className={`game-board game-board-horizontal ${this.state.useEmoji ? "game-board-emoji" : "game-board-glyph"}`}>
             {this.renderHorizontalMap()}
           </div>
-          <div className="game-board game-board-vertical">
+          <div className={`game-board game-board-vertical ${this.state.useEmoji ? "game-board-emoji" : "game-board-glyph"}`}>
             {this.renderVerticalMap()}
           </div>
           <div>
