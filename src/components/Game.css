@@ -1,0 +1,93 @@
+.game-board {
+  display: flex;
+  flex-direction: column;
+  font-size: calc(5vmin);
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  padding: 0.2em;
+}
+
+.game-board-vertical {
+  display: none;
+}
+
+@media (max-aspect-ratio: 3/5) {
+  .game-board {
+    font-size: calc(7vmin);
+  }
+
+  .game-board-vertical {
+    display: flex;
+  }
+
+  .game-board-horizontal {
+    display: none;
+  }
+}
+
+@media (min-aspect-ratio: 13/10) {
+  .game-board {
+    font-size: calc(7vmin);
+  }
+}
+
+.game-tile-emoji {
+  color: black;
+  text-shadow: 0.1em 0.1em 0 grey;
+  font-family: "Segoe UI Emoji";
+}
+
+.game-tile-emoji:hover {
+  color: #00000055;
+  text-shadow: 0 0 0.3em yellow, 0.1em 0.1em 0 grey, 0 0 0.3em yellow;
+}
+
+.game-tile-glyph:before {
+  content: "\1F02B\FE0E";
+  color: white;
+  position: absolute;
+  z-index: -1;
+  text-shadow: none;
+  font-weight: bolder;
+  text-shadow: 0.1em 0.1em 0 grey;
+}
+
+.game-tile-glyph {
+  color: black;
+  position: relative;
+  z-index: 1;
+}
+
+.game-tile-glyph:hover {
+  color: #00000055;
+  text-shadow: 0 0 0.3em yellow;
+}
+
+.game-tile-glyph-red {
+  color: #aa0000;
+}
+
+.game-tile-glyph-red:hover {
+  color: #aa000055;
+}
+
+.game-tile-glyph-green {
+  color: #00aa00;
+}
+
+.game-tile-glyph-green:hover {
+  color: #00aa0055;
+}
+
+.game-tile-glyph-blue {
+  color: #0000aa;
+}
+
+.game-tile-glyph-blue:hover {
+  color: #0000aa55;
+}
+
+.game-tile-empty {
+  visibility: hidden;
+}
