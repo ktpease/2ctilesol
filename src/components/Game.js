@@ -44,15 +44,32 @@ class Game extends React.Component {
       return;
     }
 
+    if (
+      this.state.selectedTile !== null &&
+      this.state.tiles[tileId].char ===
+        this.state.tiles[this.state.selectedTile].char
+    ) {
+      // TODO: Actual nikakudori path checking.
+      // For now assume it's good.
+      const newTiles = this.state.tiles.slice();
+
+      newTiles[tileId].char = null;
+      newTiles[this.state.selectedTile].char = null;
+
+      this.setState({ tiles: newTiles, selectedTile: null, hintedTiles: [] });
+      return;
+    }
+
     if (this.state.showMatchingTiles === true) {
       const hintedTiles = this.state.tiles.filter(
-        (t) => (t.char === this.state.tiles[tileId].char)
+        (t) => t.char === this.state.tiles[tileId].char
       );
 
       this.setState({ hintedTiles: hintedTiles, selectedTile: tileId });
-    } else {
-      this.setState({ selectedTile: tileId });
+      return;
     }
+
+    this.setState({ selectedTile: tileId });
   }
 
   renderHorizontalMap() {
