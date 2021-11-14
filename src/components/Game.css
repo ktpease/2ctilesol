@@ -63,9 +63,21 @@
   text-shadow: 0.1em 0.1em 0 grey;
 }
 
-.game-tile-emoji:hover {
+@media (hover: hover) {
+  .game-tile-emoji:hover {
+    color: #000000b0;
+    text-shadow: 0 0 0.3em yellow, 0 0 0 black, 0.1em 0.1em 0 grey;
+  }
+}
+
+.game-tile-emoji.game-tile-selected {
   color: #00000055;
-  text-shadow: 0 0 0.3em yellow, 0.1em 0.1em 0 grey, 0 0 0.3em yellow;
+  text-shadow: 0 0 0.3em yellow, 0 0 0 black, 0.1em 0.1em 0 grey;
+}
+
+.game-tile-emoji.game-tile-hinted {
+  color: #000000b0;
+  text-shadow: 0 0 0 blue, 0.1em 0.1em 0 grey;
 }
 
 .game-tile-glyph:before {
@@ -80,37 +92,100 @@
 
 .game-tile-glyph {
   color: black;
+  text-shadow: 0 0 0.01em black;
   position: relative;
   z-index: 1;
-}
-
-.game-tile-glyph:hover {
-  color: #00000055;
-  text-shadow: 0 0 0.3em yellow;
 }
 
 .game-tile-glyph-red {
   color: #aa0000;
 }
 
-.game-tile-glyph-red:hover {
-  color: #aa000055;
-}
-
 .game-tile-glyph-green {
   color: #00aa00;
-}
-
-.game-tile-glyph-green:hover {
-  color: #00aa0055;
 }
 
 .game-tile-glyph-blue {
   color: #0000aa;
 }
 
-.game-tile-glyph-blue:hover {
+.game-tile-glyph-flowers {
+  color: #00aaaa;
+}
+
+.game-tile-glyph-seasons {
+  color: #aa6600;
+}
+
+@media (hover: hover) {
+  .game-tile-glyph:hover:before {
+    color: #fcfcd9;
+    text-shadow: 0 0 0.2em yellow, 0.1em 0.1em 0 grey;
+  }
+
+  .game-tile-glyph:hover {
+    color: #000000b0;
+  }
+
+  .game-tile-glyph-red:hover {
+    color: #aa0000b0;
+  }
+
+  .game-tile-glyph-green:hover {
+    color: #00aa00b0;
+  }
+
+  .game-tile-glyph-blue:hover {
+    color: #0000aab0;
+  }
+
+  .game-tile-glyph-flowers:hover {
+    color: #00aaaab0;
+  }
+
+  .game-tile-glyph-seasons:hover {
+    color: #aa6600b0;
+  }
+}
+
+.game-tile-glyph.game-tile-selected:before {
+  color: #f5f5a7;
+  text-shadow: 0 0 0.2em yellow, 0.1em 0.1em 0 grey;
+}
+
+.game-tile-glyph.game-tile-hinted:before {
+  color: #a7a7f5;
+  text-shadow: 0.1em 0.1em 0 grey;
+}
+
+.game-tile-glyph.game-tile-selected,
+.game-tile-glyph.game-tile-hinted {
+  color: #00000055;
+}
+
+.game-tile-glyph-red.game-tile-selected,
+.game-tile-glyph-red.game-tile-hinted {
+  color: #aa000055;
+}
+
+.game-tile-glyph-green.game-tile-selected,
+.game-tile-glyph-green.game-tile-hinted {
+  color: #00aa0055;
+}
+
+.game-tile-glyph-blue.game-tile-selected,
+.game-tile-glyph-blue.game-tile-hinted {
   color: #0000aa55;
+}
+
+.game-tile-glyph-flowers.game-tile-selected,
+.game-tile-glyph-flowers.game-tile-hinted {
+  color: #00aaaa55;
+}
+
+.game-tile-glyph-seasons.game-tile-selected,
+.game-tile-glyph-seasons.game-tile-hinted {
+  color: #aa660055;
 }
 
 .game-tile-empty {
