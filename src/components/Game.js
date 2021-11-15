@@ -1,4 +1,5 @@
 import React from "react";
+import seedrandom from "seedrandom";
 
 import "./Game.css";
 
@@ -12,6 +13,7 @@ class Game extends React.Component {
       useEmoji: document.fonts.check("12px Segoe UI Emoji"),
       boardWidth: 17,
       boardHeight: 8,
+      seed: 1,
       tiles: [],
       selectedTile: null,
       hintedTiles: [],
@@ -20,15 +22,16 @@ class Game extends React.Component {
   }
 
   componentDidMount() {
-    this.generateBoard();
+    this.generateBoard(null);
   }
 
-  generateBoard() {
+  generateBoard(seed) {
     const tiles = [];
 
     let id = 0,
       char = 0;
 
+    // Generate the initial unshuffled layout of tiles.
     for (let y = 0; y < this.state.boardHeight; y++) {
       for (var x = 0; x < this.state.boardWidth; x++) {
         id = tiles.push({ id: id, char: char });
@@ -36,7 +39,28 @@ class Game extends React.Component {
       }
     }
 
-    this.setState({ tiles: tiles });
+    // Determine if we need to generate a random seed
+    // or use a pre-determined one from the seed argument.
+    const finalSeed = isNaN(parseInt(seed, 10))
+      ? seedrandom().int32() >>> 0
+      : parseInt(seed, 10) >>> 0;
+
+    const seededRng = seedrandom(finalSeed);
+
+    let randTile = 0;
+
+    // Shuffle the board using a simple Fisher-Yates shuffle.
+    for (let i = tiles.length - 1; i > 0; i--) {
+      randTile = Math.floor(seededRng() * (i + 1));
+
+      char = tiles[i].char;
+      tiles[i].char = tiles[randTile].char;
+      tiles[randTile].char = char;
+    }
+
+    console.log(`Game board seed is ${finalSeed}`);
+
+    this.setState({ tiles: tiles, seed: finalSeed });
   }
 
   handleTileClick(tileId) {
@@ -146,7 +170,9 @@ class Game extends React.Component {
             >
               Change tile type
             </button>
+            <button onClick={() => this.generateBoard()}>New board</button>
           </div>
+          <div>Board #{this.state.seed}</div>
         </div>
       </>
     );
