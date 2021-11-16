@@ -27,18 +27,34 @@ class Game extends React.Component {
   }
 
   generateBoard(seed) {
-    const tiles = [];
+    const tiles = [],
+      allValidTiles = [];
 
     let id = 0,
       char = 0;
 
+    // Top outer edge.
+    for (let x = 0; x < this.state.boardWidth + 2; x++)
+      id = tiles.push({ id: id });
+
     // Generate the initial unshuffled layout of tiles.
     for (let y = 0; y < this.state.boardHeight; y++) {
-      for (var x = 0; x < this.state.boardWidth; x++) {
+      // Left outer edge.
+      id = tiles.push({ id: id });
+
+      for (let x = 0; x < this.state.boardWidth; x++) {
+        allValidTiles.push(id);
         id = tiles.push({ id: id, char: char });
         char = (char + 1) % 34;
       }
+
+      // Right outer edge.
+      id = tiles.push({ id: id });
     }
+
+    // Bottom outer edge.
+    for (let x = 0; x < this.state.boardWidth + 2; x++)
+      id = tiles.push({ id: id });
 
     // Determine if we need to generate a random seed
     // or use a pre-determined one from the seed argument.
@@ -51,12 +67,12 @@ class Game extends React.Component {
     let randTile = 0;
 
     // Shuffle the board using a simple Fisher-Yates shuffle.
-    for (let i = tiles.length - 1; i > 0; i--) {
+    for (let i = allValidTiles.length - 1; i > 0; i--) {
       randTile = Math.floor(seededRng() * (i + 1));
 
-      char = tiles[i].char;
-      tiles[i].char = tiles[randTile].char;
-      tiles[randTile].char = char;
+      char = tiles[allValidTiles[i]].char;
+      tiles[allValidTiles[i]].char = tiles[allValidTiles[randTile]].char;
+      tiles[allValidTiles[randTile]].char = char;
     }
 
     console.log(`Game board seed is ${finalSeed}`);
@@ -120,6 +136,18 @@ class Game extends React.Component {
   checkValidPath(tile1, tile2) {
     let valid = false;
     let path = [];
+
+    const tilesXdelta =
+      (tile2 % (this.state.boardWidth + 2)) -
+      (tile1 % (this.state.boardWidth + 2));
+    const tilesYdelta =
+      (tile2 -
+        (tile2 % (this.state.boardWidth + 2)) -
+        (tile1 - (tile1 % (this.state.boardWidth + 2)))) /
+      (this.state.boardWidth + 2);
+
+    console.log(`tile X delta: ${tilesXdelta}`);
+    console.log(`tile Y delta: ${tilesYdelta}`);
 
     // Tile 1 and Tile 2 are on same column.
     if (tile1 % this.state.boardWidth === tile2 % this.state.boardWidth) {
@@ -228,7 +256,10 @@ class Game extends React.Component {
       tileMap[y] = (
         <div key={"board-hori-row" + y}>
           {this.state.tiles
-            .slice(y * this.state.boardWidth, (y + 1) * this.state.boardWidth)
+            .slice(
+              (y + 1) * (this.state.boardWidth + 2) + 1,
+              (y + 2) * (this.state.boardWidth + 2) - 1
+            )
             .map((i) => this.renderTile(i))}
         </div>
       );
@@ -245,7 +276,13 @@ class Game extends React.Component {
       tileMap[x] = (
         <div key={"board-vert-row" + x}>
           {this.state.tiles
-            .filter((_el, index) => index % this.state.boardWidth === x)
+            .slice(
+              this.state.boardWidth + 2,
+              (this.state.boardWidth + 2) * (this.state.boardHeight + 1)
+            )
+            .filter(
+              (_el, index) => index % (this.state.boardWidth + 2) === x + 1
+            )
             .reverse()
             .map((i) => this.renderTile(i))}
         </div>
