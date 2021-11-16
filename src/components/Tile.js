@@ -1,6 +1,6 @@
-function Tile(props) {
-  // Number between 0-33, corresponding to the Mahjong Tiles Unicode block.
-  const tileNum = parseInt(props.tile);
+export default function Tile(props) {
+  // Number between 0-42, corresponding to the Mahjong Tiles Unicode block.
+  const tileNum = parseInt(props.tile, 10);
 
   // Check if tile is valid.
   if (isNaN(tileNum) || tileNum < 0 || tileNum >= 42)
@@ -33,7 +33,9 @@ function Tile(props) {
 
     return (
       <span
-        className={`game-tile-glyph ${tileColorClass} ${tileStatusClass}`}
+        className={`game-tile-glyph ${tileColorClass} ${tileStatusClass} ${
+          props.pointer ? "game-tile-pointer" : ""
+        }`}
         onClick={props.onClick}
       >
         {String.fromCodePoint(0x1f000 + tileNum)}&#xFE0E;
@@ -42,7 +44,9 @@ function Tile(props) {
   } else {
     return (
       <span
-        className={`game-tile-emoji ${tileStatusClass}`}
+        className={`game-tile-emoji ${tileStatusClass} ${
+          props.pointer ? "game-tile-pointer" : ""
+        }`}
         onClick={props.onClick}
       >
         {String.fromCodePoint(0x1f000 + tileNum)}
@@ -50,5 +54,3 @@ function Tile(props) {
     );
   }
 }
-
-export default Tile;
