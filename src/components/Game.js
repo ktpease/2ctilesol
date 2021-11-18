@@ -35,26 +35,26 @@ class Game extends React.Component {
 
     // Top outer edge.
     for (let x = 0; x < this.state.boardWidth + 2; x++)
-      id = tiles.push({ id: id });
+      id = tiles.push({ id: id, char: null });
 
     // Generate the initial unshuffled layout of tiles.
     for (let y = 0; y < this.state.boardHeight; y++) {
       // Left outer edge.
-      id = tiles.push({ id: id });
+      id = tiles.push({ id: id, char: null });
 
       for (let x = 0; x < this.state.boardWidth; x++) {
+        char = (char + 1) % 34;
         allValidTiles.push(id);
         id = tiles.push({ id: id, char: char });
-        char = (char + 1) % 34;
       }
 
       // Right outer edge.
-      id = tiles.push({ id: id });
+      id = tiles.push({ id: id, char: null });
     }
 
     // Bottom outer edge.
     for (let x = 0; x < this.state.boardWidth + 2; x++)
-      id = tiles.push({ id: id });
+      id = tiles.push({ id: id, char: null });
 
     // Determine if we need to generate a random seed
     // or use a pre-determined one from the seed argument.
@@ -90,13 +90,13 @@ class Game extends React.Component {
     if (this.state.selectedTile === tileId) {
       if (this.state.allowDeselect === true) {
         this.setState({ selectedTile: null, hintedTiles: [] });
-        console.log(`Unclicked ${tileId}`);
+        console.debug(`Unclicked ${tileId}`);
       }
 
       return;
     }
 
-    console.log(`Clicked ${tileId}`);
+    console.debug(`Clicked ${tileId}`);
 
     // If selecting a second tile, check to make sure it matches the first,
     // then check the pathing to see if it's valid, then clear valid matches.
@@ -108,7 +108,7 @@ class Game extends React.Component {
       const path = this.checkValidPath(tileId, this.state.selectedTile);
 
       if (path !== null) {
-        console.log(path);
+        console.debug(path);
 
         const newTiles = this.state.tiles.slice();
 
@@ -133,119 +133,374 @@ class Game extends React.Component {
     this.setState({ selectedTile: tileId });
   }
 
-  checkValidPath(tile1, tile2) {
-    let valid = false;
-    let path = [];
+  checkValidPath(firstTile, secondTile) {
+    if (firstTile === secondTile) return null;
 
-    const tilesXdelta =
-      (tile2 % (this.state.boardWidth + 2)) -
-      (tile1 % (this.state.boardWidth + 2));
-    const tilesYdelta =
-      (tile2 -
-        (tile2 % (this.state.boardWidth + 2)) -
-        (tile1 - (tile1 % (this.state.boardWidth + 2)))) /
-      (this.state.boardWidth + 2);
+    const boardWidthWithEdges = this.state.boardWidth + 2,
+      boardHeightWithEdges = this.state.boardHeight + 2;
 
-    console.log(`tile X delta: ${tilesXdelta}`);
-    console.log(`tile Y delta: ${tilesYdelta}`);
+    let paths = [],
+      simplestPath = null;
 
-    // Tile 1 and Tile 2 are on same column.
-    if (tile1 % this.state.boardWidth === tile2 % this.state.boardWidth) {
-      valid = true;
-      path = [tile1];
+    const tileXdelta =
+      (secondTile % boardWidthWithEdges) - (firstTile % boardWidthWithEdges);
+    const tileYdelta =
+      (secondTile -
+        (secondTile % boardWidthWithEdges) -
+        (firstTile - (firstTile % boardWidthWithEdges))) /
+      boardWidthWithEdges;
 
-      // (S) Tile 1 is above Tile 2
-      if (tile1 < tile2) {
-        console.log("Checking S");
+    let DEBUG_pathsEaten = 0;
+    console.debug(`tile X delta: ${tileXdelta}`);
+    console.debug(`tile Y delta: ${tileYdelta}`);
 
-        for (
-          let i = tile1 + this.state.boardWidth;
-          i < tile2;
-          i += this.state.boardWidth
-        ) {
-          path.push(i);
+    // Do not check opposite direction if in the same row or column.
 
-          console.log(`S1 - ${i} - ${this.state.tiles[i].char}`);
+    if (tileYdelta !== 0 || tileXdelta > 0) {
+      paths.push([{ segment: [firstTile], dir: "R" }]);
+    }
 
-          if (this.state.tiles[i].char !== null) {
-            valid = false;
-            break;
-          }
-        }
-        // (N) Tile 1 is below Tile 2
-      } else {
-        console.log("Checking N");
-        for (
-          let i = tile1 - this.state.boardWidth;
-          i > tile2;
-          i -= this.state.boardWidth
-        ) {
-          path.push(i);
+    if (tileYdelta !== 0 || tileXdelta < 0) {
+      paths.push([{ segment: [firstTile], dir: "L" }]);
+    }
 
-          console.log(`N1 - ${i} - ${this.state.tiles[i].char}`);
+    if (tileXdelta !== 0 || tileYdelta > 0) {
+      paths.push([{ segment: [firstTile], dir: "D" }]);
+    }
 
-          if (this.state.tiles[i].char !== null) {
-            valid = false;
-            break;
-          }
-        }
+    if (tileXdelta !== 0 || tileYdelta < 0) {
+      paths.push([{ segment: [firstTile], dir: "U" }]);
+    }
+
+    for (let i = 0; i < paths.length; i++) {
+      console.debug(paths[i]);
+    }
+
+    while (paths.length > 0) {
+      const path = paths.pop();
+      DEBUG_pathsEaten++;
+
+      console.debug(
+        `Checking path: ${path.at(-1).segment} | ${path.at(-1).dir} | length: ${
+          path.length
+        } | queue: ${paths.length}`
+      );
+
+      // If we already found a three-line path, we shouldn't look for more
+      // three-line paths.
+      if (simplestPath !== null && path.length === 3) {
+        console.debug("- Looking for less-line paths");
+        continue;
       }
 
-      if (valid) {
-        path.push(tile2);
-        return path;
+      const curSegment = path.at(-1);
+      const lastTile = curSegment.segment.at(-1);
+      let nextTile;
+
+      switch (curSegment.dir) {
+        case "R":
+          // At edge of board. Skip.
+          if (lastTile % boardWidthWithEdges === boardWidthWithEdges - 1) {
+            console.debug("- Cannot go off the right edge");
+            continue;
+          }
+
+          nextTile = this.state.tiles[lastTile + 1];
+
+          // We found the path, or a simpler one!
+          if (nextTile.id === secondTile) {
+            console.debug("- Found simplest path?");
+            curSegment.segment.push(nextTile.id);
+
+            // If it is a one-line or two-line path, it's one of the
+            // absolute shortest paths. We're done!
+            if (path.length < 3) {
+              console.debug("-- It is!");
+              console.debug(`${DEBUG_pathsEaten} PATHS EATEN`);
+              return path;
+            }
+
+            console.debug("-- Maybe?");
+            simplestPath = path;
+            continue;
+          }
+
+          // Obstruction in the path. Skip.
+          if (nextTile.char !== null) {
+            console.debug("- Obstruction in path");
+            continue;
+          }
+
+          curSegment.segment.push(nextTile.id);
+
+          // On first and second segment, check U if second tile is above and
+          // check D if the second tile is below.
+          // On second segment, only check if on same column.
+          if (
+            path.length < 3 &&
+            !(
+              path.length === 2 &&
+              secondTile % boardWidthWithEdges !==
+                nextTile.id % boardWidthWithEdges
+            )
+          ) {
+            if (secondTile < nextTile.id) {
+              console.debug("- Add path U");
+              const newPath = path.slice();
+              newPath.push({ segment: [nextTile.id], dir: "U" });
+              paths.push(newPath);
+            } else if (secondTile > nextTile.id) {
+              console.debug("- Add path D");
+              const newPath = path.slice();
+              newPath.push({ segment: [nextTile.id], dir: "D" });
+              paths.push(newPath);
+            }
+          }
+
+          if (
+            (path.length === 2 &&
+              secondTile % boardWidthWithEdges <
+                nextTile.id % boardWidthWithEdges) ||
+            nextTile.id % boardWidthWithEdges === boardWidthWithEdges - 1
+          ) {
+            console.debug("- Do not proceed further, will miss");
+            continue;
+          }
+
+          console.debug("- Continuing path");
+          paths.push(path);
+          continue;
+        case "L":
+          // At edge of board. Skip.
+          if (lastTile % boardWidthWithEdges === 0) {
+            console.debug("- Cannot go off the left edge");
+            continue;
+          }
+
+          nextTile = this.state.tiles[lastTile - 1];
+
+          // We found the path, or a simpler one!
+          if (nextTile.id === secondTile) {
+            console.debug("- Found simplest path");
+            curSegment.segment.push(nextTile.id);
+
+            // If it is a one-line or two-line path, it's one of the
+            // absolute shortest paths. We're done!
+            if (path.length < 3) {
+              console.debug("-- It is!");
+              console.debug(`${DEBUG_pathsEaten} PATHS EATEN`);
+              return path;
+            }
+
+            console.debug("-- Maybe?");
+            simplestPath = path;
+            continue;
+          }
+
+          // Obstruction in the path. Skip.
+          if (nextTile.char !== null) {
+            console.debug("- Obstruction in path");
+            continue;
+          }
+
+          curSegment.segment.push(nextTile.id);
+
+          // On first and second segment, check U if second tile is above and
+          // check D if the second tile is below.
+          // On second segment, only check if on same column.
+          if (
+            path.length < 3 &&
+            !(
+              path.length === 2 &&
+              secondTile % boardWidthWithEdges !==
+                nextTile.id % boardWidthWithEdges
+            )
+          ) {
+            if (secondTile < nextTile.id) {
+              console.debug("- Add path U");
+              const newPath = path.slice();
+              newPath.push({ segment: [nextTile.id], dir: "U" });
+              paths.push(newPath);
+            } else if (secondTile > nextTile.id) {
+              console.debug("- Add path D");
+              const newPath = path.slice();
+              newPath.push({ segment: [nextTile.id], dir: "D" });
+              paths.push(newPath);
+            }
+          }
+
+          if (
+            (path.length === 2 &&
+              secondTile % boardWidthWithEdges >
+                nextTile.id % boardWidthWithEdges) ||
+            nextTile.id % boardWidthWithEdges === 0
+          ) {
+            console.debug("- Do not proceed further, will miss");
+            continue;
+          }
+
+          console.debug("- Continuing path");
+          paths.push(path);
+          continue;
+        case "D":
+          // At edge of board. Skip.
+          if (lastTile >= boardWidthWithEdges * (boardHeightWithEdges - 1)) {
+            console.debug("- Cannot go off the bottom edge");
+            continue;
+          }
+
+          nextTile = this.state.tiles[lastTile + boardWidthWithEdges];
+
+          // We found the path, or a simpler one!
+          if (nextTile.id === secondTile) {
+            console.debug("- Found simplest path");
+            curSegment.segment.push(nextTile.id);
+
+            // If it is a one-line or two-line path, it's one of the
+            // absolute shortest paths. We're done!
+            if (path.length < 3) {
+              console.debug("-- It is!");
+              console.debug(`${DEBUG_pathsEaten} PATHS EATEN`);
+              return path;
+            }
+
+            console.debug("-- Maybe?");
+            simplestPath = path;
+            continue;
+          }
+
+          // Obstruction in the path. Skip.
+          if (nextTile.char !== null) {
+            console.debug("- Obstruction in path");
+            continue;
+          }
+
+          curSegment.segment.push(nextTile.id);
+
+          // On first and second segment, check L if second tile is left and
+          // check R if the second tile is right.
+          // On second segment, only check if on same row.
+          if (
+            path.length < 3 &&
+            !(
+              path.length === 2 &&
+              secondTile - (secondTile % boardWidthWithEdges) !==
+                nextTile.id - (nextTile.id % boardWidthWithEdges)
+            )
+          ) {
+            if (
+              secondTile % boardWidthWithEdges <
+              nextTile.id % boardWidthWithEdges
+            ) {
+              console.debug("- Add path L");
+              const newPath = path.slice();
+              newPath.push({ segment: [nextTile.id], dir: "L" });
+              paths.push(newPath);
+            } else if (
+              secondTile % boardWidthWithEdges >
+              nextTile.id % boardWidthWithEdges
+            ) {
+              console.debug("- Add path R");
+              const newPath = path.slice();
+              newPath.push({ segment: [nextTile.id], dir: "R" });
+              paths.push(newPath);
+            }
+          }
+
+          if (
+            (path.length === 2 && secondTile < nextTile.id) ||
+            nextTile.id >= boardWidthWithEdges * (boardHeightWithEdges - 1)
+          ) {
+            console.debug("- Do not proceed further, will miss");
+            continue;
+          }
+
+          console.debug("- Continuing path");
+          paths.push(path);
+          continue;
+        case "U":
+          // At edge of board. Skip.
+          if (lastTile < boardWidthWithEdges) {
+            console.debug("- Cannot go off the top edge");
+            continue;
+          }
+
+          nextTile = this.state.tiles[lastTile - boardWidthWithEdges];
+
+          // We found the path, or a simpler one!
+          if (nextTile.id === secondTile) {
+            console.debug("- Found simplest path");
+            curSegment.segment.push(nextTile.id);
+
+            // If it is a one-line or two-line path, it's one of the
+            // absolute shortest paths. We're done!
+            if (path.length < 3) {
+              console.debug("-- It is!");
+              console.debug(`${DEBUG_pathsEaten} PATHS EATEN`);
+              return path;
+            }
+
+            console.debug("-- Maybe?");
+            simplestPath = path;
+            continue;
+          }
+
+          // Obstruction in the path. Skip.
+          if (nextTile.char !== null) {
+            console.debug("- Obstruction in path");
+            continue;
+          }
+
+          curSegment.segment.push(nextTile.id);
+
+          // On first and second segment, check L if second tile is left and
+          // check R if the second tile is right.
+          // On second segment, only check if on same row.
+          if (
+            path.length < 3 &&
+            !(
+              path.length === 2 &&
+              secondTile - (secondTile % boardWidthWithEdges) !==
+                nextTile.id - (nextTile.id % boardWidthWithEdges)
+            )
+          ) {
+            if (
+              secondTile % boardWidthWithEdges <
+              nextTile.id % boardWidthWithEdges
+            ) {
+              console.debug("- Add path L");
+              const newPath = path.slice();
+              newPath.push({ segment: [nextTile.id], dir: "L" });
+              paths.push(newPath);
+            } else if (
+              secondTile % boardWidthWithEdges >
+              nextTile.id % boardWidthWithEdges
+            ) {
+              console.debug("- Add path R");
+              const newPath = path.slice();
+              newPath.push({ segment: [nextTile.id], dir: "R" });
+              paths.push(newPath);
+            }
+          }
+
+          if (
+            (path.length === 2 && secondTile > nextTile.id) ||
+            nextTile.id < boardWidthWithEdges
+          ) {
+            console.debug("- Do not proceed further, will miss");
+            continue;
+          }
+
+          console.debug("- Continuing path");
+          paths.push(path);
+          continue;
+        default:
+          break;
       }
     }
 
-    // Tile 1 and Tile 2 are on same row.
-    const rowStart = tile1 - (tile1 % this.state.boardWidth),
-      rowEnd = rowStart + this.state.boardWidth;
-
-    if (
-      tile1 >= rowStart &&
-      tile2 >= rowStart &&
-      tile1 < rowEnd &&
-      tile2 < rowEnd
-    ) {
-      valid = true;
-      path = [tile1];
-
-      // (E) Tile 1 is left of Tile 2
-      if (tile1 < tile2) {
-        console.log("Checking E");
-
-        for (let i = tile1 + 1; i < tile2; i++) {
-          path.push(i);
-
-          console.log(`E1 - ${i} - ${this.state.tiles[i].char}`);
-
-          if (this.state.tiles[i].char !== null) {
-            valid = false;
-            break;
-          }
-        }
-        // (W) Tile 1 is right of Tile 2
-      } else {
-        console.log("Checking W");
-        for (let i = tile1 - 1; i > tile2; i--) {
-          path.push(i);
-
-          console.log(`W1 - ${i} - ${this.state.tiles[i].char}`);
-
-          if (this.state.tiles[i].char !== null) {
-            valid = false;
-            break;
-          }
-        }
-      }
-
-      if (valid) {
-        path.push(tile2);
-        return path;
-      }
-    }
-
-    return null;
+    console.debug(`${DEBUG_pathsEaten} PATHS EATEN`);
+    return simplestPath;
   }
 
   renderHorizontalMap() {
