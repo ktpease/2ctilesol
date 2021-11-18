@@ -199,12 +199,6 @@ class Game extends React.Component {
 
       switch (curSegment.dir) {
         case "R":
-          // At edge of board. Skip.
-          if (lastTile % boardWidthWithEdges === boardWidthWithEdges - 1) {
-            console.debug("- Cannot go off the right edge");
-            continue;
-          }
-
           nextTile = this.state.tiles[lastTile + 1];
 
           // We found the path, or a simpler one!
@@ -271,12 +265,6 @@ class Game extends React.Component {
           paths.push(path);
           continue;
         case "L":
-          // At edge of board. Skip.
-          if (lastTile % boardWidthWithEdges === 0) {
-            console.debug("- Cannot go off the left edge");
-            continue;
-          }
-
           nextTile = this.state.tiles[lastTile - 1];
 
           // We found the path, or a simpler one!
@@ -343,12 +331,6 @@ class Game extends React.Component {
           paths.push(path);
           continue;
         case "D":
-          // At edge of board. Skip.
-          if (lastTile >= boardWidthWithEdges * (boardHeightWithEdges - 1)) {
-            console.debug("- Cannot go off the bottom edge");
-            continue;
-          }
-
           nextTile = this.state.tiles[lastTile + boardWidthWithEdges];
 
           // We found the path, or a simpler one!
@@ -419,12 +401,6 @@ class Game extends React.Component {
           paths.push(path);
           continue;
         case "U":
-          // At edge of board. Skip.
-          if (lastTile < boardWidthWithEdges) {
-            console.debug("- Cannot go off the top edge");
-            continue;
-          }
-
           nextTile = this.state.tiles[lastTile - boardWidthWithEdges];
 
           // We found the path, or a simpler one!
