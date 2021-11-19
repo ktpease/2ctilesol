@@ -10,7 +10,7 @@ class Game extends React.Component {
     super(props);
 
     this.state = {
-      useEmoji: document.fonts.check("12px Segoe UI Emoji"),
+      useEmoji: false,
       boardWidth: 17,
       boardHeight: 8,
       seed: 1,
@@ -23,7 +23,34 @@ class Game extends React.Component {
   }
 
   componentDidMount() {
+    this.checkEmojiMode();
     this.generateBoard(null);
+  }
+
+  checkEmojiMode() {
+    // Currently, all majong tiles are Non-RGI with the exception of Red Dragon,
+    // and the only system font that supports all of these tiles as emojis is the
+    // Segoe UI Emoji family, included in Windows 10+.
+    //
+    // It is unlikely that future Unicode Emoji specifications will support
+    // all tiles as RGI, and I'm unsure if other system font providers will
+    // support them. So for now, we'll just assume that only desktop Windows 10+
+    // can run the emoji mode.
+    //
+    // If any other system or custom font providers begin supporting this, just
+    // please make sure they're front-facing (looking at you, Noto Emoji).
+
+    // If we don't care that it breaks previous Windows versions, we can just
+    // use the is-windows package. But for compatibility, we'll just check the
+    // browser's user agent string.
+    //
+    // Conveniently, Windows 10 and up have double-digit version numbers!
+    if (
+      window.navigator &&
+      /Windows NT \d{2}/.test(window.navigator.userAgent)
+    ) {
+      this.setState({ useEmoji: true });
+    }
   }
 
   generateBoard(seed) {
@@ -46,7 +73,8 @@ class Game extends React.Component {
     // Generate which tiles are used. This is done by listing all
     // possible tiles (without duplicates), then shuffling with
     // a simple Fisher-Yates shuffle.
-    let tileCharUsed = [...Array(34).keys()], randValue = 0;
+    let tileCharUsed = [...Array(34).keys()],
+      randValue = 0;
 
     for (let i = tileCharUsed.length - 1; i > 0; i--) {
       randValue = Math.floor(seededRng() * (i + 1));
