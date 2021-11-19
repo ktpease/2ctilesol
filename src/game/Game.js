@@ -31,7 +31,30 @@ class Game extends React.Component {
       allValidTiles = [];
 
     let id = 0,
-      char = 0;
+      char = -1,
+      chardupe = -1;
+
+    // Determine if we need to generate a random seed
+    // or use a pre-determined one from the seed argument.
+    // This will be used in both tile selection and board shuffling.
+    const finalSeed = isNaN(parseInt(seed, 10))
+      ? seedrandom().int32() >>> 0
+      : parseInt(seed, 10) >>> 0;
+
+    const seededRng = seedrandom(finalSeed);
+
+    // Generate which tiles are used. This is done by listing all
+    // possible tiles (without duplicates), then shuffling with
+    // a simple Fisher-Yates shuffle.
+    let tileCharUsed = [...Array(34).keys()], randValue = 0;
+
+    for (let i = tileCharUsed.length - 1; i > 0; i--) {
+      randValue = Math.floor(seededRng() * (i + 1));
+
+      char = tileCharUsed[i];
+      tileCharUsed[i] = tileCharUsed[randValue];
+      tileCharUsed[randValue] = char;
+    }
 
     // Top outer edge.
     for (let x = 0; x < this.state.boardWidth + 2; x++)
@@ -43,9 +66,12 @@ class Game extends React.Component {
       id = tiles.push({ id: id, char: null });
 
       for (let x = 0; x < this.state.boardWidth; x++) {
-        char = (char + 1) % 34;
+        if ((chardupe = (chardupe + 1) % 4) === 0) {
+          char = (char + 1) % tileCharUsed.length;
+        }
+
         allValidTiles.push(id);
-        id = tiles.push({ id: id, char: char });
+        id = tiles.push({ id: id, char: tileCharUsed[char] });
       }
 
       // Right outer edge.
@@ -56,23 +82,13 @@ class Game extends React.Component {
     for (let x = 0; x < this.state.boardWidth + 2; x++)
       id = tiles.push({ id: id, char: null });
 
-    // Determine if we need to generate a random seed
-    // or use a pre-determined one from the seed argument.
-    const finalSeed = isNaN(parseInt(seed, 10))
-      ? seedrandom().int32() >>> 0
-      : parseInt(seed, 10) >>> 0;
-
-    const seededRng = seedrandom(finalSeed);
-
-    let randTile = 0;
-
     // Shuffle the board using a simple Fisher-Yates shuffle.
     for (let i = allValidTiles.length - 1; i > 0; i--) {
-      randTile = Math.floor(seededRng() * (i + 1));
+      randValue = Math.floor(seededRng() * (i + 1));
 
       char = tiles[allValidTiles[i]].char;
-      tiles[allValidTiles[i]].char = tiles[allValidTiles[randTile]].char;
-      tiles[allValidTiles[randTile]].char = char;
+      tiles[allValidTiles[i]].char = tiles[allValidTiles[randValue]].char;
+      tiles[allValidTiles[randValue]].char = char;
     }
 
     console.log(`Game board seed is ${finalSeed}`);
