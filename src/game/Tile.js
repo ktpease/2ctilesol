@@ -3,7 +3,7 @@ export default function Tile(props) {
   const tileNum = parseInt(props.tile, 10);
 
   // Check if tile is valid.
-  if (isNaN(tileNum) || tileNum < 0 || tileNum >= 42)
+  if (isNaN(tileNum) || tileNum < 0 || tileNum >= 43)
     return props.glyph ? (
       <span className="game-tile-glyph game-tile-empty">&#x1F02B;&#xFE0E;</span>
     ) : (

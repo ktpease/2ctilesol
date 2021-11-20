@@ -75,6 +75,17 @@ class Game extends React.Component {
     // a simple Fisher-Yates shuffle.
     let tileCharUsed = [...Array(34).keys()],
       randValue = 0;
+    
+    // Chrome for Android has a bug where it'll not respect VS15/U+FE0E and
+    // always render the Red Dragon tile as emoji. Until it is fixed, replace
+    // the Red Dragon with the unused Joker tile.
+    if (
+      window.navigator &&
+      window.navigator.userAgent.includes("Chrome") &&
+      window.navigator.userAgent.includes("Mobile")
+    ) {
+      tileCharUsed[4] = 42;
+    }
 
     for (let i = tileCharUsed.length - 1; i > 0; i--) {
       randValue = Math.floor(seededRng() * (i + 1));
