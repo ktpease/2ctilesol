@@ -16,6 +16,9 @@
 
 .game-board-glyph {
   font-size: calc(7vmin);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI Symbol",
+    "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
   line-height: 6.5vmin;
   letter-spacing: 0.5vmin;
 }
