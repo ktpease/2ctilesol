@@ -1,8 +1,8 @@
 # 🀄 Nikakudori Solitaire 🀄
 
-A simple web adaptation, developed with [React](https://reactjs.org/), of the tile puzzle game known as both "Nikakudori" (lit. "two-angle take") or "Shisen-Sho".
+A simple web adaptation, developed with [React](https://reactjs.org/), of the tile puzzle game known as both "Nikakudori" ("two-angle take") or "Shisen-Sho".
 
-> The project is in a very early state and is not meant for public use at this time.
+**It can be played [here!](https://ktpease.github.io/nikakudori)**
 
 This project utilizes the [Mahjong Tiles Unicode block](https://en.wikipedia.org/wiki/Mahjong_Tiles_(Unicode_block)) for displaying tiles, either building on the standard glyphs or with fonts supporting non-standard emoji variants (such as Microsoft's Segoe UI Emoji). It will not display correctly in earlier browsers and may not display correctly with certain fonts.
 
