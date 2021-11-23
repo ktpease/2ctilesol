@@ -21,6 +21,8 @@ export default class Game extends React.Component {
       hintedTiles: [],
       showMatchingTiles: true,
       allowDeselect: true,
+      horizontalTileMap: [],
+      verticalTileMap: [],
     };
   }
 
@@ -80,7 +82,7 @@ export default class Game extends React.Component {
     // a simple Fisher-Yates shuffle.
     let tileCharUsed = [...Array(34).keys()],
       randValue = 0;
-    
+
     // Chrome for Android has a bug where it'll not respect VS15/U+FE0E and
     // always render the Red Dragon tile as emoji. Until it is fixed, replace
     // the Red Dragon with the unused Joker tile.
@@ -137,14 +139,20 @@ export default class Game extends React.Component {
 
     console.log(`Game board seed is ${finalSeed}`);
 
-    this.setState({
-      tiles: tiles,
-      boardWidth: newWidth,
-      boardHeight: newHeight,
-      seed: finalSeed,
-      selectedTile: null,
-      hintedTiles: [],
-    });
+    this.setState(
+      {
+        tiles: tiles,
+        boardWidth: newWidth,
+        boardHeight: newHeight,
+        seed: finalSeed,
+        selectedTile: null,
+        hintedTiles: [],
+      },
+      () => {
+        this.generateHorizontalMap();
+        this.generateVerticalMap();
+      }
+    );
   }
 
   handleTileClick(tileId) {
@@ -201,19 +209,31 @@ export default class Game extends React.Component {
     this.setState({ selectedTile: tileId });
   }
 
-  renderHorizontalMap() {
+  generateHorizontalMap() {
     const tileMap = [];
 
     // Standard horizontal board. Used for landscape orientation.
     for (let y = 0; y < this.state.boardHeight; y++) {
+      tileMap[y] = this.state.tiles.slice(
+        (y + 1) * (this.state.boardWidth + 2) + 1,
+        (y + 2) * (this.state.boardWidth + 2) - 1
+      );
+    }
+
+    this.setState({ horizontalTileMap: tileMap });
+  }
+
+  renderHorizontalMap() {
+    const tileMap = [];
+
+    if (typeof this.state.horizontalTileMap === "undefined") {
+      return;
+    }
+
+    for (let y = 0; y < this.state.horizontalTileMap.length; y++) {
       tileMap[y] = (
         <div key={"board-hori-row" + y}>
-          {this.state.tiles
-            .slice(
-              (y + 1) * (this.state.boardWidth + 2) + 1,
-              (y + 2) * (this.state.boardWidth + 2) - 1
-            )
-            .map((i) => this.renderTile(i))}
+          {this.state.horizontalTileMap[y].map((i) => this.renderTile(i))}
         </div>
       );
     }
@@ -221,23 +241,34 @@ export default class Game extends React.Component {
     return tileMap;
   }
 
-  renderVerticalMap() {
+  generateVerticalMap() {
     const tileMap = [];
 
     // Rotated vertical board. Used for portrait orientation.
     for (let x = 0; x < this.state.boardWidth; x++) {
+      tileMap[x] = this.state.tiles
+        .slice(
+          this.state.boardWidth + 2,
+          (this.state.boardWidth + 2) * (this.state.boardHeight + 1)
+        )
+        .filter((_el, index) => index % (this.state.boardWidth + 2) === x + 1)
+        .reverse();
+    }
+
+    this.setState({ verticalTileMap: tileMap });
+  }
+
+  renderVerticalMap() {
+    const tileMap = [];
+
+    if (typeof this.state.verticalTileMap === "undefined") {
+      return;
+    }
+
+    for (let x = 0; x < this.state.verticalTileMap.length; x++) {
       tileMap[x] = (
         <div key={"board-vert-row" + x}>
-          {this.state.tiles
-            .slice(
-              this.state.boardWidth + 2,
-              (this.state.boardWidth + 2) * (this.state.boardHeight + 1)
-            )
-            .filter(
-              (_el, index) => index % (this.state.boardWidth + 2) === x + 1
-            )
-            .reverse()
-            .map((i) => this.renderTile(i))}
+          {this.state.verticalTileMap[x].map((i) => this.renderTile(i))}
         </div>
       );
     }
