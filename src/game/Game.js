@@ -26,7 +26,7 @@ export default class Game extends React.Component {
 
   componentDidMount() {
     this.checkEmojiMode();
-    this.generateBoard(null);
+    this.generateBoard();
   }
 
   checkEmojiMode() {
@@ -55,9 +55,12 @@ export default class Game extends React.Component {
     }
   }
 
-  generateBoard(seed) {
+  generateBoard(seed, width, height) {
     const tiles = [],
       allValidTiles = [];
+
+    const newWidth = width ? width : this.state.boardWidth,
+      newHeight = height ? height : this.state.boardHeight;
 
     let id = 0,
       char = -1,
@@ -98,15 +101,15 @@ export default class Game extends React.Component {
     }
 
     // Top outer edge.
-    for (let x = 0; x < this.state.boardWidth + 2; x++)
+    for (let x = 0; x < newWidth + 2; x++)
       id = tiles.push({ id: id, char: null });
 
     // Generate the initial unshuffled layout of tiles.
-    for (let y = 0; y < this.state.boardHeight; y++) {
+    for (let y = 0; y < newHeight; y++) {
       // Left outer edge.
       id = tiles.push({ id: id, char: null });
 
-      for (let x = 0; x < this.state.boardWidth; x++) {
+      for (let x = 0; x < newWidth; x++) {
         if ((chardupe = (chardupe + 1) % 4) === 0) {
           char = (char + 1) % tileCharUsed.length;
         }
@@ -120,7 +123,7 @@ export default class Game extends React.Component {
     }
 
     // Bottom outer edge.
-    for (let x = 0; x < this.state.boardWidth + 2; x++)
+    for (let x = 0; x < newWidth + 2; x++)
       id = tiles.push({ id: id, char: null });
 
     // Shuffle the board using a simple Fisher-Yates shuffle.
@@ -136,6 +139,8 @@ export default class Game extends React.Component {
 
     this.setState({
       tiles: tiles,
+      boardWidth: newWidth,
+      boardHeight: newHeight,
       seed: finalSeed,
       selectedTile: null,
       hintedTiles: [],
@@ -279,9 +284,19 @@ export default class Game extends React.Component {
             >
               Change tile type
             </button>
-            <button onClick={() => this.generateBoard()}>New board</button>
             <button onClick={() => this.generateBoard(this.state.seed)}>
               Reset board
+            </button>
+          </div>
+          <div>
+            <button onClick={() => this.generateBoard(null, 8, 5)}>
+              New board (easy)
+            </button>
+            <button onClick={() => this.generateBoard(null, 12, 7)}>
+              New board (medium)
+            </button>
+            <button onClick={() => this.generateBoard(null, 17, 8)}>
+              New board (hard)
             </button>
           </div>
           <div>Board #{this.state.seed}</div>
