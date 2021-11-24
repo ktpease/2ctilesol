@@ -1,19 +1,19 @@
 /**
- * Check the simplest (i.e. least amount of segments) nikakudori path between 
+ * Check the simplest (i.e. least amount of segments) nikakudori path between
  * two tiles on the provided game board.
- * 
- * This utilizes an iterative depth-first search approach, with special modifications 
+ *
+ * This utilizes an iterative depth-first search approach, with special modifications
  * to account for the limited amount of line segments.
- * 
+ *
  * @param {!number} firstTile The tile index to start from
  * @param {!number} secondTile The tile index to end up on
- * @param {!{{<id: number, char: number>}}[]} board The tiles 
- * themselves, which should be (1 + boardWidth + 1) * (1 + boardHeight + 1) 
+ * @param {!{{<id: number, char: number>}}[]} board The tiles
+ * themselves, which should be (1 + boardWidth + 1) * (1 + boardHeight + 1)
  * to account for the edges.
  * @param {!number} boardWidth Width of the board, excluding the edges.
  * @param {!number} boardHeight Height of the board, excluding the edges.
- * @returns {?{{<segment: number[], dir: string>}}[]} An array of line segments showing 
- * one of the simplest paths. Segments are list of tile indexes in order. 
+ * @returns {?{{<segment: number[], dir: string>}}[]} An array of line segments showing
+ * one of the simplest paths. Segments are list of tile indexes in order.
  * Dir can be "U", "D", "L", or "R".
  */
 export function checkSimplestPath(
@@ -129,12 +129,18 @@ export function checkSimplestPath(
         ) {
           if (secondTile < nextTile.id) {
             console.debug("- Add path U");
-            const newPath = path.slice();
+            const newPath = path.map((i) => ({
+              segment: [].concat(i.segment),
+              dir: i.dir,
+            }));
             newPath.push({ segment: [nextTile.id], dir: "U" });
             paths.push(newPath);
           } else if (secondTile > nextTile.id) {
             console.debug("- Add path D");
-            const newPath = path.slice();
+            const newPath = path.map((i) => ({
+              segment: [].concat(i.segment),
+              dir: i.dir,
+            }));
             newPath.push({ segment: [nextTile.id], dir: "D" });
             paths.push(newPath);
           }
@@ -195,12 +201,18 @@ export function checkSimplestPath(
         ) {
           if (secondTile < nextTile.id) {
             console.debug("- Add path U");
-            const newPath = path.slice();
+            const newPath = path.map((i) => ({
+              segment: [].concat(i.segment),
+              dir: i.dir,
+            }));
             newPath.push({ segment: [nextTile.id], dir: "U" });
             paths.push(newPath);
           } else if (secondTile > nextTile.id) {
             console.debug("- Add path D");
-            const newPath = path.slice();
+            const newPath = path.map((i) => ({
+              segment: [].concat(i.segment),
+              dir: i.dir,
+            }));
             newPath.push({ segment: [nextTile.id], dir: "D" });
             paths.push(newPath);
           }
@@ -264,7 +276,10 @@ export function checkSimplestPath(
             nextTile.id % boardWidthWithEdges
           ) {
             console.debug("- Add path L");
-            const newPath = path.slice();
+            const newPath = path.map((i) => ({
+              segment: [].concat(i.segment),
+              dir: i.dir,
+            }));
             newPath.push({ segment: [nextTile.id], dir: "L" });
             paths.push(newPath);
           } else if (
@@ -272,7 +287,10 @@ export function checkSimplestPath(
             nextTile.id % boardWidthWithEdges
           ) {
             console.debug("- Add path R");
-            const newPath = path.slice();
+            const newPath = path.map((i) => ({
+              segment: [].concat(i.segment),
+              dir: i.dir,
+            }));
             newPath.push({ segment: [nextTile.id], dir: "R" });
             paths.push(newPath);
           }
@@ -334,7 +352,10 @@ export function checkSimplestPath(
             nextTile.id % boardWidthWithEdges
           ) {
             console.debug("- Add path L");
-            const newPath = path.slice();
+            const newPath = path.map((i) => ({
+              segment: [].concat(i.segment),
+              dir: i.dir,
+            }));
             newPath.push({ segment: [nextTile.id], dir: "L" });
             paths.push(newPath);
           } else if (
@@ -342,7 +363,10 @@ export function checkSimplestPath(
             nextTile.id % boardWidthWithEdges
           ) {
             console.debug("- Add path R");
-            const newPath = path.slice();
+            const newPath = path.map((i) => ({
+              segment: [].concat(i.segment),
+              dir: i.dir,
+            }));
             newPath.push({ segment: [nextTile.id], dir: "R" });
             paths.push(newPath);
           }
