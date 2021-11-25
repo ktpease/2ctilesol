@@ -50,15 +50,18 @@ export function checkSimplestPath(
   }
 
   if (tileYdelta !== 0 || tileXdelta < 0) {
-    paths.push([{ segment: [firstTile], dir: "L" }]);
+    if (tileXdelta < 0) paths.push([{ segment: [firstTile], dir: "L" }]);
+    else paths.unshift([{ segment: [firstTile], dir: "L" }]);
   }
 
   if (tileXdelta !== 0 || tileYdelta > 0) {
-    paths.push([{ segment: [firstTile], dir: "D" }]);
+    if (tileYdelta >= 0) paths.push([{ segment: [firstTile], dir: "D" }]);
+    else paths.unshift([{ segment: [firstTile], dir: "D" }]);
   }
 
   if (tileXdelta !== 0 || tileYdelta < 0) {
-    paths.push([{ segment: [firstTile], dir: "U" }]);
+    if (tileYdelta < 0) paths.push([{ segment: [firstTile], dir: "U" }]);
+    else paths.push([{ segment: [firstTile], dir: "U" }]);
   }
 
   for (let i = 0; i < paths.length; i++) {
@@ -134,7 +137,8 @@ export function checkSimplestPath(
               dir: i.dir,
             }));
             newPath.push({ segment: [nextTile.id], dir: "U" });
-            paths.push(newPath);
+            if (tileYdelta < 0) paths.push(newPath);
+            else paths.unshift(newPath);
           } else if (secondTile > nextTile.id) {
             console.debug("- Add path D");
             const newPath = path.map((i) => ({
@@ -142,7 +146,8 @@ export function checkSimplestPath(
               dir: i.dir,
             }));
             newPath.push({ segment: [nextTile.id], dir: "D" });
-            paths.push(newPath);
+            if (tileYdelta >= 0) paths.push(newPath);
+            else paths.unshift(newPath);
           }
         }
 
@@ -157,7 +162,8 @@ export function checkSimplestPath(
         }
 
         console.debug("- Continuing path");
-        paths.push(path);
+        if (tileXdelta >= 0) paths.push(path);
+        else paths.unshift(path);
         continue;
       case "L":
         nextTile = board[lastTile - 1];
@@ -206,7 +212,8 @@ export function checkSimplestPath(
               dir: i.dir,
             }));
             newPath.push({ segment: [nextTile.id], dir: "U" });
-            paths.push(newPath);
+            if (tileYdelta < 0) paths.push(newPath);
+            else paths.unshift(newPath);
           } else if (secondTile > nextTile.id) {
             console.debug("- Add path D");
             const newPath = path.map((i) => ({
@@ -214,7 +221,8 @@ export function checkSimplestPath(
               dir: i.dir,
             }));
             newPath.push({ segment: [nextTile.id], dir: "D" });
-            paths.push(newPath);
+            if (tileYdelta >= 0) paths.push(newPath);
+            else paths.unshift(newPath);
           }
         }
 
@@ -229,7 +237,8 @@ export function checkSimplestPath(
         }
 
         console.debug("- Continuing path");
-        paths.push(path);
+        if (tileXdelta < 0) paths.push(path);
+        else paths.unshift(path);
         continue;
       case "D":
         nextTile = board[lastTile + boardWidthWithEdges];
@@ -281,7 +290,8 @@ export function checkSimplestPath(
               dir: i.dir,
             }));
             newPath.push({ segment: [nextTile.id], dir: "L" });
-            paths.push(newPath);
+            if (tileXdelta < 0) paths.push(newPath);
+            else paths.unshift(newPath);
           } else if (
             secondTile % boardWidthWithEdges >
             nextTile.id % boardWidthWithEdges
@@ -292,7 +302,8 @@ export function checkSimplestPath(
               dir: i.dir,
             }));
             newPath.push({ segment: [nextTile.id], dir: "R" });
-            paths.push(newPath);
+            if (tileXdelta >= 0) paths.push(newPath);
+            else paths.unshift(newPath);
           }
         }
 
@@ -305,7 +316,8 @@ export function checkSimplestPath(
         }
 
         console.debug("- Continuing path");
-        paths.push(path);
+        if (tileYdelta >= 0) paths.push(path);
+        else paths.unshift(path);
         continue;
       case "U":
         nextTile = board[lastTile - boardWidthWithEdges];
@@ -357,7 +369,8 @@ export function checkSimplestPath(
               dir: i.dir,
             }));
             newPath.push({ segment: [nextTile.id], dir: "L" });
-            paths.push(newPath);
+            if (tileXdelta < 0) paths.push(newPath);
+            else paths.unshift(newPath);
           } else if (
             secondTile % boardWidthWithEdges >
             nextTile.id % boardWidthWithEdges
@@ -368,7 +381,8 @@ export function checkSimplestPath(
               dir: i.dir,
             }));
             newPath.push({ segment: [nextTile.id], dir: "R" });
-            paths.push(newPath);
+            if (tileXdelta >= 0) paths.push(newPath);
+            else paths.unshift(newPath);
           }
         }
 
@@ -381,7 +395,8 @@ export function checkSimplestPath(
         }
 
         console.debug("- Continuing path");
-        paths.push(path);
+        if (tileYdelta < 0) paths.push(path);
+        else paths.unshift(path);
         continue;
       default:
         break;
