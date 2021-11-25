@@ -103,7 +103,6 @@
   color: white;
   position: absolute;
   z-index: -1;
-  text-shadow: none;
   font-weight: bolder;
   text-shadow: 0.1em 0.1em 0 grey;
 }
@@ -212,4 +211,45 @@
 
 .game-tile-pointer {
   cursor: pointer;
+}
+
+.game-tile-path:before {
+  color: gold;
+  visibility: visible;
+  text-shadow: none;
+  position: absolute;
+  overflow: hidden;
+}
+
+.game-tile-path:hover:before {
+  text-shadow: none;
+  color: gold;
+}
+
+.game-tile-path-L:before, .game-tile-path-R:before {
+  content: "\2501";
+}
+
+.game-tile-path-U:before, .game-tile-path-D:before {
+  content: "\2503";
+}
+
+.game-tile-path-UR:before,
+.game-tile-path-LD:before {
+  content: "\250F";
+}
+
+.game-tile-path-UL:before,
+.game-tile-path-RD:before {
+  content: "\2513";
+}
+
+.game-tile-path-DR:before,
+.game-tile-path-LU:before {
+  content: "\2517";
+}
+
+.game-tile-path-DL:before,
+.game-tile-path-RU:before {
+  content: "\251B";
 }

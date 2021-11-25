@@ -19,6 +19,7 @@ export default class Game extends React.Component {
       tiles: [],
       selectedTile: null,
       hintedTiles: [],
+      pathingTiles: [],
       showMatchingTiles: true,
       allowDeselect: true,
       horizontalTileMap: [],
@@ -147,6 +148,7 @@ export default class Game extends React.Component {
         seed: finalSeed,
         selectedTile: null,
         hintedTiles: [],
+        pathingTiles: []
       },
       () => {
         this.generateHorizontalMap();
@@ -191,7 +193,21 @@ export default class Game extends React.Component {
         newTiles[tileId].char = null;
         newTiles[this.state.selectedTile].char = null;
 
-        this.setState({ tiles: newTiles, selectedTile: null, hintedTiles: [] });
+        //newTiles.forEach((tile) => (tile.pathnode = []));
+        const pathingTiles = this.state.tiles.map(() => []);
+
+        path.forEach((line) => {
+          line.segment.forEach((node) => {
+            pathingTiles[node].push(line.dir);
+          });
+        });
+
+        this.setState({
+          tiles: newTiles,
+          selectedTile: null,
+          hintedTiles: [],
+          pathingTiles: pathingTiles,
+        });
         return;
       }
     }
@@ -213,10 +229,10 @@ export default class Game extends React.Component {
     const tileMap = [];
 
     // Standard horizontal board. Used for landscape orientation.
-    for (let y = 0; y < this.state.boardHeight; y++) {
+    for (let y = 0; y < this.state.boardHeight + 2; y++) {
       tileMap[y] = this.state.tiles.slice(
-        (y + 1) * (this.state.boardWidth + 2) + 1,
-        (y + 2) * (this.state.boardWidth + 2) - 1
+        y * (this.state.boardWidth + 2),
+        (y + 1) * (this.state.boardWidth + 2)
       );
     }
 
@@ -245,13 +261,9 @@ export default class Game extends React.Component {
     const tileMap = [];
 
     // Rotated vertical board. Used for portrait orientation.
-    for (let x = 0; x < this.state.boardWidth; x++) {
+    for (let x = 0; x < this.state.boardWidth + 2; x++) {
       tileMap[x] = this.state.tiles
-        .slice(
-          this.state.boardWidth + 2,
-          (this.state.boardWidth + 2) * (this.state.boardHeight + 1)
-        )
-        .filter((_el, index) => index % (this.state.boardWidth + 2) === x + 1)
+        .filter((_el, index) => index % (this.state.boardWidth + 2) === x)
         .reverse();
     }
 
@@ -284,6 +296,7 @@ export default class Game extends React.Component {
         glyph={!this.state.useEmoji}
         selected={tileobj.id === this.state.selectedTile}
         hinted={this.state.hintedTiles.includes(tileobj)}
+        pathnode={this.state.pathingTiles[tileobj.id]}
         onClick={() => this.handleTileClick(tileobj.id)}
       />
     );

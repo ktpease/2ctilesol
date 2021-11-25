@@ -3,12 +3,30 @@ export default function Tile(props) {
   const tileNum = parseInt(props.tile, 10);
 
   // Check if tile is valid.
-  if (isNaN(tileNum) || tileNum < 0 || tileNum >= 43)
+  if (isNaN(tileNum) || tileNum < 0 || tileNum >= 43) {
+    let pathnodeClass = "";
+
+    if (props.pathnode) {
+      props.pathnode.forEach((dir, index) => {
+        if (index === 0)
+          pathnodeClass = pathnodeClass.concat(
+            "game-tile-path game-tile-path-",
+            dir
+          );
+        else pathnodeClass = pathnodeClass.concat(dir);
+      });
+    }
+
     return props.glyph ? (
-      <span className="game-tile-glyph game-tile-empty">&#x1F02B;&#xFE0E;</span>
+      <span className={`game-tile-glyph game-tile-empty ${pathnodeClass}`}>
+        &#x1F02B;&#xFE0E;
+      </span>
     ) : (
-      <span className="game-tile-emoji game-tile-empty">&#x1F02B;</span>
+      <span className={`game-tile-emoji game-tile-empty ${pathnodeClass}`}>
+        &#x1F02B;
+      </span>
     );
+  }
 
   let tileStatusClass = "";
 
