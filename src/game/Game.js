@@ -105,12 +105,12 @@ export default class Game extends React.Component {
 
     // Top outer edge.
     for (let x = 0; x < newWidth + 2; x++)
-      id = tiles.push({ id: id, char: null });
+      id = tiles.push({ id: id, char: null, inRemovalAnim: false });
 
     // Generate the initial unshuffled layout of tiles.
     for (let y = 0; y < newHeight; y++) {
       // Left outer edge.
-      id = tiles.push({ id: id, char: null });
+      id = tiles.push({ id: id, char: null, inRemovalAnim: false });
 
       for (let x = 0; x < newWidth; x++) {
         if ((chardupe = (chardupe + 1) % 4) === 0) {
@@ -118,16 +118,20 @@ export default class Game extends React.Component {
         }
 
         allValidTiles.push(id);
-        id = tiles.push({ id: id, char: tileCharUsed[char] });
+        id = tiles.push({
+          id: id,
+          char: tileCharUsed[char],
+          inRemovalAnim: false,
+        });
       }
 
       // Right outer edge.
-      id = tiles.push({ id: id, char: null });
+      id = tiles.push({ id: id, char: null, inRemovalAnim: false });
     }
 
     // Bottom outer edge.
     for (let x = 0; x < newWidth + 2; x++)
-      id = tiles.push({ id: id, char: null });
+      id = tiles.push({ id: id, char: null, inRemovalAnim: false });
 
     // Shuffle the board using a simple Fisher-Yates shuffle.
     for (let i = allValidTiles.length - 1; i > 0; i--) {
@@ -148,7 +152,7 @@ export default class Game extends React.Component {
         seed: finalSeed,
         selectedTile: null,
         hintedTiles: [],
-        pathingTiles: []
+        pathingTiles: [],
       },
       () => {
         this.generateHorizontalMap();
@@ -158,6 +162,14 @@ export default class Game extends React.Component {
   }
 
   handleTileClick(tileId) {
+    // Don't click empty or tiles being removed.
+    if (
+      this.state.tiles[tileId].char === null ||
+      this.state.tiles[tileId].inRemovalAnim === true
+    ) {
+      return;
+    }
+
     // Clicking the same tile either de-selects the tile or does nothing.
     if (this.state.selectedTile === tileId) {
       if (this.state.allowDeselect === true) {
@@ -188,12 +200,21 @@ export default class Game extends React.Component {
       if (path !== null) {
         console.debug(path);
 
+        // Create an updated board, first by removing the tiles in its
+        // fadeout animation, then putting the match in that same animation.
         const newTiles = this.state.tiles.slice();
 
-        newTiles[tileId].char = null;
-        newTiles[this.state.selectedTile].char = null;
+        newTiles.forEach((tile) => {
+          if (tile.inRemovalAnim === true) {
+            tile.inRemovalAnim = false;
+            tile.char = null;
+          }
+        });
 
-        //newTiles.forEach((tile) => (tile.pathnode = []));
+        newTiles[tileId].inRemovalAnim = true;
+        newTiles[this.state.selectedTile].inRemovalAnim = true;
+
+        // Generate the pathing tiles for display.
         const pathingTiles = this.state.tiles.map(() => []);
 
         path.forEach((line) => {
@@ -295,7 +316,10 @@ export default class Game extends React.Component {
         key={tileobj.id}
         glyph={!this.state.useEmoji}
         selected={tileobj.id === this.state.selectedTile}
-        hinted={this.state.hintedTiles.includes(tileobj)}
+        hinted={
+          this.state.hintedTiles.includes(tileobj) && !tileobj.inRemovalAnim
+        }
+        fade={tileobj.inRemovalAnim}
         pathnode={this.state.pathingTiles[tileobj.id]}
         onClick={() => this.handleTileClick(tileobj.id)}
       />

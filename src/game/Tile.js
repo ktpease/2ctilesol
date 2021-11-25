@@ -53,7 +53,7 @@ export default function Tile(props) {
       <span
         className={`game-tile-glyph ${tileColorClass} ${tileStatusClass} ${
           props.pointer ? "game-tile-pointer" : ""
-        }`}
+        } ${props.fade ? "game-tile-anim-fadeout" : ""}`}
         onClick={props.onClick}
       >
         {String.fromCodePoint(0x1f000 + tileNum)}&#xFE0E;
@@ -64,7 +64,7 @@ export default function Tile(props) {
       <span
         className={`game-tile-emoji ${tileStatusClass} ${
           props.pointer ? "game-tile-pointer" : ""
-        }`}
+        } ${props.fade ? "game-tile-anim-fadeout" : ""}`}
         onClick={props.onClick}
       >
         {String.fromCodePoint(0x1f000 + tileNum)}

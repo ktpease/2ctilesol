@@ -112,7 +112,7 @@ export function checkSimplestPath(
         }
 
         // Obstruction in the path. Skip.
-        if (nextTile.char !== null) {
+        if (nextTile.char !== null && nextTile.inRemovalAnim !== true) {
           console.debug("- Obstruction in path");
           continue;
         }
@@ -187,7 +187,7 @@ export function checkSimplestPath(
         }
 
         // Obstruction in the path. Skip.
-        if (nextTile.char !== null) {
+        if (nextTile.char !== null && nextTile.inRemovalAnim !== true) {
           console.debug("- Obstruction in path");
           continue;
         }
@@ -262,7 +262,7 @@ export function checkSimplestPath(
         }
 
         // Obstruction in the path. Skip.
-        if (nextTile.char !== null) {
+        if (nextTile.char !== null && nextTile.inRemovalAnim !== true) {
           console.debug("- Obstruction in path");
           continue;
         }
@@ -341,7 +341,7 @@ export function checkSimplestPath(
         }
 
         // Obstruction in the path. Skip.
-        if (nextTile.char !== null) {
+        if (nextTile.char !== null && nextTile.inRemovalAnim !== true) {
           console.debug("- Obstruction in path");
           continue;
         }
