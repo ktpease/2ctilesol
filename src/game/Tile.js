@@ -5,19 +5,9 @@ export default function Tile(props) {
   // Check if tile is valid.
   if (isNaN(tileNum) || tileNum < 0 || tileNum >= 43) {
     return props.glyph ? (
-      <>
-        <span className="game-tile-glyph game-tile-empty">
-          &#x1F02B;&#xFE0E;
-        </span>
-        {generatePathNode(props.pathnode)}
-        {generatePathNode(props.pathnodealt)}
-      </>
+      <span className="game-tile-glyph game-tile-empty">&#x1F02B;&#xFE0E;</span>
     ) : (
-      <>
-        <span className="game-tile-emoji game-tile-empty">&#x1F02B;</span>
-        {generatePathNode(props.pathnode)}
-        {generatePathNode(props.pathnodealt)}
-      </>
+      <span className="game-tile-emoji game-tile-empty">&#x1F02B;</span>
     );
   }
 
@@ -43,49 +33,25 @@ export default function Tile(props) {
     }
 
     return (
-      <>
-        <span
-          className={`game-tile-glyph ${tileColorClass} ${tileStatusClass} ${
-            props.pointer ? "game-tile-pointer" : ""
-          } ${props.fade ? "game-tile-anim-fadeout" : ""}`}
-          onClick={props.onClick}
-        >
-          {String.fromCodePoint(0x1f000 + tileNum)}&#xFE0E;
-        </span>
-        {generatePathNode(props.pathnode)}
-        {generatePathNode(props.pathnodealt)}
-      </>
+      <span
+        className={`game-tile-glyph ${tileColorClass} ${tileStatusClass} ${
+          props.pointer ? "game-tile-pointer" : ""
+        } ${props.fade ? "game-tile-anim-fadeout" : ""}`}
+        onClick={props.onClick}
+      >
+        {String.fromCodePoint(0x1f000 + tileNum)}&#xFE0E;
+      </span>
     );
   } else {
     return (
-      <>
-        <span
-          className={`game-tile-emoji ${tileStatusClass} ${
-            props.pointer ? "game-tile-pointer" : ""
-          } ${props.fade ? "game-tile-anim-fadeout" : ""}`}
-          onClick={props.onClick}
-        >
-          {String.fromCodePoint(0x1f000 + tileNum)}
-        </span>
-        {generatePathNode(props.pathnode)}
-        {generatePathNode(props.pathnodealt)}
-      </>
-    );
-  }
-}
-
-function generatePathNode(pathnode) {
-  // See if we need to draw the path node.
-  if (pathnode && pathnode.length > 0) {
-    let pathnodeClass = "";
-
-    pathnode.forEach((dir, index) => {
-      if (index === 0) pathnodeClass = "game-path-";
-      pathnodeClass = pathnodeClass.concat(dir);
-    });
-
-    return (
-      <span className={`game-path ${pathnodeClass} game-path-anim-fadeout`} />
+      <span
+        className={`game-tile-emoji ${tileStatusClass} ${
+          props.pointer ? "game-tile-pointer" : ""
+        } ${props.fade ? "game-tile-anim-fadeout" : ""}`}
+        onClick={props.onClick}
+      >
+        {String.fromCodePoint(0x1f000 + tileNum)}
+      </span>
     );
   }
 }

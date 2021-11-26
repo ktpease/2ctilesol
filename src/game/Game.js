@@ -4,6 +4,7 @@ import seedrandom from "seedrandom";
 import { checkSimplestPath } from "./PathLogic.js";
 
 import Tile from "./Tile.js";
+import PathNode from "./PathNode.js";
 
 import "./Game.css";
 
@@ -332,19 +333,27 @@ export default class Game extends React.Component {
 
   renderTile(tileobj) {
     return (
-      <Tile
-        tile={tileobj.char}
-        key={tileobj.id}
-        glyph={!this.state.useEmoji}
-        selected={tileobj.id === this.state.selectedTile}
-        hinted={
-          this.state.hintedTiles.includes(tileobj) && !tileobj.inRemovalAnim
-        }
-        fade={tileobj.inRemovalAnim}
-        pathnode={this.state.pathingTiles[tileobj.id]}
-        pathnodealt={this.state.pathingTilesAlt[tileobj.id]}
-        onClick={() => this.handleTileClick(tileobj.id)}
-      />
+      <>
+        <Tile
+          tile={tileobj.char}
+          key={tileobj.id}
+          glyph={!this.state.useEmoji}
+          selected={tileobj.id === this.state.selectedTile}
+          hinted={
+            this.state.hintedTiles.includes(tileobj) && !tileobj.inRemovalAnim
+          }
+          fade={tileobj.inRemovalAnim}
+          onClick={() => this.handleTileClick(tileobj.id)}
+        />
+        <PathNode
+          key={"node" + tileobj.id}
+          node={this.state.pathingTiles[tileobj.id]}
+        />
+        <PathNode
+          key={"altnode" + tileobj.id}
+          node={this.state.pathingTilesAlt[tileobj.id]}
+        />
+      </>
     );
   }
 
