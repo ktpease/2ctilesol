@@ -101,7 +101,7 @@
 
 .game-tile-glyph:before {
   content: "\1F02B\FE0E";
-  position: absolute;
+  position: fixed;
   z-index: -1;
   font-weight: bolder;
 }
@@ -231,7 +231,7 @@
   color: gold;
   visibility: visible;
   text-shadow: none;
-  position: absolute;
+  position: fixed;
   overflow: hidden;
   transform: translateX(-100%);
   animation: none;
