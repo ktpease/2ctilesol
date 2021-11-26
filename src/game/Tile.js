@@ -2,21 +2,22 @@ export default function Tile(props) {
   // Number between 0-42, corresponding to the Mahjong Tiles Unicode block.
   const tileNum = parseInt(props.tile, 10);
 
+  // See if we need to draw the path node.
+  let pathnodeClass = "";
+
+  if (props.pathnode) {
+    props.pathnode.forEach((dir, index) => {
+      if (index === 0)
+        pathnodeClass = pathnodeClass.concat(
+          "game-tile-path game-tile-path-",
+          dir
+        );
+      else pathnodeClass = pathnodeClass.concat(dir);
+    });
+  }
+
   // Check if tile is valid.
   if (isNaN(tileNum) || tileNum < 0 || tileNum >= 43) {
-    let pathnodeClass = "";
-
-    if (props.pathnode) {
-      props.pathnode.forEach((dir, index) => {
-        if (index === 0)
-          pathnodeClass = pathnodeClass.concat(
-            "game-tile-path game-tile-path-",
-            dir
-          );
-        else pathnodeClass = pathnodeClass.concat(dir);
-      });
-    }
-
     return props.glyph ? (
       <span className={`game-tile-glyph game-tile-empty ${pathnodeClass}`}>
         &#x1F02B;&#xFE0E;
@@ -51,7 +52,7 @@ export default function Tile(props) {
 
     return (
       <span
-        className={`game-tile-glyph ${tileColorClass} ${tileStatusClass} ${
+        className={`game-tile-glyph ${tileColorClass} ${tileStatusClass} ${pathnodeClass} ${
           props.pointer ? "game-tile-pointer" : ""
         } ${props.fade ? "game-tile-anim-fadeout" : ""}`}
         onClick={props.onClick}
@@ -62,7 +63,7 @@ export default function Tile(props) {
   } else {
     return (
       <span
-        className={`game-tile-emoji ${tileStatusClass} ${
+        className={`game-tile-emoji ${tileStatusClass} ${pathnodeClass} ${
           props.pointer ? "game-tile-pointer" : ""
         } ${props.fade ? "game-tile-anim-fadeout" : ""}`}
         onClick={props.onClick}

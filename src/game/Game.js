@@ -223,6 +223,9 @@ export default class Game extends React.Component {
           });
         });
 
+        pathingTiles[this.state.selectedTile].push("-start");
+        pathingTiles[tileId].push("-end");
+
         this.setState({
           tiles: newTiles,
           selectedTile: null,
