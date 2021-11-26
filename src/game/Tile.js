@@ -10,11 +10,13 @@ export default function Tile(props) {
           &#x1F02B;&#xFE0E;
         </span>
         {generatePathNode(props.pathnode)}
+        {generatePathNode(props.pathnodealt)}
       </>
     ) : (
       <>
         <span className="game-tile-emoji game-tile-empty">&#x1F02B;</span>
         {generatePathNode(props.pathnode)}
+        {generatePathNode(props.pathnodealt)}
       </>
     );
   }
@@ -51,6 +53,7 @@ export default function Tile(props) {
           {String.fromCodePoint(0x1f000 + tileNum)}&#xFE0E;
         </span>
         {generatePathNode(props.pathnode)}
+        {generatePathNode(props.pathnodealt)}
       </>
     );
   } else {
@@ -65,6 +68,7 @@ export default function Tile(props) {
           {String.fromCodePoint(0x1f000 + tileNum)}
         </span>
         {generatePathNode(props.pathnode)}
+        {generatePathNode(props.pathnodealt)}
       </>
     );
   }

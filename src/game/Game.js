@@ -20,6 +20,8 @@ export default class Game extends React.Component {
       selectedTile: null,
       hintedTiles: [],
       pathingTiles: [],
+      pathingTilesAlt: [],
+      useAltPathingTiles: false,
       showMatchingTiles: true,
       allowDeselect: true,
       horizontalTileMap: [],
@@ -153,6 +155,7 @@ export default class Game extends React.Component {
         selectedTile: null,
         hintedTiles: [],
         pathingTiles: [],
+        pathingTilesAlt: [],
       },
       () => {
         this.generateHorizontalMap();
@@ -230,8 +233,23 @@ export default class Game extends React.Component {
           tiles: newTiles,
           selectedTile: null,
           hintedTiles: [],
-          pathingTiles: pathingTiles,
         });
+
+        // Switch between primary and alternate pathing maps. This is used
+        // as a makeshift solution to consecutive matches using the same tile
+        // path, as the CSS animation doesn't get reset.
+        if (this.state.useAltPathingTiles === true)
+          this.setState({
+            pathingTiles: this.state.tiles.map(() => []),
+            pathingTilesAlt: pathingTiles,
+            useAltPathingTiles: false,
+          });
+        else
+          this.setState({
+            pathingTiles: pathingTiles,
+            pathingTilesAlt: this.state.tiles.map(() => []),
+            useAltPathingTiles: true,
+          });
         return;
       }
     }
@@ -324,6 +342,7 @@ export default class Game extends React.Component {
         }
         fade={tileobj.inRemovalAnim}
         pathnode={this.state.pathingTiles[tileobj.id]}
+        pathnodealt={this.state.pathingTilesAlt[tileobj.id]}
         onClick={() => this.handleTileClick(tileobj.id)}
       />
     );
