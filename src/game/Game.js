@@ -13,18 +13,26 @@ export default class Game extends React.Component {
     super(props);
 
     this.state = {
+      // Options
       useEmoji: false,
+      allowDeselect: true,
+      showMatchingTiles: true,
+      // Board Generation Options
       boardWidth: 17,
       boardHeight: 8,
       seed: 1,
+      // Tile State
       tiles: [],
       selectedTile: null,
+      // Tile History
+      tileHistory: [],
+      // Tile Hinting Map
       hintedTiles: [],
+      // Pathing Maps
       pathingTiles: [],
       pathingTilesAlt: [],
       useAltPathingTiles: false,
-      showMatchingTiles: true,
-      allowDeselect: true,
+      // Tile Display Maps
       horizontalTileMap: [],
       verticalTileMap: [],
     };
@@ -154,6 +162,7 @@ export default class Game extends React.Component {
         boardHeight: newHeight,
         seed: finalSeed,
         selectedTile: null,
+        tileHistory: [],
         hintedTiles: [],
         pathingTiles: [],
         pathingTilesAlt: [],
@@ -218,6 +227,14 @@ export default class Game extends React.Component {
         newTiles[tileId].inRemovalAnim = true;
         newTiles[this.state.selectedTile].inRemovalAnim = true;
 
+        const tileHistory = this.state.tileHistory.slice();
+
+        tileHistory.push({
+          char: this.state.tiles[tileId].char,
+          tile1: tileId,
+          tile2: this.state.selectedTile,
+        });
+
         // Generate the pathing tiles for display.
         const pathingTiles = this.state.tiles.map(() => []);
 
@@ -233,6 +250,7 @@ export default class Game extends React.Component {
         this.setState({
           tiles: newTiles,
           selectedTile: null,
+          tileHistory: tileHistory,
           hintedTiles: [],
         });
 
@@ -266,6 +284,27 @@ export default class Game extends React.Component {
     }
 
     this.setState({ selectedTile: tileId });
+  }
+
+  undoMatch() {
+    if (this.state.tileHistory.length > 0) {
+      const newTiles = this.state.tiles.slice();
+      const lastMatch = this.state.tileHistory.pop();
+
+      newTiles[lastMatch.tile1].char = lastMatch.char;
+      newTiles[lastMatch.tile1].inRemovalAnim = false;
+
+      newTiles[lastMatch.tile2].char = lastMatch.char;
+      newTiles[lastMatch.tile2].inRemovalAnim = false;
+
+      this.setState({
+        tiles: newTiles,
+        hintedTiles: [],
+        pathingTiles: [],
+        pathingTilesAlt: [],
+        selectedTile: null,
+      });
+    }
   }
 
   generateHorizontalMap() {
@@ -386,6 +425,7 @@ export default class Game extends React.Component {
             <button onClick={() => this.generateBoard(this.state.seed)}>
               Reset board
             </button>
+            <button onClick={() => this.undoMatch()} disabled={this.state.tileHistory.length === 0}>Undo</button>
           </div>
           <div>
             <button onClick={() => this.generateBoard(null, 8, 5)}>
