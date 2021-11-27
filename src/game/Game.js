@@ -1,7 +1,7 @@
 import React from "react";
 import seedrandom from "seedrandom";
 
-import { checkSimplestPath } from "./PathLogic.js";
+import { checkSimplestPath, checkAllPossibleMatches } from "./PathLogic.js";
 
 import Tile from "./Tile.js";
 import PathNode from "./PathNode.js";
@@ -17,6 +17,7 @@ export default class Game extends React.Component {
       useEmoji: false,
       allowDeselect: true,
       showMatchingTiles: true,
+      showAllValidMatches: true,
       // Board Generation Options
       boardWidth: 17,
       boardHeight: 8,
@@ -26,8 +27,10 @@ export default class Game extends React.Component {
       selectedTile: null,
       // Tile History
       tileHistory: [],
-      // Tile Hinting Map
+      // Tile Hinting
       hintedTiles: [],
+      allValidMatches: [],
+      allValidMatchTiles: [],
       // Pathing Maps
       pathingTiles: [],
       pathingTilesAlt: [],
@@ -164,12 +167,53 @@ export default class Game extends React.Component {
         selectedTile: null,
         tileHistory: [],
         hintedTiles: [],
+        allValidMatches: [],
         pathingTiles: [],
         pathingTilesAlt: [],
       },
       () => {
         this.generateHorizontalMap();
         this.generateVerticalMap();
+
+        this.checkAllValidMatches();
+      }
+    );
+  }
+
+  checkAllValidMatches() {
+    this.setState(
+      {
+        allValidMatches: checkAllPossibleMatches(
+          this.state.tiles,
+          this.state.boardWidth,
+          this.state.boardHeight
+        ),
+      },
+      () => {
+        this.setState({
+          allValidMatchTiles: [...new Set(this.state.allValidMatches.flat())],
+        });
+        if (this.state.showAllValidMatches === true) {
+          console.log(
+            this.state.allValidMatches.reduce(
+              (a, b) =>
+                a.concat(
+                  `[${(b[0] % (this.state.boardWidth + 2)) - 1},${
+                    (b[0] -
+                      (b[0] % (this.state.boardWidth + 2)) -
+                      (this.state.boardWidth + 2)) /
+                    (this.state.boardWidth + 2)
+                  } <-> ${(b[1] % (this.state.boardWidth + 2)) - 1},${
+                    (b[1] -
+                      (b[1] % (this.state.boardWidth + 2)) -
+                      (this.state.boardWidth + 2)) /
+                    (this.state.boardWidth + 2)
+                  }] `
+                ),
+              ""
+            )
+          );
+        }
       }
     );
   }
@@ -247,12 +291,17 @@ export default class Game extends React.Component {
         pathingTiles[this.state.selectedTile].push("-start");
         pathingTiles[tileId].push("-end");
 
-        this.setState({
-          tiles: newTiles,
-          selectedTile: null,
-          tileHistory: tileHistory,
-          hintedTiles: [],
-        });
+        this.setState(
+          {
+            tiles: newTiles,
+            selectedTile: null,
+            tileHistory: tileHistory,
+            hintedTiles: [],
+          },
+          () => {
+            this.checkAllValidMatches();
+          }
+        );
 
         // Switch between primary and alternate pathing maps. This is used
         // as a makeshift solution to consecutive matches using the same tile
@@ -297,13 +346,18 @@ export default class Game extends React.Component {
       newTiles[lastMatch.tile2].char = lastMatch.char;
       newTiles[lastMatch.tile2].inRemovalAnim = false;
 
-      this.setState({
-        tiles: newTiles,
-        hintedTiles: [],
-        pathingTiles: [],
-        pathingTilesAlt: [],
-        selectedTile: null,
-      });
+      this.setState(
+        {
+          tiles: newTiles,
+          hintedTiles: [],
+          pathingTiles: [],
+          pathingTilesAlt: [],
+          selectedTile: null,
+        },
+        () => {
+          this.checkAllValidMatches();
+        }
+      );
     }
   }
 
@@ -381,6 +435,7 @@ export default class Game extends React.Component {
           hinted={
             this.state.hintedTiles.includes(tileobj) && !tileobj.inRemovalAnim
           }
+          highlighted={this.state.allValidMatchTiles.includes(tileobj.id)}
           fade={tileobj.inRemovalAnim}
           onClick={() => this.handleTileClick(tileobj.id)}
         />
@@ -425,7 +480,12 @@ export default class Game extends React.Component {
             <button onClick={() => this.generateBoard(this.state.seed)}>
               Reset board
             </button>
-            <button onClick={() => this.undoMatch()} disabled={this.state.tileHistory.length === 0}>Undo</button>
+            <button
+              onClick={() => this.undoMatch()}
+              disabled={this.state.tileHistory.length === 0}
+            >
+              Undo
+            </button>
           </div>
           <div>
             <button onClick={() => this.generateBoard(null, 8, 5)}>

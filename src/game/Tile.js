@@ -14,6 +14,7 @@ export default function Tile(props) {
   let tileStatusClass = "";
 
   if (props.selected) tileStatusClass = "game-tile-selected";
+  else if (props.highlighted) tileStatusClass = "game-tile-highlighted";
   else if (props.hinted) tileStatusClass = "game-tile-hinted";
 
   if (props.glyph) {
