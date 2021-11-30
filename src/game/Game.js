@@ -60,14 +60,22 @@ export default class Game extends React.Component {
     // please make sure they're front-facing (looking at you, Noto Emoji).
 
     // If we don't care that it breaks previous Windows versions, we can just
-    // use the is-windows package. But for compatibility, we'll just check the
-    // browser's user agent string.
-    //
-    // Conveniently, Windows 10 and up have double-digit version numbers!
-    if (
+    // use the is-windows package. But for compatibility, we'll just use the UA-CH
+    // API.
+    if (navigator.userAgentData)
+      navigator.userAgentData
+        .getHighEntropyValues(["platform", "platformVersion"])
+        .then((ua) => {
+          if (ua.platform === "Windows" && parseInt(ua.platformVersion) >= 10) {
+            console.log("Windows 10+ detected, using emoji tiles.");
+            this.setState({ useEmoji: true });
+          }
+        });
+    else if (
       window.navigator &&
       /Windows NT \d{2}/.test(window.navigator.userAgent)
     ) {
+      console.log("Windows 10+ detected, using emoji tiles.");
       this.setState({ useEmoji: true });
     }
   }
@@ -102,9 +110,13 @@ export default class Game extends React.Component {
     // always render the Red Dragon tile as emoji. Until it is fixed, replace
     // the Red Dragon with the unused Joker tile.
     if (
-      window.navigator &&
-      window.navigator.userAgent.includes("Chrome") &&
-      window.navigator.userAgent.includes("Mobile")
+      navigator.userAgentData
+        ? navigator.userAgentData.brands.some((item) => {
+            return item.brand === "Chromium";
+          }) === true && navigator.userAgentData.mobile === true
+        : window.navigator &&
+          window.navigator.userAgent.includes("Chrome") &&
+          window.navigator.userAgent.includes("Mobile")
     ) {
       tileCharUsed[4] = 42;
     }
