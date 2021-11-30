@@ -193,27 +193,31 @@ export default class Game extends React.Component {
         this.setState({
           allValidMatchTiles: [...new Set(this.state.allValidMatches.flat())],
         });
-        if (this.state.showAllValidMatches === true) {
-          console.log(
-            this.state.allValidMatches.reduce(
-              (a, b) =>
-                a.concat(
-                  `[${(b[0] % (this.state.boardWidth + 2)) - 1},${
-                    (b[0] -
-                      (b[0] % (this.state.boardWidth + 2)) -
-                      (this.state.boardWidth + 2)) /
-                    (this.state.boardWidth + 2)
-                  } <-> ${(b[1] % (this.state.boardWidth + 2)) - 1},${
-                    (b[1] -
-                      (b[1] % (this.state.boardWidth + 2)) -
-                      (this.state.boardWidth + 2)) /
-                    (this.state.boardWidth + 2)
-                  }] `
-                ),
-              ""
-            )
-          );
-        }
+
+        console.log(
+          this.state.showAllValidMatches === true
+            ? "Valid Matches: " +
+                this.state.allValidMatches.reduce(
+                  (a, b) =>
+                    a.concat(
+                      `[${(b[0] % (this.state.boardWidth + 2)) - 1 + 1},${
+                        (b[0] -
+                          (b[0] % (this.state.boardWidth + 2)) -
+                          (this.state.boardWidth + 2)) /
+                          (this.state.boardWidth + 2) +
+                        1
+                      } <-> ${(b[1] % (this.state.boardWidth + 2)) - 1 + 1},${
+                        (b[1] -
+                          (b[1] % (this.state.boardWidth + 2)) -
+                          (this.state.boardWidth + 2)) /
+                          (this.state.boardWidth + 2) +
+                        1
+                      }] `
+                    ),
+                  ""
+                )
+            : ""
+        );
       }
     );
   }
@@ -385,7 +389,9 @@ export default class Game extends React.Component {
     for (let y = 0; y < this.state.horizontalTileMap.length; y++) {
       tileMap[y] = (
         <div key={"board-hori-row" + y}>
-          {this.state.horizontalTileMap[y].map((i) => this.renderTile(i))}
+          {this.state.horizontalTileMap[y].map((i) =>
+            this.renderTileAndPath(i, "hori")
+          )}
         </div>
       );
     }
@@ -416,7 +422,9 @@ export default class Game extends React.Component {
     for (let x = 0; x < this.state.verticalTileMap.length; x++) {
       tileMap[x] = (
         <div key={"board-vert-row" + x}>
-          {this.state.verticalTileMap[x].map((i) => this.renderTile(i))}
+          {this.state.verticalTileMap[x].map((i) =>
+            this.renderTileAndPath(i, "vert")
+          )}
         </div>
       );
     }
@@ -424,12 +432,12 @@ export default class Game extends React.Component {
     return tileMap;
   }
 
-  renderTile(tileobj) {
+  renderTileAndPath(tileobj, boardprefix) {
     return (
-      <>
+      <span key={boardprefix + "span" + tileobj.id}>
         <Tile
           tile={tileobj.char}
-          key={tileobj.id}
+          key={boardprefix + "-" + tileobj.id}
           glyph={!this.state.useEmoji}
           selected={tileobj.id === this.state.selectedTile}
           hinted={
@@ -440,14 +448,14 @@ export default class Game extends React.Component {
           onClick={() => this.handleTileClick(tileobj.id)}
         />
         <PathNode
-          key={"node" + tileobj.id}
+          key={boardprefix + "-node-" + tileobj.id}
           node={this.state.pathingTiles[tileobj.id]}
         />
         <PathNode
-          key={"altnode" + tileobj.id}
+          key={boardprefix + "-altnode-" + tileobj.id}
           node={this.state.pathingTilesAlt[tileobj.id]}
         />
-      </>
+      </span>
     );
   }
 

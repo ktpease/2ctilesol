@@ -64,10 +64,6 @@ export function checkSimplestPath(
     else paths.push([{ segment: [firstTile], dir: "U" }]);
   }
 
-  for (let i = 0; i < paths.length; i++) {
-    console.debug(paths[i]);
-  }
-
   while (paths.length > 0) {
     const path = paths.pop();
     DEBUG_pathsEaten++;
@@ -423,14 +419,32 @@ export function checkSimplestPath(
   return simplestPath;
 }
 
+/**
+ * Check all valid matches on the current game board.
+ *
+ * This utilizes an depth-first search approach, with special modifications
+ * to account for the limited amount of line segments.
+ *
+ * @param {!{{<id: number, char: number>}}[]} board The tiles
+ * themselves, which should be (1 + boardWidth + 1) * (1 + boardHeight + 1)
+ * to account for the edges.
+ * @param {!number} boardWidth Width of the board, excluding the edges.
+ * @param {!number} boardHeight Height of the board, excluding the edges.
+ * @returns {?number[][]} An array of valid matching tile ID pairs.
+ */
 export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
   const boardWidthWithEdges = boardWidth + 2,
     boardHeightWithEdges = boardHeight + 2;
 
   let validMatches = [];
 
+  console.debug(
+    `Checking all possible matches for a board with dimensions ${boardWidth} x ${boardHeight}`
+  );
+
   // Throw out a path for each valid tile.
   board.forEach((tile) => {
+    // Ignore missing tiles.
     if (tile.char === null || tile.inRemovalAnim === true) return;
 
     // Check each tile for matches against later tiles. We've already checked
@@ -443,6 +457,7 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
       }
     }
 
+    // No matches to check.
     if (uncheckedMatchingTiles.length === 0) return;
 
     console.debug(
@@ -464,7 +479,7 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
       checkRangeY.sort((a, b) => a - b);
     }
 
-    // Starting paths
+    // Starting paths.
     let paths = [];
 
     paths.push([{ segment: [tile.id], dir: "R" }]);
@@ -547,6 +562,8 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
             }
           }
 
+          // Path is going too far away from the range or is nearing the edge
+          // of the board.
           if (
             (path.length === 2 &&
               checkRangeX.at(-1) < nextTile.id % boardWidthWithEdges) ||
@@ -624,6 +641,8 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
             }
           }
 
+          // Path is going too far away from the range or is nearing the edge
+          // of the board.
           if (
             (path.length === 2 &&
               checkRangeX[0] > nextTile.id % boardWidthWithEdges) ||
@@ -697,6 +716,8 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
             }
           }
 
+          // Path is going too far away from the range or is nearing the edge
+          // of the board.
           if (
             (path.length === 2 &&
               checkRangeY.at(-1) <
@@ -771,6 +792,8 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
             }
           }
 
+          // Path is going too far away from the range or is nearing the edge
+          // of the board.
           if (
             (path.length === 2 &&
               checkRangeY[0] >
