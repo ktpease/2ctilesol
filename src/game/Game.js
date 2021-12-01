@@ -6,6 +6,7 @@ import { checkSimplestPath, checkAllPossibleMatches } from "./PathLogic.js";
 
 import Tile from "./Tile.js";
 import PathNode from "./PathNode.js";
+import GameTimer from "./GameTimer.js";
 
 import "./Game.css";
 import "./SettingsModal.css";
@@ -45,6 +46,8 @@ export default class Game extends React.Component {
       horizontalTileMap: [],
       verticalTileMap: [],
     };
+
+    this.timerRef = React.createRef();
   }
 
   componentDidMount() {
@@ -195,6 +198,7 @@ export default class Game extends React.Component {
         this.generateVerticalMap();
 
         this.checkAllValidMatches();
+        this.timerRef.current.reset();
       }
     );
   }
@@ -384,6 +388,18 @@ export default class Game extends React.Component {
     }
   }
 
+  showSettingsModal() {
+    this.timerRef.current.pause();
+
+    this.setState({ showSettingsModal: true });
+  }
+
+  hideSettingsModal() {
+    this.timerRef.current.start();
+
+    this.setState({ showSettingsModal: false });
+  }
+
   generateHorizontalMap() {
     const tileMap = [];
 
@@ -498,14 +514,12 @@ export default class Game extends React.Component {
           </div>
         </div>
         <div className="game-bar">
-          <span>00:00:01</span>
+          <GameTimer ref={this.timerRef} />
           <button
             className={`settings-button ${
               this.state.showSettingsModal ? "settings-button-opened" : ""
             }`}
-            onClick={() =>
-              this.setState((state) => ({ showSettingsModal: true }))
-            }
+            onClick={() => this.showSettingsModal()}
           >
             &#8801;
           </button>
@@ -521,11 +535,7 @@ export default class Game extends React.Component {
         <ReactModal
           isOpen={this.state.showSettingsModal}
           contentLabel="Settings"
-          onRequestClose={() =>
-            this.setState((state) => ({
-              showSettingsModal: false,
-            }))
-          }
+          onRequestClose={() => this.hideSettingsModal()}
           shouldCloseOnOverlayClick={false}
         >
           <div>
@@ -558,15 +568,7 @@ export default class Game extends React.Component {
               New board (hard)
             </button>
           </div>
-          <button
-            onClick={() =>
-              this.setState((state) => ({
-                showSettingsModal: false,
-              }))
-            }
-          >
-            Close Modal
-          </button>
+          <button onClick={() => this.hideSettingsModal()}>Close Modal</button>
         </ReactModal>
       </>
     );
