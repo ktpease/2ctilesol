@@ -1,4 +1,5 @@
 import React from "react";
+import ReactModal from "react-modal";
 import seedrandom from "seedrandom";
 
 import { checkSimplestPath, checkAllPossibleMatches } from "./PathLogic.js";
@@ -7,13 +8,18 @@ import Tile from "./Tile.js";
 import PathNode from "./PathNode.js";
 
 import "./Game.css";
+import "./SettingsModal.css";
+import "./GameBar.css";
+
+ReactModal.setAppElement(document.getElementById("root"));
 
 export default class Game extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      // Options
+      // Settings
+      showSettingsModal: false,
       useEmoji: false,
       allowDeselect: true,
       showMatchingTiles: true,
@@ -182,6 +188,7 @@ export default class Game extends React.Component {
         allValidMatches: [],
         pathingTiles: [],
         pathingTilesAlt: [],
+        showSettingsModal: false,
       },
       () => {
         this.generateHorizontalMap();
@@ -489,7 +496,40 @@ export default class Game extends React.Component {
           >
             {this.renderVerticalMap()}
           </div>
+        </div>
+        <div className="game-bar">
+          <span>00:00:01</span>
+          <button
+            className={`settings-button ${
+              this.state.showSettingsModal ? "settings-button-opened" : ""
+            }`}
+            onClick={() =>
+              this.setState((state) => ({ showSettingsModal: true }))
+            }
+          >
+            &#8801;
+          </button>
+          <button
+            className="undo-button"
+            onClick={() => this.undoMatch()}
+            disabled={this.state.tileHistory.length === 0}
+          >
+            &#11148;
+          </button>
+        </div>
+
+        <ReactModal
+          isOpen={this.state.showSettingsModal}
+          contentLabel="Settings"
+          onRequestClose={() =>
+            this.setState((state) => ({
+              showSettingsModal: false,
+            }))
+          }
+          shouldCloseOnOverlayClick={false}
+        >
           <div>
+            <div>Board #{this.state.seed}</div>
             <button
               onClick={() =>
                 this.setState((state) => ({ useEmoji: !state.useEmoji }))
@@ -518,8 +558,16 @@ export default class Game extends React.Component {
               New board (hard)
             </button>
           </div>
-          <div>Board #{this.state.seed}</div>
-        </div>
+          <button
+            onClick={() =>
+              this.setState((state) => ({
+                showSettingsModal: false,
+              }))
+            }
+          >
+            Close Modal
+          </button>
+        </ReactModal>
       </>
     );
   }

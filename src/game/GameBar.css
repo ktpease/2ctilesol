@@ -1,0 +1,82 @@
+.game-bar {
+  width: 75%;
+  position: absolute;
+  bottom: 0;
+  background-color: #657085;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  user-select: none;
+  border: calc(0.25vmin) solid black;
+  box-shadow: 0 0 0.5em 0 black;
+}
+
+.settings-button {
+  font-size: calc(7vmin);
+  width: calc(7vmin);
+  height: calc(7vmin);
+  text-align: center;
+  line-height: 0;
+  border-radius: 50%;
+  border: 0;
+  box-shadow: 0px 0px 0px calc(0.75vmin) black, 0 0 0.5em 0 black;
+  position: fixed;
+  background-color: #cdcdcd;
+  color: black;
+}
+
+.settings-button-opened {
+  visibility: hidden;
+}
+
+.undo-button {
+  font-size: calc(4vmin);
+  width: calc(5vmin);
+  height: calc(5vmin);
+  text-align: center;
+  line-height: 0;
+  border-radius: 50%;
+  border: calc(0.25vmin) solid black;
+  background-color: #cdcdcd;
+  color: black;
+  margin: calc(0.5vmin);
+}
+
+.undo-button:disabled {
+  background-color: #878787;
+  color: #4a4a4a;
+}
+
+@media (hover: hover) {
+  .settings-button:hover {
+    background-color: #ffffff;
+    cursor: pointer;
+  }
+
+  .undo-button:enabled:hover {
+    background-color: #ffffff;
+    cursor: pointer;
+  }
+}
+
+.settings-button:active {
+  background-color: #feffb1;
+}
+
+.undo-button:enabled:active {
+  background-color: #feffb1;
+}
+
+@media (max-aspect-ratio: 80/100) {
+  .game-bar {
+    font-size: calc(5vmin);
+  }
+  .settings-button {
+    position: fixed;
+    top: calc(5vmin);
+    right: calc(5vmin);
+  }
+  .undo-button {
+    display: none;
+  }
+}
