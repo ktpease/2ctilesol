@@ -205,17 +205,17 @@ export default class Game extends React.Component {
 
   checkAllValidMatches() {
     this.setState(
-      {
+      (prevState) => ({
         allValidMatches: checkAllPossibleMatches(
-          this.state.tiles,
-          this.state.boardWidth,
-          this.state.boardHeight
+          prevState.tiles,
+          prevState.boardWidth,
+          prevState.boardHeight
         ),
-      },
+      }),
       () => {
-        this.setState({
-          allValidMatchTiles: [...new Set(this.state.allValidMatches.flat())],
-        });
+        this.setState((prevState) => ({
+          allValidMatchTiles: [...new Set(prevState.allValidMatches.flat())],
+        }));
 
         console.log(
           this.state.showAllValidMatches === true
@@ -334,17 +334,17 @@ export default class Game extends React.Component {
         // as a makeshift solution to consecutive matches using the same tile
         // path, as the CSS animation doesn't get reset.
         if (this.state.useAltPathingTiles === true)
-          this.setState({
-            pathingTiles: this.state.tiles.map(() => []),
+          this.setState((prevState) => ({
+            pathingTiles: prevState.tiles.map(() => []),
             pathingTilesAlt: pathingTiles,
             useAltPathingTiles: false,
-          });
+          }));
         else
-          this.setState({
+          this.setState((prevState) => ({
             pathingTiles: pathingTiles,
-            pathingTilesAlt: this.state.tiles.map(() => []),
+            pathingTilesAlt: prevState.tiles.map(() => []),
             useAltPathingTiles: true,
-          });
+          }));
         return;
       }
     }
@@ -469,10 +469,9 @@ export default class Game extends React.Component {
 
   renderTileAndPath(tileobj, boardprefix) {
     return (
-      <span key={boardprefix + "span" + tileobj.id}>
+      <span key={tileobj.id}>
         <Tile
           tile={tileobj.char}
-          key={boardprefix + "-" + tileobj.id}
           glyph={!this.state.useEmoji}
           selected={tileobj.id === this.state.selectedTile}
           hinted={
@@ -482,14 +481,8 @@ export default class Game extends React.Component {
           fade={tileobj.inRemovalAnim}
           onClick={() => this.handleTileClick(tileobj.id)}
         />
-        <PathNode
-          key={boardprefix + "-node-" + tileobj.id}
-          node={this.state.pathingTiles[tileobj.id]}
-        />
-        <PathNode
-          key={boardprefix + "-altnode-" + tileobj.id}
-          node={this.state.pathingTilesAlt[tileobj.id]}
-        />
+        <PathNode node={this.state.pathingTiles[tileobj.id]} />
+        <PathNode node={this.state.pathingTilesAlt[tileobj.id]} />
       </span>
     );
   }
