@@ -549,7 +549,9 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
               }));
               newPath.push({ segment: [nextTile.id], dir: "U" });
               paths.push(newPath);
-            } else if (
+            }
+
+            if (
               checkRangeY.at(-1) >
               nextTile.id - (nextTile.id % boardWidthWithEdges)
             ) {
@@ -628,7 +630,9 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
               }));
               newPath.push({ segment: [nextTile.id], dir: "U" });
               paths.push(newPath);
-            } else if (
+            }
+
+            if (
               checkRangeY.at(-1) >
               nextTile.id - (nextTile.id % boardWidthWithEdges)
             ) {
@@ -706,7 +710,9 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
               }));
               newPath.push({ segment: [nextTile.id], dir: "L" });
               paths.push(newPath);
-            } else if (checkRangeX.at(-1) > nextTile.id % boardWidthWithEdges) {
+            }
+
+            if (checkRangeX.at(-1) > nextTile.id % boardWidthWithEdges) {
               const newPath = path.map((i) => ({
                 segment: [].concat(i.segment),
                 dir: i.dir,
@@ -782,7 +788,9 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
               }));
               newPath.push({ segment: [nextTile.id], dir: "L" });
               paths.push(newPath);
-            } else if (checkRangeX.at(-1) > nextTile.id % boardWidthWithEdges) {
+            }
+
+            if (checkRangeX.at(-1) > nextTile.id % boardWidthWithEdges) {
               const newPath = path.map((i) => ({
                 segment: [].concat(i.segment),
                 dir: i.dir,
