@@ -26,8 +26,8 @@ export default class Game extends React.Component {
       showSettingsModal: false,
       useEmoji: false,
       allowDeselect: true,
-      showMatchingTiles: true,
-      showAllValidMatches: true,
+      showMatchingTiles: false,
+      showAllValidMatches: false,
       // Board Generation Options
       boardWidth: 17,
       boardHeight: 8,
@@ -39,8 +39,7 @@ export default class Game extends React.Component {
       tileHistory: [],
       // Tile Hinting
       hintedTiles: [],
-      allValidMatches: [],
-      allValidMatchTiles: [],
+      allValidMatchingTiles: [],
       // Pathing Maps
       pathingTiles: [],
       pathingTilesAlt: [],
@@ -95,7 +94,7 @@ export default class Game extends React.Component {
   resetBoard(seed, width, height, shuffleType) {
     const newWidth = width ? width : this.state.boardWidth,
       newHeight = height ? height : this.state.boardHeight;
-    
+
     let generatedBoard;
 
     if (shuffleType && shuffleType === "simple") {
@@ -137,45 +136,40 @@ export default class Game extends React.Component {
   }
 
   checkAllValidMatches() {
-    this.setState(
-      (prevState) => ({
-        allValidMatches: checkAllPossibleMatches(
-          prevState.tiles,
-          prevState.boardWidth,
-          prevState.boardHeight
-        ),
-      }),
-      () => {
-        this.setState((prevState) => ({
-          allValidMatchTiles: [...new Set(prevState.allValidMatches.flat())],
-        }));
-
-        console.log(
-          this.state.showAllValidMatches === true
-            ? "Valid Matches: " +
-                this.state.allValidMatches.reduce(
-                  (a, b) =>
-                    a.concat(
-                      `[${(b[0] % (this.state.boardWidth + 2)) - 1 + 1},${
-                        (b[0] -
-                          (b[0] % (this.state.boardWidth + 2)) -
-                          (this.state.boardWidth + 2)) /
-                          (this.state.boardWidth + 2) +
-                        1
-                      } <-> ${(b[1] % (this.state.boardWidth + 2)) - 1 + 1},${
-                        (b[1] -
-                          (b[1] % (this.state.boardWidth + 2)) -
-                          (this.state.boardWidth + 2)) /
-                          (this.state.boardWidth + 2) +
-                        1
-                      }] `
-                    ),
-                  ""
-                )
-            : ""
-        );
-      }
+    const allValidMatches = checkAllPossibleMatches(
+      this.state.tiles,
+      this.state.boardWidth,
+      this.state.boardHeight
     );
+
+    console.log(
+      this.state.showAllValidMatches === true
+        ? "Valid Matches: " +
+            allValidMatches.reduce(
+              (a, b) =>
+                a.concat(
+                  `[${(b[0] % (this.state.boardWidth + 2)) - 1 + 1},${
+                    (b[0] -
+                      (b[0] % (this.state.boardWidth + 2)) -
+                      (this.state.boardWidth + 2)) /
+                      (this.state.boardWidth + 2) +
+                    1
+                  } <-> ${(b[1] % (this.state.boardWidth + 2)) - 1 + 1},${
+                    (b[1] -
+                      (b[1] % (this.state.boardWidth + 2)) -
+                      (this.state.boardWidth + 2)) /
+                      (this.state.boardWidth + 2) +
+                    1
+                  }] `
+                ),
+              ""
+            )
+        : ""
+    );
+
+    this.setState({
+      allValidMatchingTiles: [...new Set(allValidMatches.flat())],
+    });
   }
 
   handleTileClick(tileId) {
@@ -410,7 +404,10 @@ export default class Game extends React.Component {
           hinted={
             this.state.hintedTiles.includes(tileobj) && !tileobj.inRemovalAnim
           }
-          highlighted={this.state.allValidMatchTiles.includes(tileobj.id)}
+          highlighted={
+            this.state.showAllValidMatches &&
+            this.state.allValidMatchingTiles.includes(tileobj.id)
+          }
           fade={tileobj.inRemovalAnim}
           onClick={() => this.handleTileClick(tileobj.id)}
         />
@@ -484,6 +481,10 @@ export default class Game extends React.Component {
             </button>
           </div>
           <div>
+            Current number of tiles that can be matched:{" "}
+            {this.state.allValidMatchingTiles.length}
+          </div>
+          <div>
             <button onClick={() => this.resetBoard(null, 8, 5)}>
               New board (easy)
             </button>
@@ -503,6 +504,26 @@ export default class Game extends React.Component {
             </button>
             <button onClick={() => this.resetBoard(null, 17, 8, "simple")}>
               New board (hard, pure random)
+            </button>
+          </div>
+          <div>
+            <button
+              onClick={() =>
+                this.setState((state) => ({
+                  showAllValidMatches: !state.showAllValidMatches,
+                }))
+              }
+            >
+              Toggle Highlight All Matches
+            </button>
+            <button
+              onClick={() =>
+                this.setState((state) => ({
+                  showMatchingTiles: !state.showMatchingTiles,
+                }))
+              }
+            >
+              Toggle Highlight Matching Tiles
             </button>
           </div>
           <button onClick={() => this.hideSettingsModal()}>Close Modal</button>
