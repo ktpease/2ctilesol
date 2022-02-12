@@ -473,7 +473,7 @@ export default class Game extends React.Component {
             >
               Change tile type
             </button>
-            <button onClick={() => this.generateBoard(this.state.seed)}>
+            <button onClick={() => this.resetBoard(this.state.seed)}>
               Reset board
             </button>
             <button
