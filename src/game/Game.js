@@ -1,8 +1,11 @@
 import React from "react";
 import ReactModal from "react-modal";
-import seedrandom from "seedrandom";
 
 import { checkSimplestPath, checkAllPossibleMatches } from "./PathLogic.js";
+import {
+  generateBoardWithSimpleShuffle,
+  generateBoardWithPresolvedShuffle,
+} from "./BoardGenerator.js";
 
 import Tile from "./Tile.js";
 import PathNode from "./PathNode.js";
@@ -52,7 +55,7 @@ export default class Game extends React.Component {
 
   componentDidMount() {
     this.checkEmojiMode();
-    this.generateBoard();
+    this.resetBoard();
   }
 
   checkEmojiMode() {
@@ -89,102 +92,32 @@ export default class Game extends React.Component {
     }
   }
 
-  generateBoard(seed, width, height) {
-    const tiles = [],
-      allValidTiles = [];
-
+  resetBoard(seed, width, height, shuffleType) {
     const newWidth = width ? width : this.state.boardWidth,
       newHeight = height ? height : this.state.boardHeight;
+    
+    let generatedBoard;
 
-    let id = 0,
-      char = -1,
-      chardupe = -1;
-
-    // Determine if we need to generate a random seed
-    // or use a pre-determined one from the seed argument.
-    // This will be used in both tile selection and board shuffling.
-    const finalSeed = isNaN(parseInt(seed, 10))
-      ? seedrandom().int32() >>> 0
-      : parseInt(seed, 10) >>> 0;
-
-    const seededRng = seedrandom(finalSeed);
-
-    // Generate which tiles are used. This is done by listing all
-    // possible tiles (without duplicates), then shuffling with
-    // a simple Fisher-Yates shuffle.
-    let tileCharUsed = [...Array(34).keys()],
-      randValue = 0;
-
-    // Chrome for Android has a bug where it'll not respect VS15/U+FE0E and
-    // always render the Red Dragon tile as emoji. Until it is fixed, replace
-    // the Red Dragon with the unused Joker tile.
-    if (
-      navigator.userAgentData
-        ? navigator.userAgentData.brands.some((item) => {
-            return item.brand === "Chromium";
-          }) === true && navigator.userAgentData.mobile === true
-        : window.navigator &&
-          window.navigator.userAgent.includes("Chrome") &&
-          window.navigator.userAgent.includes("Mobile")
-    ) {
-      tileCharUsed[4] = 42;
+    if (shuffleType && shuffleType === "simple") {
+      generatedBoard = generateBoardWithSimpleShuffle(
+        seed,
+        newWidth,
+        newHeight
+      );
+    } else {
+      generatedBoard = generateBoardWithPresolvedShuffle(
+        seed,
+        newWidth,
+        newHeight
+      );
     }
-
-    for (let i = tileCharUsed.length - 1; i > 0; i--) {
-      randValue = Math.floor(seededRng() * (i + 1));
-
-      char = tileCharUsed[i];
-      tileCharUsed[i] = tileCharUsed[randValue];
-      tileCharUsed[randValue] = char;
-    }
-
-    // Top outer edge.
-    for (let x = 0; x < newWidth + 2; x++)
-      id = tiles.push({ id: id, char: null, inRemovalAnim: false });
-
-    // Generate the initial unshuffled layout of tiles.
-    for (let y = 0; y < newHeight; y++) {
-      // Left outer edge.
-      id = tiles.push({ id: id, char: null, inRemovalAnim: false });
-
-      for (let x = 0; x < newWidth; x++) {
-        if ((chardupe = (chardupe + 1) % 4) === 0) {
-          char = (char + 1) % tileCharUsed.length;
-        }
-
-        allValidTiles.push(id);
-        id = tiles.push({
-          id: id,
-          char: tileCharUsed[char],
-          inRemovalAnim: false,
-        });
-      }
-
-      // Right outer edge.
-      id = tiles.push({ id: id, char: null, inRemovalAnim: false });
-    }
-
-    // Bottom outer edge.
-    for (let x = 0; x < newWidth + 2; x++)
-      id = tiles.push({ id: id, char: null, inRemovalAnim: false });
-
-    // Shuffle the board using a simple Fisher-Yates shuffle.
-    for (let i = allValidTiles.length - 1; i > 0; i--) {
-      randValue = Math.floor(seededRng() * (i + 1));
-
-      char = tiles[allValidTiles[i]].char;
-      tiles[allValidTiles[i]].char = tiles[allValidTiles[randValue]].char;
-      tiles[allValidTiles[randValue]].char = char;
-    }
-
-    console.log(`Game board seed is ${finalSeed}`);
 
     this.setState(
       {
-        tiles: tiles,
+        tiles: generatedBoard.tiles,
         boardWidth: newWidth,
         boardHeight: newHeight,
-        seed: finalSeed,
+        seed: generatedBoard.seed,
         selectedTile: null,
         tileHistory: [],
         hintedTiles: [],
@@ -551,14 +484,25 @@ export default class Game extends React.Component {
             </button>
           </div>
           <div>
-            <button onClick={() => this.generateBoard(null, 8, 5)}>
+            <button onClick={() => this.resetBoard(null, 8, 5)}>
               New board (easy)
             </button>
-            <button onClick={() => this.generateBoard(null, 12, 7)}>
+            <button onClick={() => this.resetBoard(null, 12, 7)}>
               New board (medium)
             </button>
-            <button onClick={() => this.generateBoard(null, 17, 8)}>
+            <button onClick={() => this.resetBoard(null, 17, 8)}>
               New board (hard)
+            </button>
+          </div>
+          <div>
+            <button onClick={() => this.resetBoard(null, 8, 5, "simple")}>
+              New board (easy, pure random)
+            </button>
+            <button onClick={() => this.resetBoard(null, 12, 7, "simple")}>
+              New board (medium, pure random)
+            </button>
+            <button onClick={() => this.resetBoard(null, 17, 8, "simple")}>
+              New board (hard, pure random)
             </button>
           </div>
           <button onClick={() => this.hideSettingsModal()}>Close Modal</button>
