@@ -83,10 +83,16 @@ export default class Game extends React.Component {
 
             this.checkAllValidMatches();
 
-            this.timerRef.current.seconds = gameState.timer.seconds;
-            this.timerRef.current.minutes = gameState.timer.minutes;
-            this.timerRef.current.hours = gameState.timer.hours;
-            this.timerRef.current.start();
+            const newTimer = new Date();
+
+            newTimer.setSeconds(
+              newTimer.getSeconds() +
+                gameState.timer.seconds +
+                gameState.timer.minutes * 60 +
+                gameState.timer.hours * 3600
+            );
+
+            this.timerRef.current.reset(newTimer);
           }
         );
       } catch {
