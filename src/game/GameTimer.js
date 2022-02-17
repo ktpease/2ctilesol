@@ -10,6 +10,9 @@ const GameTimer = React.forwardRef((props, ref) => {
     start,
     pause,
     reset,
+    seconds,
+    minutes,
+    hours
   }));
 
   return (

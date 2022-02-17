@@ -21,6 +21,8 @@ export default class Game extends React.Component {
   constructor(props) {
     super(props);
 
+    this.gameStateVer = 0;
+
     this.state = {
       // Settings
       showSettingsModal: false,
@@ -54,11 +56,106 @@ export default class Game extends React.Component {
 
   componentDidMount() {
     this.checkEmojiMode();
-    this.resetBoard();
+
+    const gameState = this.getStateFromLocal();
+
+    if (
+      gameState !== null &&
+      "v" in gameState &&
+      gameState.v === this.gameStateVer
+    ) {
+      try {
+        this.setState(
+          {
+            tiles: gameState.tiles.map((t, i) => ({
+              id: i,
+              char: t,
+              inRemovalAnim: false,
+            })),
+            boardWidth: gameState.boardWidth,
+            boardHeight: gameState.boardHeight,
+            seed: gameState.seed,
+            tileHistory: gameState.tileHistory,
+          },
+          () => {
+            this.generateHorizontalMap();
+            this.generateVerticalMap();
+
+            this.checkAllValidMatches();
+
+            this.timerRef.current.seconds = gameState.timer.seconds;
+            this.timerRef.current.minutes = gameState.timer.minutes;
+            this.timerRef.current.hours = gameState.timer.hours;
+            this.timerRef.current.start();
+          }
+        );
+      } catch {
+        this.resetBoard(null, 17, 8);
+      }
+    } else {
+      this.resetBoard();
+    }
+  }
+
+  getStateFromLocal() {
+    // Check if LocalStorage is active.
+    if (typeof localStorage !== "undefined") {
+      try {
+        localStorage.setItem("test", "1");
+        if (localStorage.getItem("test") === "1") {
+          localStorage.removeItem("test");
+        }
+      } catch (e) {
+        return null;
+      }
+    } else {
+      return null;
+    }
+
+    const gameStateJson = localStorage.getItem("gamestate");
+
+    if (gameStateJson !== null) {
+      return JSON.parse(gameStateJson);
+    } else {
+      return null;
+    }
+  }
+
+  saveStateToLocal() {
+    // Check if LocalStorage is active.
+    if (typeof localStorage !== "undefined") {
+      try {
+        localStorage.setItem("test", "1");
+        if (localStorage.getItem("test") === "1") {
+          localStorage.removeItem("test");
+        }
+      } catch (e) {
+        return;
+      }
+    } else {
+      return;
+    }
+
+    localStorage.setItem(
+      "gamestate",
+      JSON.stringify({
+        v: this.gameStateVer,
+        tiles: this.state.tiles.map((t) => (t.inRemovalAnim ? null : t.char)),
+        boardWidth: this.state.boardWidth,
+        boardHeight: this.state.boardHeight,
+        seed: this.state.seed,
+        tileHistory: this.state.tileHistory,
+        timer: {
+          seconds: this.timerRef.current.seconds,
+          minutes: this.timerRef.current.minutes,
+          hours: this.timerRef.current.hours,
+        },
+      })
+    );
   }
 
   checkEmojiMode() {
-    // Currently, all majong tiles are Non-RGI with the exception of Red Dragon,
+    // Currently, all mahjong tiles are Non-RGI with the exception of Red Dragon,
     // and the only system font that supports all of these tiles as emojis is the
     // Segoe UI Emoji family, included in Windows 10+.
     //
@@ -131,6 +228,8 @@ export default class Game extends React.Component {
 
         this.checkAllValidMatches();
         this.timerRef.current.reset();
+
+        this.saveStateToLocal();
       }
     );
   }
@@ -254,6 +353,7 @@ export default class Game extends React.Component {
           },
           () => {
             this.checkAllValidMatches();
+            this.saveStateToLocal();
           }
         );
 
@@ -310,6 +410,7 @@ export default class Game extends React.Component {
         },
         () => {
           this.checkAllValidMatches();
+          this.saveStateToLocal();
         }
       );
     }
