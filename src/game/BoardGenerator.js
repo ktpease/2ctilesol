@@ -54,6 +54,10 @@ export function generateBoardWithSimpleShuffle(seed, width, height) {
     usedTiles[randValue] = char;
   }
 
+  // If we have an odd amount of tiles in general, both width and height are
+  // odd. To keep things even, we make the centermost tile empty.
+  const oddNumberOfTiles = width % 2 !== 0 && height % 2 !== 0;
+
   // Generate the initial unshuffled layout of tiles.
   // Blank out the top outer edge.
   for (let x = 0; x < width + 2; x++)
@@ -64,6 +68,11 @@ export function generateBoardWithSimpleShuffle(seed, width, height) {
     id = tiles.push({ id: id, char: null, inRemovalAnim: false });
 
     for (let x = 0; x < width; x++) {
+      if (oddNumberOfTiles && x === width >> 1 && y === height >> 1) {
+        id = tiles.push({ id: id, char: null, inRemovalAnim: false });
+        continue;
+      }
+
       if ((chardupe = (chardupe + 1) % 4) === 0) {
         char = (char + 1) % usedTiles.length;
       }
@@ -134,9 +143,27 @@ export function generateBoardWithPresolvedShuffle(seed, width, height) {
 
   const numOfPairs = (width * height) >> 1;
 
+  // If our board cannot fit all 34 tile quads, we choose which of the 34 tiles
+  // we use at random.
+  if (numOfPairs < allTiles.length << 1) {
+    for (let i = allTiles.length - 1; i > 0; i--) {
+      randValue = Math.floor(seededRng() * (i + 1));
+
+      char = allTiles[i];
+      allTiles[i] = allTiles[randValue];
+      allTiles[randValue] = char;
+    }
+
+    // Trim the number of tiles used. In situations where we cannot have all
+    // quads, we'll allow one extra pair of a different tile. If we'd rather
+    // have three pairs of one random tile, we just need to change
+    // (numOfPairs + 1) to just numOfPairs.
+    allTiles = allTiles.slice(0, (numOfPairs + 1) >> 1);
+  }
+
   // The value of each value in this array is a representation of a tile pair,
   // based on its tile value. There are usually at least two pairs of a tile
-  // on a given board, so start with two pairs of all 34 tiles.
+  // on a given board.
   let tilePairOrder = allTiles.concat(allTiles).sort((a, b) => a - b);
 
   // If the board is too big for the amount of pairs, we add more pairs in a
@@ -203,6 +230,10 @@ export function generateBoardWithPresolvedShuffle(seed, width, height) {
   // Blank out the bottom outer edge.
   for (let x = 0; x < width + 2; x++)
     id = tiles.push({ id: id, char: null, inRemovalAnim: false });
+
+  // If we have an odd amount of tiles in general, both width and height are
+  // odd. To keep things even, we make the centermost tile empty.
+  if (width % 2 !== 0 && height % 2 !== 0) tiles[tiles.length >> 1].char = null;
 
   let edgeTiles = [];
 
