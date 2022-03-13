@@ -27,17 +27,68 @@
   display: none;
 }
 
-@media (max-aspect-ratio: 60/100) {
-  .game-board-emoji {
-    font-size: calc(7vmin);
-    line-height: 8.4vmin;
-    letter-spacing: -1.4vmin;
-  }
+.game-board-size-12.game-board-vertical.game-board-emoji,
+.game-board-size-11.game-board-vertical.game-board-emoji {
+  font-size: calc(7vmin);
+  line-height: 8.3vmin;
+  letter-spacing: -1.1vmin;
+}
 
-  .game-board-glyph {
-    font-size: calc(9vmin);
-    line-height: 8.5vmin;
-  }
+.game-board-size-12.game-board-vertical.game-board-glyph,
+.game-board-size-11.game-board-vertical.game-board-glyph {
+  font-size: calc(8vmin);
+  line-height: 7.8vmin;
+  letter-spacing: 0.8vmin;
+}
+
+.game-board-size-10.game-board-vertical.game-board-emoji,
+.game-board-size-9.game-board-vertical.game-board-emoji {
+  font-size: calc(8.5vmin);
+  line-height: 10.15vmin;
+  letter-spacing: -1.55vmin;
+}
+
+.game-board-size-10.game-board-vertical.game-board-glyph,
+.game-board-size-9.game-board-vertical.game-board-glyph {
+  font-size: calc(9.5vmin);
+  line-height: 9.4vmin;
+  letter-spacing: 0.9vmin;
+}
+
+.game-board-size-8.game-board-vertical.game-board-emoji,
+.game-board-size-7.game-board-vertical.game-board-emoji {
+  font-size: calc(10vmin);
+  line-height: 12vmin;
+  letter-spacing: -2vmin;
+}
+
+.game-board-size-8.game-board-vertical.game-board-glyph,
+.game-board-size-7.game-board-vertical.game-board-glyph {
+  font-size: calc(11vmin);
+  line-height: 11vmin;
+  letter-spacing: 1vmin;
+}
+
+.game-board-size-6.game-board-vertical.game-board-emoji,
+.game-board-size-5.game-board-vertical.game-board-emoji,
+.game-board-size-4.game-board-vertical.game-board-emoji,
+.game-board-size-3.game-board-vertical.game-board-emoji,
+.game-board-size-2.game-board-vertical.game-board-emoji,
+.game-board-size-1.game-board-vertical.game-board-emoji {
+  font-size: calc(11.5vmin);
+  line-height: 13.85vmin;
+  letter-spacing: -2.45vmin;
+}
+
+.game-board-size-6.game-board-vertical.game-board-glyph,
+.game-board-size-5.game-board-vertical.game-board-glyph,
+.game-board-size-4.game-board-vertical.game-board-glyph,
+.game-board-size-3.game-board-vertical.game-board-glyph,
+.game-board-size-2.game-board-vertical.game-board-glyph,
+.game-board-size-1.game-board-vertical.game-board-glyph {
+  font-size: calc(12.5vmin);
+  line-height: 12.6vmin;
+  letter-spacing: 1.1vmin;
 }
 
 @media (max-aspect-ratio: 80/100) {
@@ -106,7 +157,7 @@
 
 .game-tile-glyph:before {
   content: "\1F02B\FE0E";
-  position: fixed;
+  position: absolute;
   z-index: -1;
   font-weight: bolder;
 }
@@ -245,7 +296,7 @@
 
 .game-path {
   color: gold;
-  position: fixed;
+  position: absolute;
   transform: translateX(-100%);
   z-index: 2;
 }

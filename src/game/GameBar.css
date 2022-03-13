@@ -1,6 +1,6 @@
 .game-bar {
-  width: 75%;
-  position: absolute;
+  width: 100%;
+  position: fixed;
   top: 0;
   background-color: #657085;
   display: flex;
@@ -73,7 +73,6 @@
   }
   .settings-button {
     position: fixed;
-    top: calc(15vmin);
     right: calc(15vmin);
   }
   .undo-button {

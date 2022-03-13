@@ -529,16 +529,16 @@ export default class Game extends React.Component {
       <>
         <div>
           <div
-            className={`game-board game-board-horizontal ${
-              this.state.useEmoji ? "game-board-emoji" : "game-board-glyph"
-            }`}
+            className={`game-board game-board-horizontal game-board-size-${
+              this.state.boardHeight
+            } ${this.state.useEmoji ? "game-board-emoji" : "game-board-glyph"}`}
           >
             {this.renderHorizontalMap()}
           </div>
           <div
-            className={`game-board game-board-vertical ${
-              this.state.useEmoji ? "game-board-emoji" : "game-board-glyph"
-            }`}
+            className={`game-board game-board-vertical game-board-size-${
+              this.state.boardHeight
+            } ${this.state.useEmoji ? "game-board-emoji" : "game-board-glyph"}`}
           >
             {this.renderVerticalMap()}
           </div>
