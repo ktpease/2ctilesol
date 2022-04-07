@@ -7,20 +7,20 @@
   justify-content: space-around;
   align-items: center;
   user-select: none;
-  border: calc(0.25vmin) solid black;
+  border: 0.25vmin solid black;
   box-shadow: 0 0 0.5em 0 black;
   z-index: 1000;
 }
 
 .settings-button {
-  font-size: calc(7vmin);
-  width: calc(7vmin);
-  height: calc(7vmin);
+  font-size: 7vmin;
+  width: 1em;
+  height: 1em;
   text-align: center;
   line-height: 0;
   border-radius: 50%;
   border: 0;
-  box-shadow: 0px 0px 0px calc(0.75vmin) black, 0 0 0.5em 0 black;
+  box-shadow: 0px 0px 0px 0.75vmin black, 0 0 0.5em 0 black;
   position: fixed;
   background-color: #cdcdcd;
   color: black;
@@ -31,16 +31,16 @@
 }
 
 .undo-button {
-  font-size: calc(4vmin);
-  width: calc(5vmin);
-  height: calc(5vmin);
+  font-size: 4vmin;
+  width: 1.25em;
+  height: 1.25em;
   text-align: center;
   line-height: 0;
   border-radius: 50%;
-  border: calc(0.25vmin) solid black;
+  border: 0.25vmin solid black;
   background-color: #cdcdcd;
   color: black;
-  margin: calc(0.5vmin);
+  margin: 0.5vmin;
 }
 
 .undo-button:disabled {
@@ -68,13 +68,15 @@
   background-color: #feffb1;
 }
 
-@media (max-aspect-ratio: 80/100) {
+@media (max-aspect-ratio: 1/1) {
   .game-bar {
-    font-size: calc(5vmin);
+    font-size: 5vmin;
   }
   .settings-button {
+    font-size: 9vmin;
     position: fixed;
-    right: calc(15vmin);
+    right: 0.2em;
+    top: 0.2em;
   }
   .undo-button {
     display: none;

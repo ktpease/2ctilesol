@@ -7,14 +7,14 @@
 }
 
 .game-board-emoji {
-  font-size: calc(7vw);
+  font-size: 7vw;
   font-family: "Segoe UI Emoji";
   line-height: 1.2em;
   letter-spacing: -0.16em;
 }
 
 .game-board-glyph {
-  font-size: calc(8.5vw);
+  font-size: 8.5vw;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI Symbol", "Roboto",
     "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
@@ -27,23 +27,23 @@
 }
 
 .game-board-size-11.game-board-vertical.game-board-emoji {
-  font-size: calc(7.5vw);
+  font-size: 7.5vw;
 }
 
 .game-board-size-10.game-board-vertical.game-board-emoji {
-  font-size: calc(8.5vw);
+  font-size: 8.5vw;
 }
 
 .game-board-size-9.game-board-vertical.game-board-emoji {
-  font-size: calc(9vw);
+  font-size: 9vw;
 }
 
 .game-board-size-8.game-board-vertical.game-board-emoji {
-  font-size: calc(10vw);
+  font-size: 10vw;
 }
 
 .game-board-size-7.game-board-vertical.game-board-emoji {
-  font-size: calc(11vw);
+  font-size: 11vw;
 }
 
 .game-board-size-6.game-board-vertical.game-board-emoji,
@@ -52,27 +52,27 @@
 .game-board-size-3.game-board-vertical.game-board-emoji,
 .game-board-size-2.game-board-vertical.game-board-emoji,
 .game-board-size-1.game-board-vertical.game-board-emoji {
-  font-size: calc(12vw);
+  font-size: 12vw;
 }
 
 .game-board-size-11.game-board-vertical.game-board-glyph {
-  font-size: calc(9.5vw);
+  font-size: 9.5vw;
 }
 
 .game-board-size-10.game-board-vertical.game-board-glyph {
-  font-size: calc(10.5vw);
+  font-size: 10.5vw;
 }
 
 .game-board-size-9.game-board-vertical.game-board-glyph {
-  font-size: calc(11vw);
+  font-size: 11vw;
 }
 
 .game-board-size-8.game-board-vertical.game-board-glyph {
-  font-size: calc(12vw);
+  font-size: 12vw;
 }
 
 .game-board-size-7.game-board-vertical.game-board-glyph {
-  font-size: calc(13.5vw);
+  font-size: 13.5vw;
 }
 
 .game-board-size-6.game-board-vertical.game-board-glyph,
@@ -81,7 +81,7 @@
 .game-board-size-3.game-board-vertical.game-board-glyph,
 .game-board-size-2.game-board-vertical.game-board-glyph,
 .game-board-size-1.game-board-vertical.game-board-glyph {
-  font-size: calc(15vw);
+  font-size: 15vw;
 }
 
 @media (max-aspect-ratio: 1/1) {
@@ -96,21 +96,21 @@
 
 @media (min-aspect-ratio: 1/1) {
   .game-board-emoji {
-    font-size: calc(5vh);
+    font-size: 5vh;
   }
 
   .game-board-glyph {
-    font-size: calc(6vh);
+    font-size: 6vh;
   }
 }
 
 @media (min-aspect-ratio: 135/100) {
   .game-board-emoji {
-    font-size: calc(7vh);
+    font-size: 7vh;
   }
 
   .game-board-glyph {
-    font-size: calc(9vh);
+    font-size: 9vh;
   }
 }
 

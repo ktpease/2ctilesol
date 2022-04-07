@@ -551,14 +551,14 @@ export default class Game extends React.Component {
             }`}
             onClick={() => this.showSettingsModal()}
           >
-            &#8801;
+            &#x2699;
           </button>
           <button
             className="undo-button"
             onClick={() => this.undoMatch()}
             disabled={this.state.tileHistory.length === 0}
           >
-            &#11148;
+            &#x21B6;
           </button>
         </div>
 
