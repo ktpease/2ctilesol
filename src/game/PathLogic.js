@@ -25,6 +25,10 @@ export function checkSimplestPath(
 ) {
   if (firstTile === secondTile) return null;
 
+  console.debug(
+    `Checking path between tile ${firstTile} and tile ${secondTile}`
+  );
+
   const boardWidthWithEdges = boardWidth + 2,
     boardHeightWithEdges = boardHeight + 2;
 
@@ -38,10 +42,6 @@ export function checkSimplestPath(
       (secondTile % boardWidthWithEdges) -
       (firstTile - (firstTile % boardWidthWithEdges))) /
     boardWidthWithEdges;
-
-  let DEBUG_pathsEaten = 0;
-  console.debug(`tile X delta: ${tileXdelta}`);
-  console.debug(`tile Y delta: ${tileYdelta}`);
 
   // Do not check opposite direction if in the same row or column.
 
@@ -66,7 +66,6 @@ export function checkSimplestPath(
 
   while (paths.length > 0) {
     const path = paths.pop();
-    DEBUG_pathsEaten++;
 
     console.debug(
       `Checking path: ${path.at(-1).segment} | ${path.at(-1).dir} | length: ${
@@ -77,7 +76,6 @@ export function checkSimplestPath(
     // If we already found a three-line path, we shouldn't look for more
     // three-line paths.
     if (simplestPath !== null && path.length === 3) {
-      console.debug("- Looking for less-line paths");
       continue;
     }
 
@@ -91,25 +89,20 @@ export function checkSimplestPath(
 
         // We found the path, or a simpler one!
         if (nextTile.id === secondTile) {
-          console.debug("- Found simplest path?");
           curSegment.segment.push(nextTile.id);
 
           // If it is a one-line or two-line path, it's one of the
           // absolute shortest paths. We're done!
           if (path.length < 3) {
-            console.debug("-- It is!");
-            console.debug(`${DEBUG_pathsEaten} PATHS EATEN`);
             return path;
           }
 
-          console.debug("-- Maybe?");
           simplestPath = path;
           continue;
         }
 
         // Obstruction in the path. Skip.
         if (nextTile.char !== null && nextTile.inRemovalAnim !== true) {
-          console.debug("- Obstruction in path");
           continue;
         }
 
@@ -130,7 +123,6 @@ export function checkSimplestPath(
             secondTile - (secondTile % boardWidthWithEdges) <
             nextTile.id - (nextTile.id % boardWidthWithEdges)
           ) {
-            console.debug("- Add path U");
             const newPath = path.map((i) => ({
               segment: [].concat(i.segment),
               dir: i.dir,
@@ -142,7 +134,6 @@ export function checkSimplestPath(
             secondTile - (secondTile % boardWidthWithEdges) >
             nextTile.id - (nextTile.id % boardWidthWithEdges)
           ) {
-            console.debug("- Add path D");
             const newPath = path.map((i) => ({
               segment: [].concat(i.segment),
               dir: i.dir,
@@ -159,11 +150,9 @@ export function checkSimplestPath(
               nextTile.id % boardWidthWithEdges) ||
           nextTile.id % boardWidthWithEdges === boardWidthWithEdges - 1
         ) {
-          console.debug("- Do not proceed further, will miss");
           continue;
         }
 
-        console.debug("- Continuing path");
         if (tileXdelta >= 0) paths.push(path);
         else paths.unshift(path);
         continue;
@@ -172,25 +161,20 @@ export function checkSimplestPath(
 
         // We found the path, or a simpler one!
         if (nextTile.id === secondTile) {
-          console.debug("- Found simplest path");
           curSegment.segment.push(nextTile.id);
 
           // If it is a one-line or two-line path, it's one of the
           // absolute shortest paths. We're done!
           if (path.length < 3) {
-            console.debug("-- It is!");
-            console.debug(`${DEBUG_pathsEaten} PATHS EATEN`);
             return path;
           }
 
-          console.debug("-- Maybe?");
           simplestPath = path;
           continue;
         }
 
         // Obstruction in the path. Skip.
         if (nextTile.char !== null && nextTile.inRemovalAnim !== true) {
-          console.debug("- Obstruction in path");
           continue;
         }
 
@@ -211,7 +195,6 @@ export function checkSimplestPath(
             secondTile - (secondTile % boardWidthWithEdges) <
             nextTile.id - (nextTile.id % boardWidthWithEdges)
           ) {
-            console.debug("- Add path U");
             const newPath = path.map((i) => ({
               segment: [].concat(i.segment),
               dir: i.dir,
@@ -223,7 +206,6 @@ export function checkSimplestPath(
             secondTile - (secondTile % boardWidthWithEdges) >
             nextTile.id - (nextTile.id % boardWidthWithEdges)
           ) {
-            console.debug("- Add path D");
             const newPath = path.map((i) => ({
               segment: [].concat(i.segment),
               dir: i.dir,
@@ -240,11 +222,9 @@ export function checkSimplestPath(
               nextTile.id % boardWidthWithEdges) ||
           nextTile.id % boardWidthWithEdges === 0
         ) {
-          console.debug("- Do not proceed further, will miss");
           continue;
         }
 
-        console.debug("- Continuing path");
         if (tileXdelta < 0) paths.push(path);
         else paths.unshift(path);
         continue;
@@ -253,25 +233,20 @@ export function checkSimplestPath(
 
         // We found the path, or a simpler one!
         if (nextTile.id === secondTile) {
-          console.debug("- Found simplest path");
           curSegment.segment.push(nextTile.id);
 
           // If it is a one-line or two-line path, it's one of the
           // absolute shortest paths. We're done!
           if (path.length < 3) {
-            console.debug("-- It is!");
-            console.debug(`${DEBUG_pathsEaten} PATHS EATEN`);
             return path;
           }
 
-          console.debug("-- Maybe?");
           simplestPath = path;
           continue;
         }
 
         // Obstruction in the path. Skip.
         if (nextTile.char !== null && nextTile.inRemovalAnim !== true) {
-          console.debug("- Obstruction in path");
           continue;
         }
 
@@ -292,7 +267,6 @@ export function checkSimplestPath(
             secondTile % boardWidthWithEdges <
             nextTile.id % boardWidthWithEdges
           ) {
-            console.debug("- Add path L");
             const newPath = path.map((i) => ({
               segment: [].concat(i.segment),
               dir: i.dir,
@@ -304,7 +278,6 @@ export function checkSimplestPath(
             secondTile % boardWidthWithEdges >
             nextTile.id % boardWidthWithEdges
           ) {
-            console.debug("- Add path R");
             const newPath = path.map((i) => ({
               segment: [].concat(i.segment),
               dir: i.dir,
@@ -321,11 +294,9 @@ export function checkSimplestPath(
               nextTile.id - (nextTile.id % boardWidthWithEdges)) ||
           nextTile.id >= boardWidthWithEdges * (boardHeightWithEdges - 1)
         ) {
-          console.debug("- Do not proceed further, will miss");
           continue;
         }
 
-        console.debug("- Continuing path");
         if (tileYdelta >= 0) paths.push(path);
         else paths.unshift(path);
         continue;
@@ -334,25 +305,20 @@ export function checkSimplestPath(
 
         // We found the path, or a simpler one!
         if (nextTile.id === secondTile) {
-          console.debug("- Found simplest path");
           curSegment.segment.push(nextTile.id);
 
           // If it is a one-line or two-line path, it's one of the
           // absolute shortest paths. We're done!
           if (path.length < 3) {
-            console.debug("-- It is!");
-            console.debug(`${DEBUG_pathsEaten} PATHS EATEN`);
             return path;
           }
 
-          console.debug("-- Maybe?");
           simplestPath = path;
           continue;
         }
 
         // Obstruction in the path. Skip.
         if (nextTile.char !== null && nextTile.inRemovalAnim !== true) {
-          console.debug("- Obstruction in path");
           continue;
         }
 
@@ -373,7 +339,6 @@ export function checkSimplestPath(
             secondTile % boardWidthWithEdges <
             nextTile.id % boardWidthWithEdges
           ) {
-            console.debug("- Add path L");
             const newPath = path.map((i) => ({
               segment: [].concat(i.segment),
               dir: i.dir,
@@ -385,7 +350,6 @@ export function checkSimplestPath(
             secondTile % boardWidthWithEdges >
             nextTile.id % boardWidthWithEdges
           ) {
-            console.debug("- Add path R");
             const newPath = path.map((i) => ({
               segment: [].concat(i.segment),
               dir: i.dir,
@@ -402,11 +366,9 @@ export function checkSimplestPath(
               nextTile.id - (nextTile.id % boardWidthWithEdges)) ||
           nextTile.id < boardWidthWithEdges
         ) {
-          console.debug("- Do not proceed further, will miss");
           continue;
         }
 
-        console.debug("- Continuing path");
         if (tileYdelta < 0) paths.push(path);
         else paths.unshift(path);
         continue;
@@ -415,7 +377,7 @@ export function checkSimplestPath(
     }
   }
 
-  console.debug(`${DEBUG_pathsEaten} PATHS EATEN`);
+  console.debug("Simplest path in checkSimplestPath" + simplestPath);
   return simplestPath;
 }
 

@@ -314,8 +314,6 @@ export default class Game extends React.Component {
       );
 
       if (path !== null) {
-        console.debug(path);
-
         // Create an updated board, first by removing the tiles in its
         // fadeout animation, then putting the match in that same animation.
         const newTiles = this.state.tiles.slice();
