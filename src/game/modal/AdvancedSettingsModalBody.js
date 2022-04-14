@@ -2,13 +2,13 @@ const AdvancedSettingsModalBody = (props) => {
   return (
     <div>
       <div>
-        <button onClick={props.advancedToggleHighlightAllMatches}>
+        <button onClick={props.toggleHighlightAllMatches}>
           Toggle Highlight All Matches
         </button>
-        <button onClick={props.advancedToggleHighlightMatchesForTile}>
+        <button onClick={props.toggleHighlightMatchesForTile}>
           Toggle Highlight Matching Tiles
         </button>
-        <button onClick={props.advancedToggleEmojiMode}>
+        <button onClick={props.toggleEmojiMode}>
           Change tile type
         </button>
       </div>

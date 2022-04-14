@@ -14,9 +14,11 @@ import GameTimer from "./GameTimer.js";
 import SettingsModalBody from "./modal/SettingsModalBody.js";
 import NewBoardModalBody from "./modal/NewBoardModalBody.js";
 import AdvancedSettingsModalBody from "./modal/AdvancedSettingsModalBody.js";
+import GameWinModalBody from "./modal/GameWinModalBody.js";
+import GameLoseModalBody from "./modal/GameLoseModalBody.js";
 
 import "./Game.css";
-import "./SettingsModal.css";
+import "./Modal.css";
 import "./GameBar.css";
 
 ReactModal.setAppElement(document.getElementById("root"));
@@ -25,7 +27,7 @@ export default class Game extends React.Component {
   constructor(props) {
     super(props);
 
-    this.gameStateVer = 0;
+    this.gameStateVer = 1;
 
     this.state = {
       // Settings
@@ -33,6 +35,8 @@ export default class Game extends React.Component {
       allowDeselect: true,
       showMatchingTiles: false,
       showAllValidMatches: false,
+      // Game State
+      gameEnded: false,
       // Modal
       showModal: false,
       modalState: null,
@@ -40,9 +44,12 @@ export default class Game extends React.Component {
       boardWidth: 17,
       boardHeight: 8,
       seed: 1,
+      blindShuffle: false,
+      layoutDescription: "Rectangle 17⨯8",
       // Tile State
       tiles: [],
       selectedTile: null,
+      totalMatchableTiles: 136,
       // Tile History
       tileHistory: [],
       // Tile Hinting
@@ -81,6 +88,9 @@ export default class Game extends React.Component {
             boardWidth: gameState.boardWidth,
             boardHeight: gameState.boardHeight,
             seed: gameState.seed,
+            blindShuffle: gameState.blindShuffle,
+            layoutDescription: gameState.layoutDescription,
+            totalMatchableTiles: gameState.totalMatchableTiles,
             tileHistory: gameState.tileHistory,
           },
           () => {
@@ -156,6 +166,9 @@ export default class Game extends React.Component {
         boardWidth: this.state.boardWidth,
         boardHeight: this.state.boardHeight,
         seed: this.state.seed,
+        blindShuffle: this.state.blindShuffle,
+        layoutDescription: this.state.layoutDescription,
+        totalMatchableTiles: this.state.totalMatchableTiles,
         tileHistory: this.state.tileHistory,
         timer: {
           seconds: this.timerRef.current.seconds,
@@ -200,13 +213,16 @@ export default class Game extends React.Component {
     }
   }
 
-  resetBoard(seed, width, height, shuffleType) {
+  resetBoard(seed, width, height, useBlindShuffle) {
     const newWidth = width ? width : this.state.boardWidth,
-      newHeight = height ? height : this.state.boardHeight;
+      newHeight = height ? height : this.state.boardHeight,
+      blindShuffle = useBlindShuffle
+        ? useBlindShuffle
+        : this.state.blindShuffle;
 
     let generatedBoard;
 
-    if (shuffleType && shuffleType === "simple") {
+    if (blindShuffle) {
       generatedBoard = generateBoardWithSimpleShuffle(
         seed,
         newWidth,
@@ -220,12 +236,19 @@ export default class Game extends React.Component {
       );
     }
 
+    const layoutDescription = `Rectangle${
+      blindShuffle ? " Hard" : ""
+    } ${newWidth}⨯${newHeight}`;
+
     this.setState(
       {
         tiles: generatedBoard.tiles,
         boardWidth: newWidth,
         boardHeight: newHeight,
         seed: generatedBoard.seed,
+        blindShuffle: blindShuffle,
+        layoutDescription: layoutDescription,
+        totalMatchableTiles: generatedBoard.totalMatchableTiles,
         selectedTile: null,
         tileHistory: [],
         hintedTiles: [],
@@ -233,6 +256,7 @@ export default class Game extends React.Component {
         pathingTiles: [],
         pathingTilesAlt: [],
         showModal: false,
+        gameEnded: false,
       },
       () => {
         this.generateHorizontalMap();
@@ -254,8 +278,9 @@ export default class Game extends React.Component {
     );
 
     console.log(
-      this.state.showAllValidMatches === true
-        ? "Valid Matches: " +
+      `Number of Valid Matches: ${allValidMatches.length}` +
+        (this.state.showAllValidMatches === true
+          ? ", Valid Matches: " +
             allValidMatches.reduce(
               (a, b) =>
                 a.concat(
@@ -275,12 +300,28 @@ export default class Game extends React.Component {
                 ),
               ""
             )
-        : ""
+          : "")
     );
 
-    this.setState({
-      allValidMatchingTiles: [...new Set(allValidMatches.flat())],
-    });
+    this.setState(
+      {
+        allValidMatchingTiles: [...new Set(allValidMatches.flat())],
+      },
+      () => {
+        // If there are no matching tiles, then we either won or lost the game.
+        if (allValidMatches.length === 0) {
+          this.timerRef.current.pause();
+          this.setState({ gameEnded: true });
+
+          if (
+            this.state.totalMatchableTiles - this.state.tileHistory.length * 2 >
+            0
+          )
+            this.showModal("Game Lost");
+          else this.showModal("Game Won");
+        }
+      }
+    );
   }
 
   handleTileClick(tileId) {
@@ -363,7 +404,7 @@ export default class Game extends React.Component {
           },
           () => {
             this.checkAllValidMatches();
-            this.saveStateToLocal();
+            if (!this.state.gameEnded) this.saveStateToLocal();
           }
         );
 
@@ -399,7 +440,7 @@ export default class Game extends React.Component {
     this.setState({ selectedTile: tileId });
   }
 
-  undoMatch() {
+  undoMatch(hideModal) {
     if (this.state.tileHistory.length > 0) {
       const newTiles = this.state.tiles.slice();
       const lastMatch = this.state.tileHistory.pop();
@@ -417,8 +458,10 @@ export default class Game extends React.Component {
           pathingTiles: [],
           pathingTilesAlt: [],
           selectedTile: null,
+          gameEnded: false,
         },
         () => {
+          if (hideModal) this.hideModal();
           this.checkAllValidMatches();
           this.saveStateToLocal();
         }
@@ -434,7 +477,7 @@ export default class Game extends React.Component {
   }
 
   hideModal() {
-    this.timerRef.current.start();
+    if (!this.state.gameEnded) this.timerRef.current.start();
 
     this.setState({ showModal: false });
   }
@@ -445,10 +488,13 @@ export default class Game extends React.Component {
         return (
           <SettingsModalBody
             seed={this.state.seed}
+            layout={this.state.layoutDescription}
             canUndo={this.state.tileHistory.length === 0}
             tilesMatchable={this.state.allValidMatchingTiles.length}
             handleResetBoard={this.resetBoard.bind(this)}
-            handleUndoMatch={this.undoMatch.bind(this)}
+            handleUndoMatch={() => {
+              this.undoMatch(true);
+            }}
             newBoardModal={() => this.showModal("New Board")}
             advancedSettingsModal={() => this.showModal("Advanced Settings")}
           />
@@ -477,6 +523,33 @@ export default class Game extends React.Component {
           <NewBoardModalBody
             handleResetBoard={this.resetBoard.bind(this)}
             backModal={() => this.showModal("Settings")}
+          />
+        );
+      case "Game Won":
+        return (
+          <GameWinModalBody
+            numTiles={this.state.totalMatchableTiles}
+            clearTimeHours={this.timerRef.current.hours}
+            clearTimeMinutes={this.timerRef.current.minutes}
+            clearTimeSeconds={this.timerRef.current.seconds}
+            seed={this.state.seed}
+            layout={this.state.layoutDescription}
+            handleResetBoard={this.resetBoard.bind(this)}
+            newBoardModal={() => this.showModal("New Board")}
+          />
+        );
+      case "Game Lost":
+        return (
+          <GameLoseModalBody
+            remainingTiles={
+              this.state.totalMatchableTiles - this.state.tileHistory.length * 2
+            }
+            seed={this.state.seed}
+            layout={this.state.layoutDescription}
+            canUndo={this.state.tileHistory.length === 0}
+            handleUndoMatch={() => this.undoMatch(true)}
+            handleResetBoard={this.resetBoard.bind(this)}
+            newBoardModal={() => this.showModal("New Board")}
           />
         );
       default:
@@ -605,7 +678,7 @@ export default class Game extends React.Component {
           </button>
           <button
             className="undo-button"
-            onClick={() => this.undoMatch()}
+            onClick={() => this.undoMatch(false)}
             disabled={this.state.tileHistory.length === 0}
           >
             &#x21B6;
@@ -619,7 +692,7 @@ export default class Game extends React.Component {
           shouldCloseOnOverlayClick={false}
         >
           {this.renderModalBody(this.state.modalState)}
-          <button onClick={() => this.hideModal()}>Close Modal</button>
+          <button onClick={() => this.hideModal()}>Close</button>
         </ReactModal>
       </>
     );

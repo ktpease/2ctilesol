@@ -13,18 +13,18 @@ const NewBoardModalBody = (props) => {
         </button>
       </div>
       <div>
-        <button onClick={() => props.handleResetBoard(null, 8, 5, "simple")}>
+        <button onClick={() => props.handleResetBoard(null, 8, 5, true)}>
           New board (easy, pure random)
         </button>
-        <button onClick={() => props.handleResetBoard(null, 12, 7, "simple")}>
+        <button onClick={() => props.handleResetBoard(null, 12, 7, true)}>
           New board (medium, pure random)
         </button>
-        <button onClick={() => props.handleResetBoard(null, 17, 8, "simple")}>
+        <button onClick={() => props.handleResetBoard(null, 17, 8, true)}>
           New board (hard, pure random)
         </button>
       </div>
       <div>
-        <button onClick={props.backModal}>Back to Settings</button>
+        <button onClick={props.backModal}>Go Back</button>
       </div>
     </div>
   );

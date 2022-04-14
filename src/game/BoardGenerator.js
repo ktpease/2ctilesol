@@ -15,7 +15,8 @@ export function generateBoardWithSimpleShuffle(seed, width, height) {
   let id = 0,
     char = -1,
     chardupe = -1,
-    randValue = 0;
+    randValue = 0,
+    totalMatchableTiles = 0;
 
   // Determine if we need to generate a random seed
   // or use a pre-determined one from the seed argument.
@@ -83,6 +84,7 @@ export function generateBoardWithSimpleShuffle(seed, width, height) {
         char: usedTiles[char],
         inRemovalAnim: false,
       });
+      totalMatchableTiles++;
     }
 
     // Blank out the right outer edge.
@@ -109,6 +111,7 @@ export function generateBoardWithSimpleShuffle(seed, width, height) {
   return {
     tiles: tiles,
     seed: finalSeed,
+    totalMatchableTiles: totalMatchableTiles,
   };
 }
 
@@ -125,7 +128,8 @@ export function generateBoardWithPresolvedShuffle(seed, width, height) {
 
   let id = 0,
     char = -1,
-    randValue = 0;
+    randValue = 0,
+    totalMatchableTiles = 0;
 
   // Determine if we need to generate a random seed
   // or use a pre-determined one from the seed argument.
@@ -221,6 +225,7 @@ export function generateBoardWithPresolvedShuffle(seed, width, height) {
 
     for (let x = 0; x < width; x++) {
       id = tiles.push({ id: id, char: -1, inRemovalAnim: false });
+      totalMatchableTiles++;
     }
 
     // Blank out the right outer edge.
@@ -349,6 +354,7 @@ export function generateBoardWithPresolvedShuffle(seed, width, height) {
   return {
     tiles: tiles,
     seed: finalSeed,
+    totalMatchableTiles: totalMatchableTiles,
   };
 }
 
