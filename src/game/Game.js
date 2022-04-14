@@ -11,6 +11,10 @@ import Tile from "./Tile.js";
 import PathNode from "./PathNode.js";
 import GameTimer from "./GameTimer.js";
 
+import SettingsModalBody from "./modal/SettingsModalBody.js";
+import NewBoardModalBody from "./modal/NewBoardModalBody.js";
+import AdvancedSettingsModalBody from "./modal/AdvancedSettingsModalBody.js";
+
 import "./Game.css";
 import "./SettingsModal.css";
 import "./GameBar.css";
@@ -25,11 +29,13 @@ export default class Game extends React.Component {
 
     this.state = {
       // Settings
-      showSettingsModal: false,
       useEmoji: false,
       allowDeselect: true,
       showMatchingTiles: false,
       showAllValidMatches: false,
+      // Modal
+      showModal: false,
+      modalState: null,
       // Board Generation Options
       boardWidth: 17,
       boardHeight: 8,
@@ -226,7 +232,7 @@ export default class Game extends React.Component {
         allValidMatches: [],
         pathingTiles: [],
         pathingTilesAlt: [],
-        showSettingsModal: false,
+        showModal: false,
       },
       () => {
         this.generateHorizontalMap();
@@ -420,16 +426,62 @@ export default class Game extends React.Component {
     }
   }
 
-  showSettingsModal() {
+  showModal(modalState) {
     this.timerRef.current.pause();
 
-    this.setState({ showSettingsModal: true });
+    if (modalState) this.setState({ showModal: true, modalState: modalState });
+    else this.setState({ showModal: true });
   }
 
-  hideSettingsModal() {
+  hideModal() {
     this.timerRef.current.start();
 
-    this.setState({ showSettingsModal: false });
+    this.setState({ showModal: false });
+  }
+
+  renderModalBody(modalState) {
+    switch (modalState) {
+      case "Settings":
+        return (
+          <SettingsModalBody
+            seed={this.state.seed}
+            canUndo={this.state.tileHistory.length === 0}
+            tilesMatchable={this.state.allValidMatchingTiles.length}
+            handleResetBoard={this.resetBoard.bind(this)}
+            handleUndoMatch={this.undoMatch.bind(this)}
+            newBoardModal={() => this.showModal("New Board")}
+            advancedSettingsModal={() => this.showModal("Advanced Settings")}
+          />
+        );
+      case "Advanced Settings":
+        return (
+          <AdvancedSettingsModalBody
+            toggleHighlightAllMatches={() =>
+              this.setState((state) => ({
+                showAllValidMatches: !state.showAllValidMatches,
+              }))
+            }
+            toggleHighlightMatchesForTile={() =>
+              this.setState((state) => ({
+                showMatchingTiles: !state.showMatchingTiles,
+              }))
+            }
+            toggleEmojiMode={() =>
+              this.setState((state) => ({ useEmoji: !state.useEmoji }))
+            }
+            backModal={() => this.showModal("Settings")}
+          />
+        );
+      case "New Board":
+        return (
+          <NewBoardModalBody
+            handleResetBoard={this.resetBoard.bind(this)}
+            backModal={() => this.showModal("Settings")}
+          />
+        );
+      default:
+        return null;
+    }
   }
 
   generateHorizontalMap() {
@@ -545,9 +597,9 @@ export default class Game extends React.Component {
           <GameTimer ref={this.timerRef} />
           <button
             className={`settings-button ${
-              this.state.showSettingsModal ? "settings-button-opened" : ""
+              this.state.showModal ? "settings-button-opened" : ""
             }`}
-            onClick={() => this.showSettingsModal()}
+            onClick={() => this.showModal("Settings")}
           >
             &#x2699;
           </button>
@@ -561,77 +613,13 @@ export default class Game extends React.Component {
         </div>
 
         <ReactModal
-          isOpen={this.state.showSettingsModal}
-          contentLabel="Settings"
-          onRequestClose={() => this.hideSettingsModal()}
+          isOpen={this.state.showModal}
+          contentLabel={this.state.modalState}
+          onRequestClose={() => this.hideModal()}
           shouldCloseOnOverlayClick={false}
         >
-          <div>
-            <div>Board #{this.state.seed}</div>
-            <button
-              onClick={() =>
-                this.setState((state) => ({ useEmoji: !state.useEmoji }))
-              }
-            >
-              Change tile type
-            </button>
-            <button onClick={() => this.resetBoard(this.state.seed)}>
-              Reset board
-            </button>
-            <button
-              onClick={() => this.undoMatch()}
-              disabled={this.state.tileHistory.length === 0}
-            >
-              Undo
-            </button>
-          </div>
-          <div>
-            Current number of tiles that can be matched:{" "}
-            {this.state.allValidMatchingTiles.length}
-          </div>
-          <div>
-            <button onClick={() => this.resetBoard(null, 8, 5)}>
-              New board (easy)
-            </button>
-            <button onClick={() => this.resetBoard(null, 12, 7)}>
-              New board (medium)
-            </button>
-            <button onClick={() => this.resetBoard(null, 17, 8)}>
-              New board (hard)
-            </button>
-          </div>
-          <div>
-            <button onClick={() => this.resetBoard(null, 8, 5, "simple")}>
-              New board (easy, pure random)
-            </button>
-            <button onClick={() => this.resetBoard(null, 12, 7, "simple")}>
-              New board (medium, pure random)
-            </button>
-            <button onClick={() => this.resetBoard(null, 17, 8, "simple")}>
-              New board (hard, pure random)
-            </button>
-          </div>
-          <div>
-            <button
-              onClick={() =>
-                this.setState((state) => ({
-                  showAllValidMatches: !state.showAllValidMatches,
-                }))
-              }
-            >
-              Toggle Highlight All Matches
-            </button>
-            <button
-              onClick={() =>
-                this.setState((state) => ({
-                  showMatchingTiles: !state.showMatchingTiles,
-                }))
-              }
-            >
-              Toggle Highlight Matching Tiles
-            </button>
-          </div>
-          <button onClick={() => this.hideSettingsModal()}>Close Modal</button>
+          {this.renderModalBody(this.state.modalState)}
+          <button onClick={() => this.hideModal()}>Close Modal</button>
         </ReactModal>
       </>
     );
