@@ -45,7 +45,7 @@ export default class Game extends React.Component {
       boardHeight: 8,
       seed: 1,
       blindShuffle: false,
-      layoutDescription: "Rectangle 17⨯8",
+      layoutDescription: "Rectangle 17\u2a2f8",
       // Tile State
       tiles: [],
       selectedTile: null,
@@ -214,11 +214,12 @@ export default class Game extends React.Component {
   }
 
   resetBoard(seed, width, height, useBlindShuffle) {
-    const newWidth = width ? width : this.state.boardWidth,
-      newHeight = height ? height : this.state.boardHeight,
-      blindShuffle = useBlindShuffle
-        ? useBlindShuffle
-        : this.state.blindShuffle;
+    const newWidth = width !== undefined ? width : this.state.boardWidth,
+      newHeight = height !== undefined ? height : this.state.boardHeight,
+      blindShuffle =
+        useBlindShuffle !== undefined
+          ? useBlindShuffle
+          : this.state.blindShuffle;
 
     let generatedBoard;
 
@@ -238,7 +239,7 @@ export default class Game extends React.Component {
 
     const layoutDescription = `Rectangle${
       blindShuffle ? " Hard" : ""
-    } ${newWidth}⨯${newHeight}`;
+    } ${newWidth}\u2a2f${newHeight}`;
 
     this.setState(
       {
@@ -521,6 +522,10 @@ export default class Game extends React.Component {
       case "New Board":
         return (
           <NewBoardModalBody
+            prevWidth={this.state.boardWidth}
+            prevHeight={this.state.boardHeight}
+            prevBlindShuffle={this.state.blindShuffle}
+            prevSeed={this.state.seed}
             handleResetBoard={this.resetBoard.bind(this)}
             backModal={() => this.showModal("Settings")}
           />
