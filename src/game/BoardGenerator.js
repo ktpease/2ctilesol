@@ -31,21 +31,6 @@ export function generateBoardWithSimpleShuffle(seed, width, height) {
   // possible tiles (without duplicates), then shuffling it.
   let usedTiles = [...Array(34).keys()];
 
-  // Chrome for Android has a bug where it'll not respect VS15/U+FE0E and
-  // always render the Red Dragon tile as emoji. Until it is fixed, replace
-  // the Red Dragon with the unused Joker tile.
-  if (
-    navigator.userAgentData
-      ? navigator.userAgentData.brands.some((item) => {
-          return item.brand === "Chromium";
-        }) === true && navigator.userAgentData.mobile === true
-      : window.navigator &&
-        window.navigator.userAgent.includes("Chrome") &&
-        window.navigator.userAgent.includes("Mobile")
-  ) {
-    usedTiles[4] = 42;
-  }
-
   // Shuffle.
   for (let i = usedTiles.length - 1; i > 0; i--) {
     randValue = Math.floor(seededRng() * (i + 1));
@@ -188,21 +173,6 @@ export function generateBoardWithPresolvedShuffle(seed, width, height) {
 
   // Crop the number of pairs to fit the target total amount.
   tilePairOrder = tilePairOrder.slice(0, numOfPairs);
-
-  // Chrome for Android has a bug where it'll not respect VS15/U+FE0E and
-  // always render the Red Dragon tile as emoji. Until it is fixed, replace
-  // the Red Dragon with the unused Joker tile.
-  if (
-    navigator.userAgentData
-      ? navigator.userAgentData.brands.some((item) => {
-          return item.brand === "Chromium";
-        }) === true && navigator.userAgentData.mobile === true
-      : window.navigator &&
-        window.navigator.userAgent.includes("Chrome") &&
-        window.navigator.userAgent.includes("Mobile")
-  ) {
-    tilePairOrder = tilePairOrder.map((x) => (x === 4 ? 42 : x));
-  }
 
   // Shuffle.
   for (let i = tilePairOrder.length - 1; i > 0; i--) {

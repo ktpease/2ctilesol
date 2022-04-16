@@ -1,6 +1,6 @@
 export default function Tile(props) {
   // Number between 0-42, corresponding to the Mahjong Tiles Unicode block.
-  const tileNum = parseInt(props.tile, 10);
+  let tileNum = parseInt(props.tile, 10);
 
   // Check if tile is valid.
   if (isNaN(tileNum) || tileNum < 0 || tileNum >= 43) {
@@ -23,6 +23,7 @@ export default function Tile(props) {
 
     if ((tileNum >= 7 && tileNum <= 15) || tileNum === 4) {
       tileColorClass = "game-tile-glyph-red";
+      if (tileNum === 4 && props.fixChromeAndroidEmojiBug) tileNum = 6;
     } else if ((tileNum >= 16 && tileNum <= 24) || tileNum === 5) {
       tileColorClass = "game-tile-glyph-green";
     } else if ((tileNum >= 25 && tileNum <= 33) || tileNum === 6) {

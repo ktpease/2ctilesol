@@ -27,7 +27,7 @@ export default class Game extends React.Component {
   constructor(props) {
     super(props);
 
-    this.gameStateVer = 1;
+    this.gameStateVer = 2;
 
     this.state = {
       // Settings
@@ -35,6 +35,7 @@ export default class Game extends React.Component {
       allowDeselect: true,
       showMatchingTiles: false,
       showAllValidMatches: false,
+      fixChromeAndroidEmojiBug: false,
       // Game State
       gameEnded: false,
       // Modal
@@ -68,7 +69,7 @@ export default class Game extends React.Component {
   }
 
   componentDidMount() {
-    this.checkEmojiMode();
+    this.checkFontCompatibility();
 
     const gameState = this.getStateFromLocal();
 
@@ -179,7 +180,9 @@ export default class Game extends React.Component {
     );
   }
 
-  checkEmojiMode() {
+  checkFontCompatibility() {
+    // Checks with some font issues, namely with regards to emojis.
+
     // Currently, all mahjong tiles are Non-RGI with the exception of Red Dragon,
     // and the only system font that supports all of these tiles as emojis is the
     // Segoe UI Emoji family, included in Windows 10+.
@@ -188,9 +191,6 @@ export default class Game extends React.Component {
     // all tiles as RGI, and I'm unsure if other system font providers will
     // support them. So for now, we'll just assume that only desktop Windows 10+
     // can run the emoji mode.
-    //
-    // If any other system or custom font providers begin supporting this, just
-    // please make sure they're front-facing (looking at you, Noto Emoji).
 
     // If we don't care that it breaks previous Windows versions, we can just
     // use the is-windows package. But for compatibility, we'll just use the UA-CH
@@ -210,6 +210,21 @@ export default class Game extends React.Component {
     ) {
       console.log("Windows 10+ detected, using emoji tiles.");
       this.setState({ useEmoji: true });
+    }
+
+    // Chrome for Android has a bug where it'll not respect VS15/U+FE0E and
+    // always render the Red Dragon tile as emoji. For compatibility sake, just
+    // change it to a red version of the blue White Dragon tile.
+    if (
+      navigator.userAgentData
+        ? navigator.userAgentData.brands.some((item) => {
+            return item.brand === "Chromium";
+          }) === true && navigator.userAgentData.mobile === true
+        : window.navigator &&
+          window.navigator.userAgent.includes("Chrome") &&
+          window.navigator.userAgent.includes("Mobile")
+    ) {
+      this.setState({ fixChromeAndroidEmojiBug: true });
     }
   }
 
@@ -645,6 +660,7 @@ export default class Game extends React.Component {
           }
           fade={tileobj.inRemovalAnim}
           onClick={() => this.handleTileClick(tileobj.id)}
+          fixChromeAndroidEmojiBug={this.state.fixChromeAndroidEmojiBug}
         />
         <PathNode node={this.state.pathingTiles[tileobj.id]} />
         <PathNode node={this.state.pathingTilesAlt[tileobj.id]} />
