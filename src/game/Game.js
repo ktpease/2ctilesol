@@ -27,7 +27,7 @@ export default class Game extends React.Component {
   constructor(props) {
     super(props);
 
-    this.gameStateVer = 2;
+    this.gameStateVer = 3;
 
     this.state = {
       // Settings
@@ -46,6 +46,7 @@ export default class Game extends React.Component {
       boardHeight: 8,
       seed: 1,
       blindShuffle: false,
+      noSinglePairs: false,
       layoutDescription: "Rectangle 17\u2a2f8",
       // Tile State
       tiles: [],
@@ -90,6 +91,7 @@ export default class Game extends React.Component {
             boardHeight: gameState.boardHeight,
             seed: gameState.seed,
             blindShuffle: gameState.blindShuffle,
+            noSinglePairs: gameState.noSinglePairs,
             layoutDescription: gameState.layoutDescription,
             totalMatchableTiles: gameState.totalMatchableTiles,
             tileHistory: gameState.tileHistory,
@@ -168,6 +170,7 @@ export default class Game extends React.Component {
         boardHeight: this.state.boardHeight,
         seed: this.state.seed,
         blindShuffle: this.state.blindShuffle,
+        noSinglePairs: this.state.noSinglePairs,
         layoutDescription: this.state.layoutDescription,
         totalMatchableTiles: this.state.totalMatchableTiles,
         tileHistory: this.state.tileHistory,
@@ -228,41 +231,44 @@ export default class Game extends React.Component {
     }
   }
 
-  resetBoard(seed, width, height, useBlindShuffle) {
-    const newWidth = width !== undefined ? width : this.state.boardWidth,
-      newHeight = height !== undefined ? height : this.state.boardHeight,
-      blindShuffle =
-        useBlindShuffle !== undefined
-          ? useBlindShuffle
-          : this.state.blindShuffle;
+  resetBoard(seed, width, height, blindShuffle, noSinglePairs) {
+    const _width = width !== undefined ? width : this.state.boardWidth,
+      _height = height !== undefined ? height : this.state.boardHeight,
+      _blindShuffle =
+        blindShuffle !== undefined ? blindShuffle : this.state.blindShuffle,
+      _noSinglePairs =
+        noSinglePairs !== undefined ? noSinglePairs : this.state.noSinglePairs;
 
     let generatedBoard;
 
-    if (blindShuffle) {
+    if (_blindShuffle) {
       generatedBoard = generateBoardWithSimpleShuffle(
         seed,
-        newWidth,
-        newHeight
+        _width,
+        _height,
+        _noSinglePairs
       );
     } else {
       generatedBoard = generateBoardWithPresolvedShuffle(
         seed,
-        newWidth,
-        newHeight
+        _width,
+        _height,
+        _noSinglePairs
       );
     }
 
-    const layoutDescription = `Rectangle${
-      blindShuffle ? " Hard" : ""
-    } ${newWidth}\u2a2f${newHeight}`;
+    const layoutDescription = `Rectangle ${_width}\u2a2f${_height}${
+      _blindShuffle ? " TrueShuffle" : ""
+    }${_noSinglePairs ? " NoSinglePairs" : ""}`;
 
     this.setState(
       {
         tiles: generatedBoard.tiles,
-        boardWidth: newWidth,
-        boardHeight: newHeight,
+        boardWidth: _width,
+        boardHeight: _height,
         seed: generatedBoard.seed,
-        blindShuffle: blindShuffle,
+        blindShuffle: _blindShuffle,
+        noSinglePairs: _noSinglePairs,
         layoutDescription: layoutDescription,
         totalMatchableTiles: generatedBoard.totalMatchableTiles,
         selectedTile: null,
@@ -539,7 +545,8 @@ export default class Game extends React.Component {
           <NewBoardModalBody
             prevWidth={this.state.boardWidth}
             prevHeight={this.state.boardHeight}
-            prevBlindShuffle={this.state.blindShuffle}
+            prevBlindShuffle={this.state.blindShuffle} 
+            prevNoSinglePairs={this.state.noSinglePairs}
             prevSeed={this.state.seed}
             handleResetBoard={this.resetBoard.bind(this)}
             backModal={() => this.showModal("Settings")}

@@ -1,14 +1,19 @@
 import seedrandom from "seedrandom";
 
-// Generate a random game board by placing quadruplets of each random tile on
-// the board in the correct layout and then shuffling all tiles on the board
+// Generate a random game board by placing pairs/quadruplets of each random tile
+// on the board in the correct layout and then shuffling all tiles on the board
 // using a simple Fisher-Yates shuffle.
 //
 // Note: It'll generate a width+2 x height+2 board, with the edge row and
 // column being blank.
 //
 // This method is quicker and more random, but can generate an unwinnable board.
-export function generateBoardWithSimpleShuffle(seed, width, height) {
+export function generateBoardWithSimpleShuffle(
+  seed,
+  width,
+  height,
+  noSinglePairs
+) {
   const tiles = [],
     allValidTiles = [];
 
@@ -59,7 +64,9 @@ export function generateBoardWithSimpleShuffle(seed, width, height) {
         continue;
       }
 
-      if ((chardupe = (chardupe + 1) % 4) === 0) {
+      if (
+        (chardupe = (chardupe + 1) % (noSinglePairs === true ? 4 : 2)) === 0
+      ) {
         char = (char + 1) % usedTiles.length;
       }
 
@@ -108,7 +115,12 @@ export function generateBoardWithSimpleShuffle(seed, width, height) {
 // column being blank.
 //
 // This method is slower, but genereates winnable boards.
-export function generateBoardWithPresolvedShuffle(seed, width, height) {
+export function generateBoardWithPresolvedShuffle(
+  seed,
+  width,
+  height,
+  noSinglePairs
+) {
   const tiles = [];
 
   let id = 0,
@@ -128,37 +140,58 @@ export function generateBoardWithPresolvedShuffle(seed, width, height) {
   // Generate the tile matching order for the solving algorithm. This is done
   // by getting a list of valid tile pairs, then adjusting it to fit the
   // layout, then shuffling it.
-  let allTiles = [...Array(34).keys()];
+
+  // For this, we are only using 34 mahjong tile values (winds, dragons,
+  // characters, bamboo, circles). At the moment, flowers and seasons are not
+  // used.
+  let allTileValues = [...Array(34).keys()];
+
+  // Each value in this array is a representation of a tile pair, based on its
+  // tile value. If "noSinglePairs" is true, then there are at least two pairs
+  // of a tile on a given board for an easier difficulty on smaller boards.
+  let orderedTilePairs;
 
   const numOfPairs = (width * height) >> 1;
 
-  // If our board cannot fit all 34 tile quads, we choose which of the 34 tiles
-  // we use at random.
-  if (numOfPairs < allTiles.length << 1) {
-    for (let i = allTiles.length - 1; i > 0; i--) {
+  // If our board cannot fit pairs/quads of all tiles, we choose which of the 
+  // tiles we use at random.
+  if (
+    numOfPairs <
+    (noSinglePairs ? allTileValues.length << 1 : allTileValues.length)
+  ) {
+    for (let i = allTileValues.length - 1; i > 0; i--) {
       randValue = Math.floor(seededRng() * (i + 1));
 
-      char = allTiles[i];
-      allTiles[i] = allTiles[randValue];
-      allTiles[randValue] = char;
+      char = allTileValues[i];
+      allTileValues[i] = allTileValues[randValue];
+      allTileValues[randValue] = char;
     }
 
-    // Trim the number of tiles used. In situations where we cannot have all
-    // quads, we'll allow one extra pair of a different tile. If we'd rather
-    // have three pairs of one random tile, we just need to change
-    // (numOfPairs + 1) to just numOfPairs.
-    allTiles = allTiles.slice(0, (numOfPairs + 1) >> 1);
+    // Trim the number of tiles used.
+    //
+    // NOTE: If "noSinglePairs" is true and we have one extra pair unaccounted
+    // for, we'll keep with the name and have the extra pair be from one of
+    // the chosen tiles (which means there will be 6 instead of 4). If we'd
+    // rather have it be a single pair of an unused tile, replace the following:
+    // numofPairs >> 1           -->       (numOfPairs + 1) >> 1
+    allTileValues = allTileValues.slice(
+      0,
+      noSinglePairs ? numOfPairs >> 1 : numOfPairs
+    );
   }
 
-  // The value of each value in this array is a representation of a tile pair,
-  // based on its tile value. There are usually at least two pairs of a tile
-  // on a given board.
-  let tilePairOrder = allTiles.concat(allTiles).sort((a, b) => a - b);
+  // Pre-fill part of the tile pair array, all the way up to one pair/quad of
+  // each tile value.
+  orderedTilePairs = noSinglePairs
+    ? allTileValues.concat(allTileValues)
+    : allTileValues.slice();
+
+  orderedTilePairs.sort((a, b) => a - b);
 
   // If the board is too big for the amount of pairs, we add more pairs in a
   // random order.
-  while (tilePairOrder.length < numOfPairs) {
-    let shuffledTilePairs = allTiles.slice();
+  while (orderedTilePairs.length < numOfPairs) {
+    let shuffledTilePairs = allTileValues.slice();
 
     for (let i = shuffledTilePairs.length - 1; i > 0; i--) {
       randValue = Math.floor(seededRng() * (i + 1));
@@ -168,19 +201,19 @@ export function generateBoardWithPresolvedShuffle(seed, width, height) {
       shuffledTilePairs[randValue] = char;
     }
 
-    tilePairOrder = tilePairOrder.concat(shuffledTilePairs);
+    orderedTilePairs = orderedTilePairs.concat(shuffledTilePairs);
   }
 
   // Crop the number of pairs to fit the target total amount.
-  tilePairOrder = tilePairOrder.slice(0, numOfPairs);
+  orderedTilePairs = orderedTilePairs.slice(0, numOfPairs);
 
   // Shuffle.
-  for (let i = tilePairOrder.length - 1; i > 0; i--) {
+  for (let i = orderedTilePairs.length - 1; i > 0; i--) {
     randValue = Math.floor(seededRng() * (i + 1));
 
-    char = tilePairOrder[i];
-    tilePairOrder[i] = tilePairOrder[randValue];
-    tilePairOrder[randValue] = char;
+    char = orderedTilePairs[i];
+    orderedTilePairs[i] = orderedTilePairs[randValue];
+    orderedTilePairs[randValue] = char;
   }
 
   // Generate the initial unshuffled layout of tiles.
@@ -284,8 +317,8 @@ export function generateBoardWithPresolvedShuffle(seed, width, height) {
             .tile;
 
     // We found our pair!
-    tiles[tileValue].char = tilePairOrder[i];
-    tiles[matchingTile].char = tilePairOrder[i];
+    tiles[tileValue].char = orderedTilePairs[i];
+    tiles[matchingTile].char = orderedTilePairs[i];
 
     // Add unvisited surrounding tiles of the matched tile to the open edge list.
     if (

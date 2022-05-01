@@ -6,6 +6,7 @@ const NewBoardModalBody = (props) => {
   const [customWidth, setCustomWidth] = useState(props.prevWidth);
   const [customHeight, setCustomHeight] = useState(props.prevHeight);
   const [blindShuffle, setBlindShuffle] = useState(props.prevBlindShuffle);
+  const [noSinglePairs, setNoSinglePairs] = useState(props.prevNoSinglePairs);
   const [seed, setSeed] = useState(props.prevSeed);
 
   const [useCustomSeed, setUseCustomSeed] = useState(false);
@@ -108,12 +109,24 @@ const NewBoardModalBody = (props) => {
         <div>
           <input
             type="checkbox"
-            id="optHard"
+            id="optTrueShuffle"
             checked={blindShuffle}
             onChange={() => setBlindShuffle(!blindShuffle)}
           ></input>
           <label htmlFor="optHard">
-            Enable Hard Mode. This may generate unwinnable boards!
+            Enable True Shuffle. This is more difficult as it may generate 
+            unwinnable boards!
+          </label>
+        </div>
+        <div>
+          <input
+            type="checkbox"
+            id="optNoSinglePairs"
+            checked={noSinglePairs}
+            onChange={() => setNoSinglePairs(!noSinglePairs)}
+          ></input>
+          <label htmlFor="optNoSinglePairs">
+            Force Multiple Pairs Per Tile. This makes smaller boards easier.
           </label>
         </div>
         <div>
@@ -145,7 +158,8 @@ const NewBoardModalBody = (props) => {
               useCustomSeed ? parseInt(seed) : null,
               useCustomSize ? parseInt(customWidth) : boardWidth,
               useCustomSize ? parseInt(customHeight) : boardHeight,
-              blindShuffle
+              blindShuffle,
+              noSinglePairs
             )
           }
         >
