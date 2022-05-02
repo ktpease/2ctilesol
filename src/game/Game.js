@@ -5,6 +5,8 @@ import { checkSimplestPath, checkAllPossibleMatches } from "./PathLogic.js";
 import {
   generateBoardWithSimpleShuffle,
   generateBoardWithPresolvedShuffle,
+  generateRectangularBoardWithSimpleShuffle,
+  generateRectangularBoardWithPresolvedShuffle,
 } from "./BoardGenerator.js";
 
 import Tile from "./Tile.js";
@@ -51,7 +53,7 @@ export default class Game extends React.Component {
       // Tile State
       tiles: [],
       selectedTile: null,
-      totalMatchableTiles: 136,
+      numTiles: 136,
       // Tile History
       tileHistory: [],
       // Tile Hinting
@@ -93,7 +95,7 @@ export default class Game extends React.Component {
             blindShuffle: gameState.blindShuffle,
             noSinglePairs: gameState.noSinglePairs,
             layoutDescription: gameState.layoutDescription,
-            totalMatchableTiles: gameState.totalMatchableTiles,
+            numTiles: gameState.numTiles,
             tileHistory: gameState.tileHistory,
           },
           () => {
@@ -172,7 +174,7 @@ export default class Game extends React.Component {
         blindShuffle: this.state.blindShuffle,
         noSinglePairs: this.state.noSinglePairs,
         layoutDescription: this.state.layoutDescription,
-        totalMatchableTiles: this.state.totalMatchableTiles,
+        numTiles: this.state.numTiles,
         tileHistory: this.state.tileHistory,
         timer: {
           seconds: this.timerRef.current.seconds,
@@ -242,14 +244,14 @@ export default class Game extends React.Component {
     let generatedBoard;
 
     if (_blindShuffle) {
-      generatedBoard = generateBoardWithSimpleShuffle(
+      generatedBoard = generateRectangularBoardWithSimpleShuffle(
         seed,
         _width,
         _height,
         _noSinglePairs
       );
     } else {
-      generatedBoard = generateBoardWithPresolvedShuffle(
+      generatedBoard = generateRectangularBoardWithPresolvedShuffle(
         seed,
         _width,
         _height,
@@ -264,13 +266,13 @@ export default class Game extends React.Component {
     this.setState(
       {
         tiles: generatedBoard.tiles,
-        boardWidth: _width,
-        boardHeight: _height,
+        boardWidth: generatedBoard.width,
+        boardHeight: generatedBoard.height,
         seed: generatedBoard.seed,
         blindShuffle: _blindShuffle,
         noSinglePairs: _noSinglePairs,
         layoutDescription: layoutDescription,
-        totalMatchableTiles: generatedBoard.totalMatchableTiles,
+        numTiles: generatedBoard.numTiles,
         selectedTile: null,
         tileHistory: [],
         hintedTiles: [],
@@ -335,10 +337,7 @@ export default class Game extends React.Component {
           this.timerRef.current.pause();
           this.setState({ gameEnded: true });
 
-          if (
-            this.state.totalMatchableTiles - this.state.tileHistory.length * 2 >
-            0
-          )
+          if (this.state.numTiles - this.state.tileHistory.length * 2 > 0)
             this.showModal("Game Lost");
           else this.showModal("Game Won");
         }
@@ -555,7 +554,7 @@ export default class Game extends React.Component {
       case "Game Won":
         return (
           <GameWinModalBody
-            numTiles={this.state.totalMatchableTiles}
+            numTiles={this.state.numTiles}
             clearTimeHours={this.timerRef.current.hours}
             clearTimeMinutes={this.timerRef.current.minutes}
             clearTimeSeconds={this.timerRef.current.seconds}
@@ -569,7 +568,7 @@ export default class Game extends React.Component {
         return (
           <GameLoseModalBody
             remainingTiles={
-              this.state.totalMatchableTiles - this.state.tileHistory.length * 2
+              this.state.numTiles - this.state.tileHistory.length * 2
             }
             seed={this.state.seed}
             layout={this.state.layoutDescription}

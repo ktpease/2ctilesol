@@ -1,8 +1,78 @@
 import seedrandom from "seedrandom";
 
+const layoutCodeVersionNumber = 1,
+  layoutCodeRadix = 32,
+  layoutCodeRadixBits = 5; // log_2(layoutCodeRadix)
+
+// Generate a layout code for a simple rectangle of a specified size.
+function generateLayoutCodeForRectangle(width, height) {
+  if (isNaN(parseInt(width)) || isNaN(parseInt(height))) {
+    return null;
+  }
+
+  let layoutCode = layoutCodeVersionNumber.toString(10).padStart(3, "0");
+
+  layoutCode += parseInt(width).toString(layoutCodeRadix).slice(0, 1);
+  layoutCode += parseInt(height).toString(layoutCodeRadix).slice(0, 1);
+
+  const digitsPerLine = Math.ceil((width + 1) / layoutCodeRadixBits);
+
+  const lineMask = "1"
+    .repeat(width + 1)
+    .padEnd(digitsPerLine * layoutCodeRadixBits, "0");
+
+  // If we have an odd amount of tiles in general, both width and height are
+  // odd. To keep things even, we make the centermost tile empty.
+  const removeCenterTile = width % 2 !== 0 && height % 2 !== 0;
+
+  for (let i = 0; i < height; i++) {
+    if (removeCenterTile && i === height >> 1) {
+      layoutCode += parseInt(
+        lineMask.slice(0, (width >> 1) + 1) +
+          "0" +
+          lineMask.slice((width >> 1) + 2),
+        2
+      ).toString(layoutCodeRadix);
+    } else {
+      layoutCode += parseInt(lineMask, 2).toString(layoutCodeRadix);
+    }
+  }
+
+  console.log("Generated rectangle board layout: " + layoutCode);
+
+  return layoutCode;
+}
+
+// Generate a random game board by taking a layout of unknown tiles
+// and for each valid tile-match, in a random order, remove pairs from the
+// layout in a random formation.
+//
+// This will generate a rectangular layout with the width and height parameters.
+//
+// This method is slower, but generates winnable boards.
+export function generateRectangularBoardWithSimpleShuffle(
+  seed,
+  width,
+  height,
+  noSinglePairs
+) {
+  const layoutCode = generateLayoutCodeForRectangle(width, height);
+
+  if (layoutCode !== null)
+    return generateBoardWithSimpleShuffle(seed, layoutCode, noSinglePairs);
+  else return null;
+}
+
 // Generate a random game board by placing pairs/quadruplets of each random tile
 // on the board in the correct layout and then shuffling all tiles on the board
 // using a simple Fisher-Yates shuffle.
+//
+// It uses an encoded layoutCode consisting of:
+// matching version number (3 digits, base10)
+// width (1 digit)
+// height (1 digit)
+// binary mask for if a tile exists in each area of the grid
+//  (min # of digits per line * num of lines)
 //
 // Note: It'll generate a width+2 x height+2 board, with the edge row and
 // column being blank.
@@ -10,8 +80,7 @@ import seedrandom from "seedrandom";
 // This method is quicker and more random, but can generate an unwinnable board.
 export function generateBoardWithSimpleShuffle(
   seed,
-  width,
-  height,
+  layoutCode,
   noSinglePairs
 ) {
   const tiles = [],
@@ -20,8 +89,7 @@ export function generateBoardWithSimpleShuffle(
   let id = 0,
     char = -1,
     chardupe = -1,
-    randValue = 0,
-    totalMatchableTiles = 0;
+    randValue = 0;
 
   // Determine if we need to generate a random seed
   // or use a pre-determined one from the seed argument.
@@ -31,6 +99,33 @@ export function generateBoardWithSimpleShuffle(
     : parseInt(seed, 10) >>> 0;
 
   const seededRng = seedrandom(finalSeed);
+
+  const layoutCodeVer = parseInt(layoutCode.slice(0, 3), 10);
+
+  if (layoutCodeVer !== layoutCodeVersionNumber) {
+    console.error("Invalid layout code.");
+    return null;
+  }
+
+  const width = parseInt(layoutCode.slice(3, 4), layoutCodeRadix),
+    height = parseInt(layoutCode.slice(4, 5), layoutCodeRadix);
+
+  const digitsPerLine = Math.ceil((width + 1) / layoutCodeRadixBits);
+  let layoutMask = "";
+
+  for (let i = 0; i < height; i++) {
+    layoutMask += parseInt(
+      layoutCode.slice(5 + i * digitsPerLine, 5 + (i + 1) * digitsPerLine),
+      layoutCodeRadix
+    )
+      .toString(2)
+      .slice(1, width + 1);
+  }
+
+  const numTiles = Array.from(layoutMask).reduce(
+    (acc, val) => acc + (val === "1" ? 1 : 0),
+    0
+  );
 
   // Generate which tiles are used. This is done by listing all
   // possible tiles (without duplicates), then shuffling it.
@@ -45,11 +140,9 @@ export function generateBoardWithSimpleShuffle(
     usedTiles[randValue] = char;
   }
 
-  // If we have an odd amount of tiles in general, both width and height are
-  // odd. To keep things even, we make the centermost tile empty.
-  const oddNumberOfTiles = width % 2 !== 0 && height % 2 !== 0;
-
   // Generate the initial unshuffled layout of tiles.
+  let tileNum = 0;
+
   // Blank out the top outer edge.
   for (let x = 0; x < width + 2; x++)
     id = tiles.push({ id: id, char: null, inRemovalAnim: false });
@@ -59,24 +152,23 @@ export function generateBoardWithSimpleShuffle(
     id = tiles.push({ id: id, char: null, inRemovalAnim: false });
 
     for (let x = 0; x < width; x++) {
-      if (oddNumberOfTiles && x === width >> 1 && y === height >> 1) {
+      if (layoutMask[tileNum] === "1") {
+        if (
+          (chardupe = (chardupe + 1) % (noSinglePairs === true ? 4 : 2)) === 0
+        ) {
+          char = (char + 1) % usedTiles.length;
+        }
+
+        allValidTiles.push(id);
+        id = tiles.push({
+          id: id,
+          char: usedTiles[char],
+          inRemovalAnim: false,
+        });
+      } else {
         id = tiles.push({ id: id, char: null, inRemovalAnim: false });
-        continue;
       }
-
-      if (
-        (chardupe = (chardupe + 1) % (noSinglePairs === true ? 4 : 2)) === 0
-      ) {
-        char = (char + 1) % usedTiles.length;
-      }
-
-      allValidTiles.push(id);
-      id = tiles.push({
-        id: id,
-        char: usedTiles[char],
-        inRemovalAnim: false,
-      });
-      totalMatchableTiles++;
+      tileNum++;
     }
 
     // Blank out the right outer edge.
@@ -103,30 +195,58 @@ export function generateBoardWithSimpleShuffle(
   return {
     tiles: tiles,
     seed: finalSeed,
-    totalMatchableTiles: totalMatchableTiles,
+    width: width,
+    height: height,
+    numTiles: numTiles,
+    layoutCode: layoutCode,
   };
 }
 
-// Generate a random game board by taking a complete layout of unknown tiles
+// Generate a random game board by taking a layout of unknown tiles
 // and for each valid tile-match, in a random order, remove pairs from the
 // layout in a random formation.
+//
+// This will generate a rectangular layout with the width and height parameters.
+//
+// This method is slower, but generates winnable boards.
+export function generateRectangularBoardWithPresolvedShuffle(
+  seed,
+  width,
+  height,
+  noSinglePairs
+) {
+  const layoutCode = generateLayoutCodeForRectangle(width, height);
+
+  if (layoutCode !== null)
+    return generateBoardWithPresolvedShuffle(seed, layoutCode, noSinglePairs);
+  else return null;
+}
+
+// Generate a random game board by taking a layout of unknown tiles
+// and for each valid tile-match, in a random order, remove pairs from the
+// layout in a random formation.
+//
+// It uses an encoded layoutCode consisting of:
+// matching version number (3 digits, base10)
+// width (1 digit)
+// height (1 digit)
+// binary mask for if a tile exists in each area of the grid
+//  (min # of digits per line * num of lines)
 //
 // Note: It'll generate a width+2 x height+2 board, with the edge row and
 // column being blank.
 //
-// This method is slower, but genereates winnable boards.
+// This method is slower, but generates winnable boards.
 export function generateBoardWithPresolvedShuffle(
   seed,
-  width,
-  height,
+  layoutCode,
   noSinglePairs
 ) {
   const tiles = [];
 
   let id = 0,
     char = -1,
-    randValue = 0,
-    totalMatchableTiles = 0;
+    randValue = 0;
 
   // Determine if we need to generate a random seed
   // or use a pre-determined one from the seed argument.
@@ -136,6 +256,35 @@ export function generateBoardWithPresolvedShuffle(
     : parseInt(seed, 10) >>> 0;
 
   const seededRng = seedrandom(finalSeed);
+
+  const layoutCodeVer = parseInt(layoutCode.slice(0, 3), 10);
+
+  if (layoutCodeVer !== layoutCodeVersionNumber) {
+    console.error("Invalid layout code.");
+    return null;
+  }
+
+  const width = parseInt(layoutCode.slice(3, 4), layoutCodeRadix),
+    height = parseInt(layoutCode.slice(4, 5), layoutCodeRadix);
+
+  const digitsPerLine = Math.ceil((width + 1) / layoutCodeRadixBits);
+  let layoutMask = "";
+
+  for (let i = 0; i < height; i++) {
+    layoutMask += parseInt(
+      layoutCode.slice(5 + i * digitsPerLine, 5 + (i + 1) * digitsPerLine),
+      layoutCodeRadix
+    )
+      .toString(2)
+      .slice(1, width + 1);
+  }
+
+  const numTiles = Array.from(layoutMask).reduce(
+    (acc, val) => acc + (val === "1" ? 1 : 0),
+    0
+  );
+
+  const numPairs = numTiles >> 1;
 
   // Generate the tile matching order for the solving algorithm. This is done
   // by getting a list of valid tile pairs, then adjusting it to fit the
@@ -151,12 +300,10 @@ export function generateBoardWithPresolvedShuffle(
   // of a tile on a given board for an easier difficulty on smaller boards.
   let orderedTilePairs;
 
-  const numOfPairs = (width * height) >> 1;
-
-  // If our board cannot fit pairs/quads of all tiles, we choose which of the 
+  // If our board cannot fit pairs/quads of all tiles, we choose which of the
   // tiles we use at random.
   if (
-    numOfPairs <
+    numPairs <
     (noSinglePairs ? allTileValues.length << 1 : allTileValues.length)
   ) {
     for (let i = allTileValues.length - 1; i > 0; i--) {
@@ -173,10 +320,10 @@ export function generateBoardWithPresolvedShuffle(
     // for, we'll keep with the name and have the extra pair be from one of
     // the chosen tiles (which means there will be 6 instead of 4). If we'd
     // rather have it be a single pair of an unused tile, replace the following:
-    // numofPairs >> 1           -->       (numOfPairs + 1) >> 1
+    // numPairs >> 1           -->       (numPairs + 1) >> 1
     allTileValues = allTileValues.slice(
       0,
-      noSinglePairs ? numOfPairs >> 1 : numOfPairs
+      noSinglePairs ? numPairs >> 1 : numPairs
     );
   }
 
@@ -190,7 +337,7 @@ export function generateBoardWithPresolvedShuffle(
 
   // If the board is too big for the amount of pairs, we add more pairs in a
   // random order.
-  while (orderedTilePairs.length < numOfPairs) {
+  while (orderedTilePairs.length < numPairs) {
     let shuffledTilePairs = allTileValues.slice();
 
     for (let i = shuffledTilePairs.length - 1; i > 0; i--) {
@@ -205,7 +352,7 @@ export function generateBoardWithPresolvedShuffle(
   }
 
   // Crop the number of pairs to fit the target total amount.
-  orderedTilePairs = orderedTilePairs.slice(0, numOfPairs);
+  orderedTilePairs = orderedTilePairs.slice(0, numPairs);
 
   // Shuffle.
   for (let i = orderedTilePairs.length - 1; i > 0; i--) {
@@ -218,6 +365,8 @@ export function generateBoardWithPresolvedShuffle(
 
   // Generate the initial unshuffled layout of tiles.
 
+  let tileNum = 0;
+
   // Blank out the top outer edge.
   for (let x = 0; x < width + 2; x++)
     id = tiles.push({ id: id, char: null, inRemovalAnim: false });
@@ -227,8 +376,13 @@ export function generateBoardWithPresolvedShuffle(
     id = tiles.push({ id: id, char: null, inRemovalAnim: false });
 
     for (let x = 0; x < width; x++) {
-      id = tiles.push({ id: id, char: -1, inRemovalAnim: false });
-      totalMatchableTiles++;
+      if (layoutMask[tileNum] === "1") {
+        id = tiles.push({ id: id, char: -1, inRemovalAnim: false });
+      } else {
+        id = tiles.push({ id: id, char: null, inRemovalAnim: false });
+      }
+
+      tileNum++;
     }
 
     // Blank out the right outer edge.
@@ -238,10 +392,6 @@ export function generateBoardWithPresolvedShuffle(
   // Blank out the bottom outer edge.
   for (let x = 0; x < width + 2; x++)
     id = tiles.push({ id: id, char: null, inRemovalAnim: false });
-
-  // If we have an odd amount of tiles in general, both width and height are
-  // odd. To keep things even, we make the centermost tile empty.
-  if (width % 2 !== 0 && height % 2 !== 0) tiles[tiles.length >> 1].char = null;
 
   let edgeTiles = [];
 
@@ -257,7 +407,7 @@ export function generateBoardWithPresolvedShuffle(
       edgeTiles.push(i);
   }
 
-  for (let i = 0; i < numOfPairs; i++) {
+  for (let i = 0; i < numPairs; i++) {
     // Get a random unvisited edge tile.
     let tileValue = edgeTiles[Math.floor(seededRng() * edgeTiles.length)];
 
@@ -357,7 +507,10 @@ export function generateBoardWithPresolvedShuffle(
   return {
     tiles: tiles,
     seed: finalSeed,
-    totalMatchableTiles: totalMatchableTiles,
+    width: width,
+    height: height,
+    numTiles: numTiles,
+    layoutCode: layoutCode,
   };
 }
 
