@@ -4,45 +4,6 @@ const layoutCodeVersionNumber = 1,
   layoutCodeRadix = 32,
   layoutCodeRadixBits = 5; // log_2(layoutCodeRadix)
 
-// Generate a layout code for a simple rectangle of a specified size.
-function generateLayoutCodeForRectangle(width, height) {
-  if (isNaN(parseInt(width)) || isNaN(parseInt(height))) {
-    return null;
-  }
-
-  let layoutCode = layoutCodeVersionNumber.toString(10).padStart(3, "0");
-
-  layoutCode += parseInt(width).toString(layoutCodeRadix).slice(0, 1);
-  layoutCode += parseInt(height).toString(layoutCodeRadix).slice(0, 1);
-
-  const digitsPerLine = Math.ceil((width + 1) / layoutCodeRadixBits);
-
-  const lineMask = "1"
-    .repeat(width + 1)
-    .padEnd(digitsPerLine * layoutCodeRadixBits, "0");
-
-  // If we have an odd amount of tiles in general, both width and height are
-  // odd. To keep things even, we make the centermost tile empty.
-  const removeCenterTile = width % 2 !== 0 && height % 2 !== 0;
-
-  for (let i = 0; i < height; i++) {
-    if (removeCenterTile && i === height >> 1) {
-      layoutCode += parseInt(
-        lineMask.slice(0, (width >> 1) + 1) +
-          "0" +
-          lineMask.slice((width >> 1) + 2),
-        2
-      ).toString(layoutCodeRadix);
-    } else {
-      layoutCode += parseInt(lineMask, 2).toString(layoutCodeRadix);
-    }
-  }
-
-  console.log("Generated rectangle board layout: " + layoutCode);
-
-  return layoutCode;
-}
-
 // Generate a random game board by taking a layout of unknown tiles
 // and for each valid tile-match, in a random order, remove pairs from the
 // layout in a random formation.
@@ -100,29 +61,14 @@ export function generateBoardWithSimpleShuffle(
 
   const seededRng = seedrandom(finalSeed);
 
-  const layoutCodeVer = parseInt(layoutCode.slice(0, 3), 10);
+  const layout = decodeLayoutCode(layoutCode);
 
-  if (layoutCodeVer !== layoutCodeVersionNumber) {
+  if (layout === null) {
     console.error("Invalid layout code.");
     return null;
   }
 
-  const width = parseInt(layoutCode.slice(3, 4), layoutCodeRadix),
-    height = parseInt(layoutCode.slice(4, 5), layoutCodeRadix);
-
-  const digitsPerLine = Math.ceil((width + 1) / layoutCodeRadixBits);
-  let layoutMask = "";
-
-  for (let i = 0; i < height; i++) {
-    layoutMask += parseInt(
-      layoutCode.slice(5 + i * digitsPerLine, 5 + (i + 1) * digitsPerLine),
-      layoutCodeRadix
-    )
-      .toString(2)
-      .slice(1, width + 1);
-  }
-
-  const numTiles = Array.from(layoutMask).reduce(
+  const numTiles = Array.from(layout.layoutMask).reduce(
     (acc, val) => acc + (val === "1" ? 1 : 0),
     0
   );
@@ -144,15 +90,15 @@ export function generateBoardWithSimpleShuffle(
   let tileNum = 0;
 
   // Blank out the top outer edge.
-  for (let x = 0; x < width + 2; x++)
+  for (let x = 0; x < layout.width + 2; x++)
     id = tiles.push({ id: id, char: null, inRemovalAnim: false });
 
-  for (let y = 0; y < height; y++) {
+  for (let y = 0; y < layout.height; y++) {
     // Blank out the left outer edge.
     id = tiles.push({ id: id, char: null, inRemovalAnim: false });
 
-    for (let x = 0; x < width; x++) {
-      if (layoutMask[tileNum] === "1") {
+    for (let x = 0; x < layout.width; x++) {
+      if (layout.layoutMask[tileNum] === "1") {
         if (
           (chardupe = (chardupe + 1) % (noSinglePairs === true ? 4 : 2)) === 0
         ) {
@@ -176,7 +122,7 @@ export function generateBoardWithSimpleShuffle(
   }
 
   // Blank out the bottom outer edge.
-  for (let x = 0; x < width + 2; x++)
+  for (let x = 0; x < layout.width + 2; x++)
     id = tiles.push({ id: id, char: null, inRemovalAnim: false });
 
   // Shuffle the board.
@@ -189,14 +135,14 @@ export function generateBoardWithSimpleShuffle(
   }
 
   console.log(
-    `Generated simple-shuffle ${width}x${height} board with seed ${finalSeed}`
+    `Generated simple-shuffle ${layout.width}x${layout.height} board with seed ${finalSeed}`
   );
 
   return {
     tiles: tiles,
     seed: finalSeed,
-    width: width,
-    height: height,
+    width: layout.width,
+    height: layout.height,
     numTiles: numTiles,
     layoutCode: layoutCode,
   };
@@ -257,29 +203,14 @@ export function generateBoardWithPresolvedShuffle(
 
   const seededRng = seedrandom(finalSeed);
 
-  const layoutCodeVer = parseInt(layoutCode.slice(0, 3), 10);
+  const layout = decodeLayoutCode(layoutCode);
 
-  if (layoutCodeVer !== layoutCodeVersionNumber) {
+  if (layout === null) {
     console.error("Invalid layout code.");
     return null;
   }
 
-  const width = parseInt(layoutCode.slice(3, 4), layoutCodeRadix),
-    height = parseInt(layoutCode.slice(4, 5), layoutCodeRadix);
-
-  const digitsPerLine = Math.ceil((width + 1) / layoutCodeRadixBits);
-  let layoutMask = "";
-
-  for (let i = 0; i < height; i++) {
-    layoutMask += parseInt(
-      layoutCode.slice(5 + i * digitsPerLine, 5 + (i + 1) * digitsPerLine),
-      layoutCodeRadix
-    )
-      .toString(2)
-      .slice(1, width + 1);
-  }
-
-  const numTiles = Array.from(layoutMask).reduce(
+  const numTiles = Array.from(layout.layoutMask).reduce(
     (acc, val) => acc + (val === "1" ? 1 : 0),
     0
   );
@@ -368,15 +299,15 @@ export function generateBoardWithPresolvedShuffle(
   let tileNum = 0;
 
   // Blank out the top outer edge.
-  for (let x = 0; x < width + 2; x++)
+  for (let x = 0; x < layout.width + 2; x++)
     id = tiles.push({ id: id, char: null, inRemovalAnim: false });
 
-  for (let y = 0; y < height; y++) {
+  for (let y = 0; y < layout.height; y++) {
     // Blank out the left outer edge.
     id = tiles.push({ id: id, char: null, inRemovalAnim: false });
 
-    for (let x = 0; x < width; x++) {
-      if (layoutMask[tileNum] === "1") {
+    for (let x = 0; x < layout.width; x++) {
+      if (layout.layoutMask[tileNum] === "1") {
         id = tiles.push({ id: id, char: -1, inRemovalAnim: false });
       } else {
         id = tiles.push({ id: id, char: null, inRemovalAnim: false });
@@ -390,19 +321,19 @@ export function generateBoardWithPresolvedShuffle(
   }
 
   // Blank out the bottom outer edge.
-  for (let x = 0; x < width + 2; x++)
+  for (let x = 0; x < layout.width + 2; x++)
     id = tiles.push({ id: id, char: null, inRemovalAnim: false });
 
   let edgeTiles = [];
 
   // Get all tiles with an empty edge.
-  for (let i = width + 2; i < tiles.length - (width + 2); i++) {
+  for (let i = layout.width + 2; i < tiles.length - (layout.width + 2); i++) {
     if (
       tiles[i].char === -1 &&
       (tiles[i - 1].char !== -1 ||
         tiles[i + 1].char !== -1 ||
-        tiles[i - (width + 2)].char !== -1 ||
-        tiles[i + (width + 2)].char !== -1)
+        tiles[i - (layout.width + 2)].char !== -1 ||
+        tiles[i + (layout.width + 2)].char !== -1)
     )
       edgeTiles.push(i);
   }
@@ -425,16 +356,16 @@ export function generateBoardWithPresolvedShuffle(
       edgeTiles.push(tileValue + 1);
     }
     if (
-      tiles[tileValue - (width + 2)].char === -1 &&
-      !edgeTiles.includes(tileValue - (width + 2))
+      tiles[tileValue - (layout.width + 2)].char === -1 &&
+      !edgeTiles.includes(tileValue - (layout.width + 2))
     ) {
-      edgeTiles.push(tileValue - (width + 2));
+      edgeTiles.push(tileValue - (layout.width + 2));
     }
     if (
-      tiles[tileValue + (width + 2)].char === -1 &&
-      !edgeTiles.includes(tileValue + (width + 2))
+      tiles[tileValue + (layout.width + 2)].char === -1 &&
+      !edgeTiles.includes(tileValue + (layout.width + 2))
     ) {
-      edgeTiles.push(tileValue + (width + 2));
+      edgeTiles.push(tileValue + (layout.width + 2));
     }
 
     // Don't match the tile with itself.
@@ -443,8 +374,8 @@ export function generateBoardWithPresolvedShuffle(
     let possibleMatches = getMatchingEdgeTilesInPresolvedShuffle(
       tileValue,
       tiles,
-      width,
-      height,
+      layout.width,
+      layout.height,
       edgeTiles
     );
 
@@ -484,16 +415,16 @@ export function generateBoardWithPresolvedShuffle(
       edgeTiles.push(matchingTile + 1);
     }
     if (
-      tiles[matchingTile - (width + 2)].char === -1 &&
-      !edgeTiles.includes(matchingTile - (width + 2))
+      tiles[matchingTile - (layout.width + 2)].char === -1 &&
+      !edgeTiles.includes(matchingTile - (layout.width + 2))
     ) {
-      edgeTiles.push(matchingTile - (width + 2));
+      edgeTiles.push(matchingTile - (layout.width + 2));
     }
     if (
-      tiles[matchingTile + (width + 2)].char === -1 &&
-      !edgeTiles.includes(matchingTile + (width + 2))
+      tiles[matchingTile + (layout.width + 2)].char === -1 &&
+      !edgeTiles.includes(matchingTile + (layout.width + 2))
     ) {
-      edgeTiles.push(matchingTile + (width + 2));
+      edgeTiles.push(matchingTile + (layout.width + 2));
     }
 
     // Don't match future tile with the matched tile.
@@ -501,14 +432,14 @@ export function generateBoardWithPresolvedShuffle(
   }
 
   console.log(
-    `Generated presolved-shuffle ${width}x${height} board with seed ${finalSeed}`
+    `Generated presolved-shuffle ${layout.width}x${layout.height} board with seed ${finalSeed}`
   );
 
   return {
     tiles: tiles,
     seed: finalSeed,
-    width: width,
-    height: height,
+    width: layout.width,
+    height: layout.height,
     numTiles: numTiles,
     layoutCode: layoutCode,
   };
@@ -883,4 +814,73 @@ function getMatchingEdgeTilesInPresolvedShuffle(
   }
 
   return validMatchingTiles;
+}
+
+// Generate a layout code for a simple rectangle of a specified size.
+function generateLayoutCodeForRectangle(width, height) {
+  if (isNaN(parseInt(width)) || isNaN(parseInt(height))) {
+    return null;
+  }
+
+  let layoutCode = layoutCodeVersionNumber.toString(10).padStart(3, "0");
+
+  layoutCode += parseInt(width).toString(layoutCodeRadix).slice(0, 1);
+  layoutCode += parseInt(height).toString(layoutCodeRadix).slice(0, 1);
+
+  const digitsPerLine = Math.ceil((width + 1) / layoutCodeRadixBits);
+
+  const lineMask = "1"
+    .repeat(width + 1)
+    .padEnd(digitsPerLine * layoutCodeRadixBits, "0");
+
+  // If we have an odd amount of tiles in general, both width and height are
+  // odd. To keep things even, we make the centermost tile empty.
+  const removeCenterTile = width % 2 !== 0 && height % 2 !== 0;
+
+  for (let i = 0; i < height; i++) {
+    if (removeCenterTile && i === height >> 1) {
+      layoutCode += parseInt(
+        lineMask.slice(0, (width >> 1) + 1) +
+          "0" +
+          lineMask.slice((width >> 1) + 2),
+        2
+      ).toString(layoutCodeRadix);
+    } else {
+      layoutCode += parseInt(lineMask, 2).toString(layoutCodeRadix);
+    }
+  }
+
+  console.log("Generated rectangle board layout: " + layoutCode);
+
+  return layoutCode;
+}
+
+// Decode and validate the layout code.
+function decodeLayoutCode(layoutCode) {
+  const layoutCodeVer = parseInt(layoutCode.slice(0, 3), 10);
+
+  if (layoutCodeVer !== layoutCodeVersionNumber) {
+    return null;
+  }
+
+  const width = parseInt(layoutCode.slice(3, 4), layoutCodeRadix),
+    height = parseInt(layoutCode.slice(4, 5), layoutCodeRadix);
+
+  const digitsPerLine = Math.ceil((width + 1) / layoutCodeRadixBits);
+  let layoutMask = "";
+
+  for (let i = 0; i < height; i++) {
+    layoutMask += parseInt(
+      layoutCode.slice(5 + i * digitsPerLine, 5 + (i + 1) * digitsPerLine),
+      layoutCodeRadix
+    )
+      .toString(2)
+      .slice(1, width + 1);
+  }
+
+  return {
+    width: width,
+    height: height,
+    layoutMask: layoutMask,
+  };
 }
