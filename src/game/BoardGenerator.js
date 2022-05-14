@@ -849,6 +849,10 @@ function generateLayoutCodeForRectangle(width, height) {
 
 // Decode and validate the layout code.
 function decodeLayoutCode(layoutCode) {
+  if (layoutCode === null || layoutCode.length < 5) {
+    return null;
+  }
+
   const layoutCodeVer = parseInt(layoutCode.slice(0, 3), 10);
 
   if (layoutCodeVer !== layoutCodeVersionNumber) {
@@ -859,15 +863,24 @@ function decodeLayoutCode(layoutCode) {
     height = parseInt(layoutCode.slice(4, 5), layoutCodeRadix);
 
   const digitsPerLine = Math.ceil((width + 1) / layoutCodeRadixBits);
+
+  if (layoutCode.length !== 5 + digitsPerLine * height) {
+    return null;
+  }
+
   let layoutMask = "";
 
   for (let i = 0; i < height; i++) {
-    layoutMask += parseInt(
+    const nextWidth = parseInt(
       layoutCode.slice(5 + i * digitsPerLine, 5 + (i + 1) * digitsPerLine),
       layoutCodeRadix
-    )
-      .toString(2)
-      .slice(1, width + 1);
+    );
+
+    if (isNaN(nextWidth)) {
+      return null;
+    }
+
+    layoutMask += nextWidth.toString(2).slice(1, width + 1);
   }
 
   return {

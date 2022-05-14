@@ -29,7 +29,9 @@ export default class Game extends React.Component {
   constructor(props) {
     super(props);
 
-    this.gameStateVer = 3;
+    this.gameStateVer = 4;
+
+    this.searchParams = this.props.searchParams;
 
     this.state = {
       // Settings
@@ -75,11 +77,13 @@ export default class Game extends React.Component {
   componentDidMount() {
     this.checkFontCompatibility();
 
-    let layout, seed, blindShuffle, noSinglePairs;
+    const gameState = this.getStateFromLocal(),
+      layout = this.searchParams.get("l"),
+      seed = this.searchParams.get("s"),
+      blindShuffle = this.searchParams.get("ts") !== null,
+      noSinglePairs = this.searchParams.get("nsp") !== null;
 
-    const gameState = this.getStateFromLocal();
-    
-    if (layout !== undefined || seed !== undefined) {
+    if (layout !== null) {
       this.resetBoard(seed, null, null, blindShuffle, noSinglePairs, layout);
     } else if (
       gameState !== null &&
@@ -128,6 +132,10 @@ export default class Game extends React.Component {
     } else {
       this.resetBoard();
     }
+  }
+
+  componentWillUnmount() {
+    this.searchParams = null;
   }
 
   getStateFromLocal() {
@@ -250,7 +258,9 @@ export default class Game extends React.Component {
 
     let generatedBoard;
 
-    if (layoutCode !== undefined) {
+    let layoutDescription;
+
+    if (layoutCode !== null && layoutCode !== undefined) {
       if (_blindShuffle) {
         generatedBoard = generateBoardWithSimpleShuffle(
           seed,
@@ -275,6 +285,10 @@ export default class Game extends React.Component {
           17,
           8
         );
+
+        layoutDescription = "Rectangle";
+      } else {
+        layoutDescription = "Custom";
       }
     } else {
       if (_blindShuffle) {
@@ -292,11 +306,15 @@ export default class Game extends React.Component {
           _noSinglePairs
         );
       }
+
+      layoutDescription = "Rectangle";
     }
 
-    const layoutDescription = `Rectangle ${_width}\u2a2f${_height}${
-      _blindShuffle ? " TrueShuffle" : ""
-    }${_noSinglePairs ? " NoSinglePairs" : ""}`;
+    layoutDescription += ` ${generatedBoard.width}\u2a2f${
+      generatedBoard.height
+    }${_blindShuffle ? " TrueShuffle" : ""}${
+      _noSinglePairs ? " NoSinglePairs" : ""
+    }`;
 
     this.setState(
       {
