@@ -47,6 +47,7 @@ export default class Game extends React.Component {
       boardWidth: 17,
       boardHeight: 8,
       seed: 1,
+      layoutCode: 0,
       blindShuffle: false,
       noSinglePairs: false,
       layoutDescription: "Rectangle 17\u2a2f8",
@@ -74,9 +75,13 @@ export default class Game extends React.Component {
   componentDidMount() {
     this.checkFontCompatibility();
 
-    const gameState = this.getStateFromLocal();
+    let layout, seed, blindShuffle, noSinglePairs;
 
-    if (
+    const gameState = this.getStateFromLocal();
+    
+    if (layout !== undefined || seed !== undefined) {
+      this.resetBoard(seed, null, null, blindShuffle, noSinglePairs, layout);
+    } else if (
       gameState !== null &&
       "v" in gameState &&
       gameState.v === this.gameStateVer
@@ -92,6 +97,7 @@ export default class Game extends React.Component {
             boardWidth: gameState.boardWidth,
             boardHeight: gameState.boardHeight,
             seed: gameState.seed,
+            layoutCode: gameState.layoutCode,
             blindShuffle: gameState.blindShuffle,
             noSinglePairs: gameState.noSinglePairs,
             layoutDescription: gameState.layoutDescription,
@@ -171,6 +177,7 @@ export default class Game extends React.Component {
         boardWidth: this.state.boardWidth,
         boardHeight: this.state.boardHeight,
         seed: this.state.seed,
+        layoutCode: this.state.layoutCode,
         blindShuffle: this.state.blindShuffle,
         noSinglePairs: this.state.noSinglePairs,
         layoutDescription: this.state.layoutDescription,
@@ -233,7 +240,7 @@ export default class Game extends React.Component {
     }
   }
 
-  resetBoard(seed, width, height, blindShuffle, noSinglePairs) {
+  resetBoard(seed, width, height, blindShuffle, noSinglePairs, layoutCode) {
     const _width = width !== undefined ? width : this.state.boardWidth,
       _height = height !== undefined ? height : this.state.boardHeight,
       _blindShuffle =
@@ -243,20 +250,48 @@ export default class Game extends React.Component {
 
     let generatedBoard;
 
-    if (_blindShuffle) {
-      generatedBoard = generateRectangularBoardWithSimpleShuffle(
-        seed,
-        _width,
-        _height,
-        _noSinglePairs
-      );
+    if (layoutCode !== undefined) {
+      if (_blindShuffle) {
+        generatedBoard = generateBoardWithSimpleShuffle(
+          seed,
+          layoutCode,
+          _noSinglePairs
+        );
+      } else {
+        generatedBoard = generateBoardWithPresolvedShuffle(
+          seed,
+          layoutCode,
+          _noSinglePairs
+        );
+      }
+
+      if (generatedBoard === null) {
+        console.error(
+          "Invalid generated board, switching to default 17x8 board."
+        );
+
+        generatedBoard = generateRectangularBoardWithPresolvedShuffle(
+          null,
+          17,
+          8
+        );
+      }
     } else {
-      generatedBoard = generateRectangularBoardWithPresolvedShuffle(
-        seed,
-        _width,
-        _height,
-        _noSinglePairs
-      );
+      if (_blindShuffle) {
+        generatedBoard = generateRectangularBoardWithSimpleShuffle(
+          seed,
+          _width,
+          _height,
+          _noSinglePairs
+        );
+      } else {
+        generatedBoard = generateRectangularBoardWithPresolvedShuffle(
+          seed,
+          _width,
+          _height,
+          _noSinglePairs
+        );
+      }
     }
 
     const layoutDescription = `Rectangle ${_width}\u2a2f${_height}${
@@ -269,6 +304,7 @@ export default class Game extends React.Component {
         boardWidth: generatedBoard.width,
         boardHeight: generatedBoard.height,
         seed: generatedBoard.seed,
+        layoutCode: generatedBoard.layoutCode,
         blindShuffle: _blindShuffle,
         noSinglePairs: _noSinglePairs,
         layoutDescription: layoutDescription,
