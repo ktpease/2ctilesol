@@ -358,13 +358,10 @@ export default class Game extends React.Component {
     if (this.state.selectedTile === tileId) {
       if (this.state.allowDeselect === true) {
         this.setState({ selectedTile: null, hintedTiles: [] });
-        console.debug(`Unclicked ${tileId}`);
       }
 
       return;
     }
-
-    console.debug(`Clicked ${tileId}`);
 
     // If selecting a second tile, check to make sure it matches the first,
     // then check the pathing to see if it's valid, then clear valid matches.

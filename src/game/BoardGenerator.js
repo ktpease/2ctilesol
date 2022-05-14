@@ -134,10 +134,6 @@ export function generateBoardWithSimpleShuffle(
     tiles[allValidTiles[randValue]].char = char;
   }
 
-  console.log(
-    `Generated simple-shuffle ${layout.width}x${layout.height} board with seed ${finalSeed}`
-  );
-
   return {
     tiles: tiles,
     seed: finalSeed,
@@ -430,10 +426,6 @@ export function generateBoardWithPresolvedShuffle(
     // Don't match future tile with the matched tile.
     edgeTiles = edgeTiles.filter((x) => x !== matchingTile);
   }
-
-  console.log(
-    `Generated presolved-shuffle ${layout.width}x${layout.height} board with seed ${finalSeed}`
-  );
 
   return {
     tiles: tiles,
