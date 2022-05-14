@@ -544,7 +544,7 @@ export default class Game extends React.Component {
           <NewBoardModalBody
             prevWidth={this.state.boardWidth}
             prevHeight={this.state.boardHeight}
-            prevBlindShuffle={this.state.blindShuffle} 
+            prevBlindShuffle={this.state.blindShuffle}
             prevNoSinglePairs={this.state.noSinglePairs}
             prevSeed={this.state.seed}
             handleResetBoard={this.resetBoard.bind(this)}
@@ -657,10 +657,10 @@ export default class Game extends React.Component {
           tile={tileobj.char}
           glyph={!this.state.useEmoji}
           selected={tileobj.id === this.state.selectedTile}
-          hinted={
+          hintCurrent={
             this.state.hintedTiles.includes(tileobj) && !tileobj.inRemovalAnim
           }
-          highlighted={
+          hintAll={
             this.state.showAllValidMatches &&
             this.state.allValidMatchingTiles.includes(tileobj.id)
           }

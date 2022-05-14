@@ -132,12 +132,12 @@
   text-shadow: 0 0 0.3em yellow, 0 0 0 black, 0.1em 0.1em 0 grey;
 }
 
-.game-tile-emoji.game-tile-highlighted {
+.game-tile-emoji.game-tile-hint-all {
   color: #000000b0;
   text-shadow: 0 0 0 red, 0.1em 0.1em 0 grey;
 }
 
-.game-tile-emoji.game-tile-hinted {
+.game-tile-emoji.game-tile-hint-current {
   color: #000000b0;
   text-shadow: 0 0 0 blue, 0.1em 0.1em 0 grey;
 }
@@ -227,49 +227,49 @@
   text-shadow: 0 0 0.2em yellow, 0.1em 0.1em 0 grey;
 }
 
-.game-tile-glyph.game-tile-highlighted:before {
+.game-tile-glyph.game-tile-hint-all:before {
   color: #f5a7a7;
   text-shadow: 0.1em 0.1em 0 grey;
 }
 
-.game-tile-glyph.game-tile-hinted:before {
+.game-tile-glyph.game-tile-hint-current:before {
   color: #a7a7f5;
   text-shadow: 0.1em 0.1em 0 grey;
 }
 
 .game-tile-glyph.game-tile-selected,
-.game-tile-glyph.game-tile-highlighted,
-.game-tile-glyph.game-tile-hinted {
+.game-tile-glyph.game-tile-hint-all,
+.game-tile-glyph.game-tile-hint-current {
   color: #00000055;
 }
 
 .game-tile-glyph-red.game-tile-selected,
-.game-tile-glyph-red.game-tile-highlighted,
-.game-tile-glyph-red.game-tile-hinted {
+.game-tile-glyph-red.game-tile-hint-all,
+.game-tile-glyph-red.game-tile-hint-current {
   color: #aa000055;
 }
 
 .game-tile-glyph-green.game-tile-selected,
-.game-tile-glyph-green.game-tile-highlighted,
-.game-tile-glyph-green.game-tile-hinted {
+.game-tile-glyph-green.game-tile-hint-all,
+.game-tile-glyph-green.game-tile-hint-current {
   color: #00aa0055;
 }
 
 .game-tile-glyph-blue.game-tile-selected,
-.game-tile-glyph-blue.game-tile-highlighted,
-.game-tile-glyph-blue.game-tile-hinted {
+.game-tile-glyph-blue.game-tile-hint-all,
+.game-tile-glyph-blue.game-tile-hint-current {
   color: #0000aa55;
 }
 
 .game-tile-glyph-flowers.game-tile-selected,
-.game-tile-glyph-flowers.game-tile-highlighted,
-.game-tile-glyph-flowers.game-tile-hinted {
+.game-tile-glyph-flowers.game-tile-hint-all,
+.game-tile-glyph-flowers.game-tile-hint-current {
   color: #00aaaa55;
 }
 
 .game-tile-glyph-seasons.game-tile-selected,
-.game-tile-glyph-seasons.game-tile-highlighted,
-.game-tile-glyph-seasons.game-tile-hinted {
+.game-tile-glyph-seasons.game-tile-hint-all,
+.game-tile-glyph-seasons.game-tile-hint-current {
   color: #aa660055;
 }
 
