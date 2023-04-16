@@ -1,6 +1,8 @@
 # 🀄 Two-Corner Tile Solitaire 🀄
 
-A simple web adaptation of the tile puzzle game "Nikakudori" (or "Shisen-Sho"). --> **It can be played [here!](https://ktpease.github.io/2ctilesol)** <--
+A simple web adaptation of the tile puzzle game "Nikakudori" (or "Shisen-Sho").
+
+**It can be played [here!](https://ktpease.github.io/2ctilesol)**
 
 ## The Game
 
@@ -14,7 +16,7 @@ More information on the game itself can be found at [Wikipedia](https://en.wikip
 
 ## The Tech
 
-This project was developed with [React](https://reactjs.org/), bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and hosted on [GitHub Pages](https://pages.github.com/).
+This project was developed with [React](https://reactjs.org/), uses the [Vite](https://vitejs.dev/) toolchain, and is hosted on [GitHub Pages](https://pages.github.com/).
 
 Some technical features of the game include:
 

@@ -1,23 +1,23 @@
 import React from "react";
 import ReactModal from "react-modal";
 
-import { checkSimplestPath, checkAllPossibleMatches } from "./PathLogic.js";
+import { checkSimplestPath, checkAllPossibleMatches } from "./PathLogic";
 import {
   generateBoardWithSimpleShuffle,
   generateBoardWithPresolvedShuffle,
   generateRectangularBoardWithSimpleShuffle,
   generateRectangularBoardWithPresolvedShuffle,
-} from "./BoardGenerator.js";
+} from "./BoardGenerator";
 
-import Tile from "./Tile.js";
-import PathNode from "./PathNode.js";
-import GameTimer from "./GameTimer.js";
+import Tile from "./Tile";
+import PathNode from "./PathNode";
+import GameTimer from "./GameTimer";
 
-import SettingsModalBody from "./modal/SettingsModalBody.js";
-import NewBoardModalBody from "./modal/NewBoardModalBody.js";
-import AdvancedSettingsModalBody from "./modal/AdvancedSettingsModalBody.js";
-import GameWinModalBody from "./modal/GameWinModalBody.js";
-import GameLoseModalBody from "./modal/GameLoseModalBody.js";
+import SettingsModalBody from "./modal/SettingsModalBody";
+import NewBoardModalBody from "./modal/NewBoardModalBody";
+import AdvancedSettingsModalBody from "./modal/AdvancedSettingsModalBody";
+import GameWinModalBody from "./modal/GameWinModalBody";
+import GameLoseModalBody from "./modal/GameLoseModalBody";
 
 import "./Game.css";
 import "./Modal.css";
@@ -29,7 +29,7 @@ export default class Game extends React.Component {
   constructor(props) {
     super(props);
 
-    this.gameStateVer = 4;
+    this.gameStateVer = 5;
 
     this.searchParams = this.props.searchParams;
 
@@ -78,10 +78,10 @@ export default class Game extends React.Component {
     this.checkFontCompatibility();
 
     const gameState = this.getStateFromLocal(),
-      layout = this.searchParams.get("l"),
-      seed = this.searchParams.get("s"),
-      blindShuffle = this.searchParams.get("ts") !== null,
-      noSinglePairs = this.searchParams.get("nsp") !== null;
+      layout = this.searchParams?.get("l"),
+      seed = this.searchParams?.get("s"),
+      blindShuffle = this.searchParams?.get("ts") !== null,
+      noSinglePairs = this.searchParams?.get("nsp") !== null;
 
     if (layout !== null) {
       this.resetBoard(seed, null, null, blindShuffle, noSinglePairs, layout);
@@ -308,6 +308,12 @@ export default class Game extends React.Component {
       }
 
       layoutDescription = "Rectangle";
+    }
+
+    if (generatedBoard === null)
+    {
+      console.log("Failed to generate board! Cancel board reset.");
+      return;
     }
 
     layoutDescription += ` ${generatedBoard.width}\u2a2f${

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Tile from "./Tile.js";
+import Tile from "./Tile";
 
 export default function Editor() {
   const [board, setBoard] = useState([]);

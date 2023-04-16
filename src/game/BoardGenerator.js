@@ -1,4 +1,4 @@
-import seedrandom from "seedrandom";
+import Rand from "rand-seed";
 
 const layoutCodeVersionNumber = 1,
   layoutCodeRadix = 32,
@@ -56,10 +56,10 @@ export function generateBoardWithSimpleShuffle(
   // or use a pre-determined one from the seed argument.
   // This will be used in both tile selection and board shuffling.
   const finalSeed = isNaN(parseInt(seed, 10))
-    ? seedrandom().int32() >>> 0
+    ? (Math.random() * Number.MAX_SAFE_INTEGER) >>> 0
     : parseInt(seed, 10) >>> 0;
 
-  const seededRng = seedrandom(finalSeed);
+  const seededRng = new Rand(finalSeed + '');
 
   const layout = decodeLayoutCode(layoutCode);
 
@@ -79,7 +79,7 @@ export function generateBoardWithSimpleShuffle(
 
   // Shuffle.
   for (let i = usedTiles.length - 1; i > 0; i--) {
-    randValue = Math.floor(seededRng() * (i + 1));
+    randValue = Math.floor(seededRng.next() * (i + 1));
 
     char = usedTiles[i];
     usedTiles[i] = usedTiles[randValue];
@@ -127,7 +127,7 @@ export function generateBoardWithSimpleShuffle(
 
   // Shuffle the board.
   for (let i = allValidTiles.length - 1; i > 0; i--) {
-    randValue = Math.floor(seededRng() * (i + 1));
+    randValue = Math.floor(seededRng.next() * (i + 1));
 
     char = tiles[allValidTiles[i]].char;
     tiles[allValidTiles[i]].char = tiles[allValidTiles[randValue]].char;
@@ -194,10 +194,10 @@ export function generateBoardWithPresolvedShuffle(
   // or use a pre-determined one from the seed argument.
   // This will be used in both tile selection and board shuffling.
   const finalSeed = isNaN(parseInt(seed, 10))
-    ? seedrandom().int32() >>> 0
+    ? (Math.random() * Number.MAX_SAFE_INTEGER) >>> 0
     : parseInt(seed, 10) >>> 0;
 
-  const seededRng = seedrandom(finalSeed);
+  const seededRng = new Rand(finalSeed + '');
 
   const layout = decodeLayoutCode(layoutCode);
 
@@ -234,7 +234,7 @@ export function generateBoardWithPresolvedShuffle(
     (noSinglePairs ? allTileValues.length << 1 : allTileValues.length)
   ) {
     for (let i = allTileValues.length - 1; i > 0; i--) {
-      randValue = Math.floor(seededRng() * (i + 1));
+      randValue = Math.floor(seededRng.next() * (i + 1));
 
       char = allTileValues[i];
       allTileValues[i] = allTileValues[randValue];
@@ -268,7 +268,7 @@ export function generateBoardWithPresolvedShuffle(
     let shuffledTilePairs = allTileValues.slice();
 
     for (let i = shuffledTilePairs.length - 1; i > 0; i--) {
-      randValue = Math.floor(seededRng() * (i + 1));
+      randValue = Math.floor(seededRng.next() * (i + 1));
 
       char = shuffledTilePairs[i];
       shuffledTilePairs[i] = shuffledTilePairs[randValue];
@@ -283,7 +283,7 @@ export function generateBoardWithPresolvedShuffle(
 
   // Shuffle.
   for (let i = orderedTilePairs.length - 1; i > 0; i--) {
-    randValue = Math.floor(seededRng() * (i + 1));
+    randValue = Math.floor(seededRng.next() * (i + 1));
 
     char = orderedTilePairs[i];
     orderedTilePairs[i] = orderedTilePairs[randValue];
@@ -336,7 +336,7 @@ export function generateBoardWithPresolvedShuffle(
 
   for (let i = 0; i < numPairs; i++) {
     // Get a random unvisited edge tile.
-    let tileValue = edgeTiles[Math.floor(seededRng() * edgeTiles.length)];
+    let tileValue = edgeTiles[Math.floor(seededRng.next() * edgeTiles.length)];
 
     // Add unvisited surrounding tiles to the open edge list.
     if (
@@ -388,9 +388,9 @@ export function generateBoardWithPresolvedShuffle(
     let matchingTile =
       possibleMatchesMultiLine.length > 0
         ? possibleMatchesMultiLine[
-            Math.floor(seededRng() * possibleMatchesMultiLine.length)
+            Math.floor(seededRng.next() * possibleMatchesMultiLine.length)
           ].tile
-        : possibleMatches[Math.floor(seededRng() * possibleMatches.length)]
+        : possibleMatches[Math.floor(seededRng.next() * possibleMatches.length)]
             .tile;
 
     // We found our pair!

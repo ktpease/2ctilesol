@@ -2,8 +2,8 @@ import "./App.css";
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import GameWithParamsHook from "./game/GameWithParamsHook.js";
-import Editor from "./editor/Editor.js";
+import GameWithParamsHook from "./game/GameWithParamsHook";
+import Editor from "./editor/Editor";
 
 function App() {
   return (

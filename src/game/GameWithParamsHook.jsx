@@ -1,6 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 
-import Game from "./Game.js";
+import Game from "./Game";
 
 export default function GameWithParamsHook(props) {
   let [searchParams] = useSearchParams();
