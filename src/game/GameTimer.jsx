@@ -1,18 +1,18 @@
-import React from "react";
+import { forwardRef, useImperativeHandle } from "react";
 import { useStopwatch } from "react-timer-hook";
 
-const GameTimer = React.forwardRef((props, ref) => {
+const GameTimer = forwardRef((props, ref) => {
   const { seconds, minutes, hours, start, pause, reset } = useStopwatch({
     autoStart: true,
   });
 
-  React.useImperativeHandle(ref, () => ({
+  useImperativeHandle(ref, () => ({
     start,
     pause,
     reset,
     seconds,
     minutes,
-    hours
+    hours,
   }));
 
   return (
