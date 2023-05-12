@@ -1,4 +1,5 @@
-import React from "react";
+import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import ReactModal from "react-modal";
 
 import { checkSimplestPath, checkAllPossibleMatches } from "./PathLogic";
@@ -24,119 +25,109 @@ import "./GameBar.css";
 
 ReactModal.setAppElement(document.getElementById("root"));
 
-export default class Game extends React.Component {
-  constructor(props) {
-    super(props);
+export default function Game() {
+  const gameStateVer = 5;
 
-    this.gameStateVer = 5;
+  // Settings
+  const [useEmoji, setUseEmoji] = useState(false);
+  const [allowDeselect, setAllowDeselect] = useState(true);
+  const [showMatchingTiles, setShowMatchingTiles] = useState(false);
+  const [showAllValidMatches, setShowAllValidMatches] = useState(false);
+  const [fixChromeAndroidEmojiBug, setFixChromeAndroidEmojiBug] =
+    useState(false);
 
-    this.searchParams = this.props.searchParams;
+  // Game State
+  const [gameEnded, setGameEnded] = useState(true);
 
-    this.state = {
-      // Settings
-      useEmoji: false,
-      allowDeselect: true,
-      showMatchingTiles: false,
-      showAllValidMatches: false,
-      fixChromeAndroidEmojiBug: false,
-      // Game State
-      gameEnded: false,
-      // Modal
-      showModal: false,
-      modalState: null,
-      // Board Generation Options
-      boardWidth: 17,
-      boardHeight: 8,
-      seed: 1,
-      layoutCode: 0,
-      blindShuffle: false,
-      noSinglePairs: false,
-      layoutDescription: "Rectangle 17\u2a2f8",
-      // Tile State
-      tiles: [],
-      selectedTile: null,
-      numTiles: 136,
-      // Tile History
-      tileHistory: [],
-      // Tile Hinting
-      hintedTiles: [],
-      allValidMatchingTiles: [],
-      // Pathing Maps
-      pathingTiles: [],
-      pathingTilesAlt: [],
-      useAltPathingTiles: false,
-      // Tile Display Maps
-      horizontalTileMap: [],
-      verticalTileMap: [],
-    };
+  // Modal
+  const [modalDisplayed, setModalDisplayed] = useState(false);
+  const [modalState, setModalState] = useState(null);
 
-    this.timerRef = React.createRef();
+  // Board Generation Options
+  const [boardWidth, setBoardWidth] = useState(17);
+  const [boardHeight, setBoardHeight] = useState(8);
+  const [seed, setSeed] = useState(1);
+  const [layoutCode, setLayoutCode] = useState(0);
+  const [blindShuffle, setBlindShuffle] = useState(false);
+  const [noSinglePairs, setNoSinglePairs] = useState(false);
+  const [layoutDescription, setLayoutDescription] = useState(
+    "Rectangle 17\u2a2f8"
+  );
 
-    this.handleTileClick = this.handleTileClick.bind(this);
-  }
+  // Tile State
+  const [tiles, setTiles] = useState([]);
+  const [selectedTile, setSelectedTile] = useState(null);
+  const [numTiles, setNumTiles] = useState(136);
 
-  componentDidMount() {
-    this.checkFontCompatibility();
+  // Tile History
+  const [tileHistory, setTileHistory] = useState([]);
 
-    const gameState = this.getStateFromLocal(),
-      layout = this.searchParams?.get("l"),
-      seed = this.searchParams?.get("s"),
-      blindShuffle = this.searchParams?.get("ts") !== null,
-      noSinglePairs = this.searchParams?.get("nsp") !== null;
+  // Tile Hinting
+  const [hintedTiles, setHintedTiles] = useState([]);
+  const [allValidMatchingTiles, setAllValidMatchingTiles] = useState([]);
+
+  // Pathing Maps
+  const [pathingTiles, setPathingTiles] = useState([]);
+  const [pathingTilesAlt, setPathingTilesAlt] = useState([]);
+  const [useAltPathingTiles, setUseAltPathingTiles] = useState(false);
+
+  const [searchParams] = useSearchParams();
+
+  const timerRef = useRef();
+
+  useEffect(() => {
+    checkFontCompatibility();
+
+    const gameState = getStateFromLocal(),
+      layout = searchParams?.get("l"),
+      seed = searchParams?.get("s"),
+      blindShuffle = searchParams?.get("ts") !== null,
+      noSinglePairs = searchParams?.get("nsp") !== null;
 
     if (layout !== null) {
-      this.resetBoard(seed, null, null, blindShuffle, noSinglePairs, layout);
+      resetBoard(seed, null, null, blindShuffle, noSinglePairs, layout);
     } else if (
       gameState !== null &&
       "v" in gameState &&
-      gameState.v === this.gameStateVer
+      gameState.v === gameStateVer
     ) {
       try {
-        this.setState(
-          {
-            tiles: gameState.tiles.map((t, i) => ({
-              id: i,
-              char: t,
-              inRemovalAnim: false,
-            })),
-            boardWidth: gameState.boardWidth,
-            boardHeight: gameState.boardHeight,
-            seed: gameState.seed,
-            layoutCode: gameState.layoutCode,
-            blindShuffle: gameState.blindShuffle,
-            noSinglePairs: gameState.noSinglePairs,
-            layoutDescription: gameState.layoutDescription,
-            numTiles: gameState.numTiles,
-            tileHistory: gameState.tileHistory,
-          },
-          () => {
-            this.checkAllValidMatches();
-
-            const newTimer = new Date();
-
-            newTimer.setSeconds(
-              newTimer.getSeconds() +
-                gameState.timer.seconds +
-                gameState.timer.minutes * 60 +
-                gameState.timer.hours * 3600
-            );
-
-            this.timerRef.current.reset(newTimer);
-          }
+        setTiles(
+          gameState.tiles.map((t, i) => ({
+            id: i,
+            char: t,
+            inRemovalAnim: false,
+          }))
         );
+        setBoardWidth(gameState.boardWidth);
+        setBoardHeight(gameState.boardHeight);
+        setSeed(gameState.seed);
+        setLayoutCode(gameState.layoutCode);
+        setBlindShuffle(gameState.blindShuffle);
+        setNoSinglePairs(gameState.noSinglePairs);
+        setLayoutDescription(gameState.layoutDescription);
+        setNumTiles(gameState.numTiles);
+        setTileHistory(gameState.tileHistory);
+
+        const newTimer = new Date();
+
+        newTimer.setSeconds(
+          newTimer.getSeconds() +
+            gameState.timer.seconds +
+            gameState.timer.minutes * 60 +
+            gameState.timer.hours * 3600
+        );
+
+        timerRef.current.reset(newTimer);
       } catch {
-        this.resetBoard(null, 17, 8);
+        resetBoard(null, 17, 8);
       }
     } else {
-      this.resetBoard();
+      resetBoard();
     }
-  }
+  }, []);
 
-  componentWillUnmount() {
-    this.searchParams = null;
-  }
-
-  getStateFromLocal() {
+  function getStateFromLocal() {
     // Check if LocalStorage is active.
     if (typeof localStorage !== "undefined") {
       try {
@@ -160,7 +151,7 @@ export default class Game extends React.Component {
     }
   }
 
-  saveStateToLocal() {
+  function saveStateToLocal() {
     // Check if LocalStorage is active.
     if (typeof localStorage !== "undefined") {
       try {
@@ -178,28 +169,28 @@ export default class Game extends React.Component {
     localStorage.setItem(
       "gamestate",
       JSON.stringify({
-        v: this.gameStateVer,
-        tiles: this.state.tiles.map((t) => (t.inRemovalAnim ? null : t.char)),
-        boardWidth: this.state.boardWidth,
-        boardHeight: this.state.boardHeight,
-        seed: this.state.seed,
-        layoutCode: this.state.layoutCode,
-        blindShuffle: this.state.blindShuffle,
-        noSinglePairs: this.state.noSinglePairs,
-        layoutDescription: this.state.layoutDescription,
-        numTiles: this.state.numTiles,
-        tileHistory: this.state.tileHistory,
+        v: gameStateVer,
+        tiles: tiles.map((t) => (t.inRemovalAnim ? null : t.char)),
+        boardWidth: boardWidth,
+        boardHeight: boardHeight,
+        seed: seed,
+        layoutCode: layoutCode,
+        blindShuffle: blindShuffle,
+        noSinglePairs: noSinglePairs,
+        layoutDescription: layoutDescription,
+        numTiles: numTiles,
+        tileHistory: tileHistory,
         timer: {
-          seconds: this.timerRef.current.seconds,
-          minutes: this.timerRef.current.minutes,
-          hours: this.timerRef.current.hours,
+          seconds: timerRef.current.seconds,
+          minutes: timerRef.current.minutes,
+          hours: timerRef.current.hours,
         },
       })
     );
   }
 
-  checkFontCompatibility() {
-    // Checks with some font issues, namely with regards to emojis.
+  function checkFontCompatibility() {
+    // Checks with some font issues regarding the Mahjong Tiles Unicode Block.
 
     // Currently, all mahjong tiles are Non-RGI with the exception of Red Dragon,
     // and the only system font that supports all of these tiles as emojis is the
@@ -219,7 +210,7 @@ export default class Game extends React.Component {
         .then((ua) => {
           if (ua.platform === "Windows" && parseInt(ua.platformVersion) >= 10) {
             console.log("Windows 10+ detected, using emoji tiles.");
-            this.setState({ useEmoji: true });
+            setUseEmoji(true);
           }
         });
     else if (
@@ -227,11 +218,11 @@ export default class Game extends React.Component {
       /Windows NT \d{2}/.test(window.navigator.userAgent)
     ) {
       console.log("Windows 10+ detected, using emoji tiles.");
-      this.setState({ useEmoji: true });
+      setUseEmoji(true);
     }
 
     // Chrome for Android has a bug where it'll not respect VS15/U+FE0E and
-    // always render the Red Dragon tile as emoji. For compatibility sake, just
+    // always render the Red Dragon tile as emoji. For compatibility, just
     // change it to a red version of the blue White Dragon tile.
     if (
       navigator.userAgentData
@@ -242,17 +233,15 @@ export default class Game extends React.Component {
           window.navigator.userAgent.includes("Chrome") &&
           window.navigator.userAgent.includes("Mobile")
     ) {
-      this.setState({ fixChromeAndroidEmojiBug: true });
+      setFixChromeAndroidEmojiBug(true);
     }
   }
 
-  resetBoard(seed, width, height, blindShuffle, noSinglePairs, layoutCode) {
-    const _width = width !== undefined ? width : this.state.boardWidth,
-      _height = height !== undefined ? height : this.state.boardHeight,
-      _blindShuffle =
-        blindShuffle !== undefined ? blindShuffle : this.state.blindShuffle,
-      _noSinglePairs =
-        noSinglePairs !== undefined ? noSinglePairs : this.state.noSinglePairs;
+  function resetBoard(seed, width, height, bs, nsp, layoutCode) {
+    const _width = width !== undefined ? width : boardWidth,
+      _height = height !== undefined ? height : boardHeight,
+      _blindShuffle = bs !== undefined ? bs : blindShuffle,
+      _noSinglePairs = nsp !== undefined ? nsp : noSinglePairs;
 
     let generatedBoard;
 
@@ -319,60 +308,54 @@ export default class Game extends React.Component {
       _noSinglePairs ? " NoSinglePairs" : ""
     }`;
 
-    this.setState(
-      {
-        tiles: generatedBoard.tiles,
-        boardWidth: generatedBoard.width,
-        boardHeight: generatedBoard.height,
-        seed: generatedBoard.seed,
-        layoutCode: generatedBoard.layoutCode,
-        blindShuffle: _blindShuffle,
-        noSinglePairs: _noSinglePairs,
-        layoutDescription: layoutDescription,
-        numTiles: generatedBoard.numTiles,
-        selectedTile: null,
-        tileHistory: [],
-        hintedTiles: [],
-        allValidMatches: [],
-        pathingTiles: [],
-        pathingTilesAlt: [],
-        showModal: false,
-        gameEnded: false,
-      },
-      () => {
-        this.checkAllValidMatches();
-        this.timerRef.current.reset();
-
-        this.saveStateToLocal();
-      }
-    );
+    setTiles(generatedBoard.tiles);
+    setBoardWidth(generatedBoard.width);
+    setBoardHeight(generatedBoard.height);
+    setSeed(generatedBoard.seed);
+    setLayoutCode(generatedBoard.layoutCode);
+    setBlindShuffle(_blindShuffle);
+    setNoSinglePairs(_noSinglePairs);
+    setLayoutDescription(layoutDescription);
+    setNumTiles(generatedBoard.numTiles);
+    setSelectedTile(null);
+    setTileHistory([]);
+    setHintedTiles([]);
+    setAllValidMatchingTiles([]);
+    setPathingTiles([]);
+    setPathingTilesAlt([]);
+    setModalDisplayed(false);
+    setGameEnded(false);
+    timerRef.current.reset();
   }
 
-  checkAllValidMatches() {
+  useEffect(() => {
+    if (!gameEnded) {
+      checkAllValidMatches();
+      saveStateToLocal();
+    }
+  }, [tiles]);
+
+  function checkAllValidMatches() {
     const allValidMatches = checkAllPossibleMatches(
-      this.state.tiles,
-      this.state.boardWidth,
-      this.state.boardHeight
+      tiles,
+      boardWidth,
+      boardHeight
     );
 
     console.log(
       `Number of Valid Matches: ${allValidMatches.length}` +
-        (this.state.showAllValidMatches === true
+        (showAllValidMatches === true
           ? ", Valid Matches: " +
             allValidMatches.reduce(
               (a, b) =>
                 a.concat(
-                  `[${(b[0] % (this.state.boardWidth + 2)) - 1 + 1},${
-                    (b[0] -
-                      (b[0] % (this.state.boardWidth + 2)) -
-                      (this.state.boardWidth + 2)) /
-                      (this.state.boardWidth + 2) +
+                  `[${(b[0] % (boardWidth + 2)) - 1 + 1},${
+                    (b[0] - (b[0] % (boardWidth + 2)) - (boardWidth + 2)) /
+                      (boardWidth + 2) +
                     1
-                  } <-> ${(b[1] % (this.state.boardWidth + 2)) - 1 + 1},${
-                    (b[1] -
-                      (b[1] % (this.state.boardWidth + 2)) -
-                      (this.state.boardWidth + 2)) /
-                      (this.state.boardWidth + 2) +
+                  } <-> ${(b[1] % (boardWidth + 2)) - 1 + 1},${
+                    (b[1] - (b[1] % (boardWidth + 2)) - (boardWidth + 2)) /
+                      (boardWidth + 2) +
                     1
                   }] `
                 ),
@@ -381,37 +364,29 @@ export default class Game extends React.Component {
           : "")
     );
 
-    this.setState(
-      {
-        allValidMatchingTiles: [...new Set(allValidMatches.flat())],
-      },
-      () => {
-        // If there are no matching tiles, then we either won or lost the game.
-        if (allValidMatches.length === 0) {
-          this.timerRef.current.pause();
-          this.setState({ gameEnded: true });
+    setAllValidMatchingTiles([...new Set(allValidMatches.flat())]);
 
-          if (this.state.numTiles - this.state.tileHistory.length * 2 > 0)
-            this.showModal("Game Lost");
-          else this.showModal("Game Won");
-        }
-      }
-    );
+    // If there are no matching tiles, then we either won or lost the game.
+    if (allValidMatches.length === 0) {
+      timerRef.current.pause();
+      setGameEnded(true);
+
+      if (numTiles - tileHistory.length * 2 > 0) showModal("Game Lost");
+      else showModal("Game Won");
+    }
   }
 
-  handleTileClick(tileId) {
+  function handleTileClick(tileId) {
     // Don't click empty or tiles being removed.
-    if (
-      this.state.tiles[tileId].char === null ||
-      this.state.tiles[tileId].inRemovalAnim === true
-    ) {
+    if (tiles[tileId].char === null || tiles[tileId].inRemovalAnim === true) {
       return;
     }
 
     // Clicking the same tile either de-selects the tile or does nothing.
-    if (this.state.selectedTile === tileId) {
-      if (this.state.allowDeselect === true) {
-        this.setState({ selectedTile: null, hintedTiles: [] });
+    if (selectedTile === tileId) {
+      if (allowDeselect === true) {
+        setSelectedTile(null);
+        setHintedTiles([]);
       }
 
       return;
@@ -420,22 +395,21 @@ export default class Game extends React.Component {
     // If selecting a second tile, check to make sure it matches the first,
     // then check the pathing to see if it's valid, then clear valid matches.
     if (
-      this.state.selectedTile !== null &&
-      this.state.tiles[tileId].char ===
-        this.state.tiles[this.state.selectedTile].char
+      selectedTile !== null &&
+      tiles[tileId].char === tiles[selectedTile].char
     ) {
       const path = checkSimplestPath(
         tileId,
-        this.state.selectedTile,
-        this.state.tiles.slice(),
-        this.state.boardWidth,
-        this.state.boardHeight
+        selectedTile,
+        tiles.slice(),
+        boardWidth,
+        boardHeight
       );
 
       if (path !== null) {
         // Create an updated board, first by removing the tiles in its
         // fadeout animation, then putting the match in that same animation.
-        const newTiles = this.state.tiles.slice();
+        const newTiles = tiles.slice();
 
         newTiles.forEach((tile) => {
           if (tile.inRemovalAnim === true) {
@@ -445,18 +419,18 @@ export default class Game extends React.Component {
         });
 
         newTiles[tileId].inRemovalAnim = true;
-        newTiles[this.state.selectedTile].inRemovalAnim = true;
+        newTiles[selectedTile].inRemovalAnim = true;
 
-        const tileHistory = this.state.tileHistory.slice();
+        const newTileHistory = tileHistory.slice();
 
-        tileHistory.push({
-          char: this.state.tiles[tileId].char,
+        newTileHistory.push({
+          char: tiles[tileId].char,
           tile1: tileId,
-          tile2: this.state.selectedTile,
+          tile2: selectedTile,
         });
 
         // Generate the pathing tiles for display.
-        const pathingTiles = this.state.tiles.map(() => []);
+        const pathingTiles = tiles.map(() => []);
 
         path.forEach((line) => {
           line.segment.forEach((node) => {
@@ -464,58 +438,45 @@ export default class Game extends React.Component {
           });
         });
 
-        pathingTiles[this.state.selectedTile].push("-start");
+        pathingTiles[selectedTile].push("-start");
         pathingTiles[tileId].push("-end");
 
-        this.setState(
-          {
-            tiles: newTiles,
-            selectedTile: null,
-            tileHistory: tileHistory,
-            hintedTiles: [],
-          },
-          () => {
-            this.checkAllValidMatches();
-            if (!this.state.gameEnded) this.saveStateToLocal();
-          }
-        );
+        setTiles(newTiles);
+        setSelectedTile(null);
+        setTileHistory(newTileHistory);
+        setHintedTiles([]);
 
         // Switch between primary and alternate pathing maps. This is used
         // as a makeshift solution to consecutive matches using the same tile
         // path, as the CSS animation doesn't get reset.
-        if (this.state.useAltPathingTiles === true)
-          this.setState((prevState) => ({
-            pathingTiles: prevState.tiles.map(() => []),
-            pathingTilesAlt: pathingTiles,
-            useAltPathingTiles: false,
-          }));
-        else
-          this.setState((prevState) => ({
-            pathingTiles: pathingTiles,
-            pathingTilesAlt: prevState.tiles.map(() => []),
-            useAltPathingTiles: true,
-          }));
+        if (useAltPathingTiles === true) {
+          setPathingTiles(newTiles.map(() => []));
+          setPathingTilesAlt(pathingTiles);
+          setUseAltPathingTiles(false);
+        } else {
+          setPathingTiles(pathingTiles);
+          setPathingTilesAlt(newTiles.map(() => []));
+          setUseAltPathingTiles(true);
+        }
         return;
       }
     }
 
-    // Update the hinting system, if it's enabled.
-    if (this.state.showMatchingTiles === true) {
-      const hintedTiles = this.state.tiles.filter(
-        (t) => t.char === this.state.tiles[tileId].char
-      );
+    setSelectedTile(tileId);
 
-      this.setState({ hintedTiles: hintedTiles, selectedTile: tileId });
+    // Update the hinting system, if it's enabled.
+    if (showMatchingTiles === true) {
+      const hintedTiles = tiles.filter((t) => t.char === tiles[tileId].char);
+
+      setHintedTiles(hintedTiles);
       return;
     }
-
-    this.setState({ selectedTile: tileId });
   }
 
-  undoMatch(hideModal) {
-    if (this.state.tileHistory.length > 0) {
-      const newTiles = this.state.tiles.slice();
-      const lastMatch = this.state.tileHistory.pop();
+  function undoMatch(hideModal) {
+    if (tileHistory.length > 0) {
+      const newTiles = tiles.slice();
+      const lastMatch = tileHistory.pop();
 
       newTiles[lastMatch.tile1].char = lastMatch.char;
       newTiles[lastMatch.tile1].inRemovalAnim = false;
@@ -523,110 +484,96 @@ export default class Game extends React.Component {
       newTiles[lastMatch.tile2].char = lastMatch.char;
       newTiles[lastMatch.tile2].inRemovalAnim = false;
 
-      this.setState(
-        {
-          tiles: newTiles,
-          hintedTiles: [],
-          pathingTiles: [],
-          pathingTilesAlt: [],
-          selectedTile: null,
-          gameEnded: false,
-        },
-        () => {
-          if (hideModal) this.hideModal();
-          this.checkAllValidMatches();
-          this.saveStateToLocal();
-        }
-      );
+      setTiles(newTiles);
+      setHintedTiles([]);
+      setPathingTiles([]);
+      setPathingTilesAlt([]);
+      setSelectedTile(null);
+      setGameEnded(false);
+
+      if (hideModal) hideModal();
     }
   }
 
-  showModal(modalState) {
-    this.timerRef.current.pause();
+  function showModal(modalState) {
+    timerRef.current.pause();
 
-    if (modalState) this.setState({ showModal: true, modalState: modalState });
-    else this.setState({ showModal: true });
+    setModalDisplayed(true);
+
+    if (modalState) setModalState(modalState);
   }
 
-  hideModal() {
-    if (!this.state.gameEnded) this.timerRef.current.start();
+  function hideModal() {
+    if (!gameEnded) timerRef.current.start();
 
-    this.setState({ showModal: false });
+    setModalDisplayed(false);
   }
 
-  renderModalBody(modalState) {
+  function renderModalBody(modalState) {
     switch (modalState) {
       case "Settings":
         return (
           <SettingsModalBody
-            seed={this.state.seed}
-            layout={this.state.layoutDescription}
-            canUndo={this.state.tileHistory.length === 0}
-            tilesMatchable={this.state.allValidMatchingTiles.length}
-            handleResetBoard={this.resetBoard.bind(this)}
+            seed={seed}
+            layout={layoutDescription}
+            canUndo={tileHistory.length === 0}
+            tilesMatchable={allValidMatchingTiles.length}
+            handleResetBoard={resetBoard}
             handleUndoMatch={() => {
-              this.undoMatch(true);
+              undoMatch(true);
             }}
-            newBoardModal={() => this.showModal("New Board")}
-            advancedSettingsModal={() => this.showModal("Advanced Settings")}
+            newBoardModal={() => showModal("New Board")}
+            advancedSettingsModal={() => showModal("Advanced Settings")}
           />
         );
       case "Advanced Settings":
         return (
           <AdvancedSettingsModalBody
             toggleHighlightAllMatches={() =>
-              this.setState((state) => ({
-                showAllValidMatches: !state.showAllValidMatches,
-              }))
+              setShowAllValidMatches((prevState) => !prevState)
             }
             toggleHighlightMatchesForTile={() =>
-              this.setState((state) => ({
-                showMatchingTiles: !state.showMatchingTiles,
-              }))
+              setShowMatchingTiles((prevState) => !prevState)
             }
-            toggleEmojiMode={() =>
-              this.setState((state) => ({ useEmoji: !state.useEmoji }))
-            }
-            backModal={() => this.showModal("Settings")}
+            toggleEmojiMode={() => setUseEmoji((prevState) => !prevState)}
+            backModal={() => showModal("Settings")}
           />
         );
       case "New Board":
         return (
           <NewBoardModalBody
-            prevWidth={this.state.boardWidth}
-            prevHeight={this.state.boardHeight}
-            prevBlindShuffle={this.state.blindShuffle}
-            prevNoSinglePairs={this.state.noSinglePairs}
-            prevSeed={this.state.seed}
-            handleResetBoard={this.resetBoard.bind(this)}
-            backModal={() => this.showModal("Settings")}
+            prevWidth={boardWidth}
+            prevHeight={boardHeight}
+            prevBlindShuffle={blindShuffle}
+            prevNoSinglePairs={noSinglePairs}
+            prevSeed={seed}
+            handleResetBoard={resetBoard}
+            backModal={() => showModal("Settings")}
           />
         );
       case "Game Won":
         return (
           <GameWinModalBody
-            numTiles={this.state.numTiles}
-            clearTimeHours={this.timerRef.current.hours}
-            clearTimeMinutes={this.timerRef.current.minutes}
-            clearTimeSeconds={this.timerRef.current.seconds}
-            seed={this.state.seed}
-            layout={this.state.layoutDescription}
-            handleResetBoard={this.resetBoard.bind(this)}
-            newBoardModal={() => this.showModal("New Board")}
+            numTiles={numTiles}
+            clearTimeHours={timerRef.current.hours}
+            clearTimeMinutes={timerRef.current.minutes}
+            clearTimeSeconds={timerRef.current.seconds}
+            seed={seed}
+            layout={layoutDescription}
+            handleResetBoard={resetBoard}
+            newBoardModal={() => showModal("New Board")}
           />
         );
       case "Game Lost":
         return (
           <GameLoseModalBody
-            remainingTiles={
-              this.state.numTiles - this.state.tileHistory.length * 2
-            }
-            seed={this.state.seed}
-            layout={this.state.layoutDescription}
-            canUndo={this.state.tileHistory.length === 0}
-            handleUndoMatch={() => this.undoMatch(true)}
-            handleResetBoard={this.resetBoard.bind(this)}
-            newBoardModal={() => this.showModal("New Board")}
+            remainingTiles={numTiles - tileHistory.length * 2}
+            seed={seed}
+            layout={layoutDescription}
+            canUndo={tileHistory.length === 0}
+            handleUndoMatch={() => undoMatch(true)}
+            handleResetBoard={resetBoard}
+            newBoardModal={() => showModal("New Board")}
           />
         );
       default:
@@ -634,52 +581,51 @@ export default class Game extends React.Component {
     }
   }
 
-  render() {
-    return (
-      <>
-        <GameBoard
-          boardWidth={this.state.boardWidth}
-          boardHeight={this.state.boardHeight}
-          tiles={this.state.tiles}
-          pathingTiles={this.state.pathingTiles}
-          pathingTilesAlt={this.state.pathingTilesAlt}
-          hintedTiles={this.state.hintedTiles}
-          allValidMatchingTiles={this.state.allValidMatchingTiles}
-          selectedTile={this.state.selectedTile}
-          useEmoji={this.state.useEmoji}
-          fixChromeAndroidEmojiBug={this.state.fixChromeAndroidEmojiBug}
-          showAllValidMatches={this.state.showAllValidMatches}
-          handleTileClick={this.handleTileClick}
-        />
-        <div className="game-bar">
-          <GameTimer ref={this.timerRef} />
-          <button
-            className={`settings-button ${
-              this.state.showModal ? "settings-button-opened" : ""
-            }`}
-            onClick={() => this.showModal("Settings")}
-          >
-            &#x2699;
-          </button>
-          <button
-            className="undo-button"
-            onClick={() => this.undoMatch(false)}
-            disabled={this.state.tileHistory.length === 0}
-          >
-            &#x21B6;
-          </button>
-        </div>
+  return (
+    <>
+      <GameBoard
+        boardWidth={boardWidth}
+        boardHeight={boardHeight}
+        tiles={tiles}
+        pathingTiles={pathingTiles}
+        pathingTilesAlt={pathingTilesAlt}
+        hintedTiles={hintedTiles}
+        allValidMatchingTiles={allValidMatchingTiles}
+        selectedTile={selectedTile}
+        useEmoji={useEmoji}
+        fixChromeAndroidEmojiBug={fixChromeAndroidEmojiBug}
+        showAllValidMatches={showAllValidMatches}
+        handleTileClick={handleTileClick}
+      />
 
-        <ReactModal
-          isOpen={this.state.showModal}
-          contentLabel={this.state.modalState}
-          onRequestClose={() => this.hideModal()}
-          shouldCloseOnOverlayClick={false}
+      <div className="game-bar">
+        <GameTimer ref={timerRef} />
+        <button
+          className={`settings-button ${
+            modalDisplayed ? "settings-button-opened" : ""
+          }`}
+          onClick={() => showModal("Settings")}
         >
-          {this.renderModalBody(this.state.modalState)}
-          <button onClick={() => this.hideModal()}>Close</button>
-        </ReactModal>
-      </>
-    );
-  }
+          &#x2699;
+        </button>
+        <button
+          className="undo-button"
+          onClick={() => undoMatch(false)}
+          disabled={tileHistory.length === 0}
+        >
+          &#x21B6;
+        </button>
+      </div>
+
+      <ReactModal
+        isOpen={modalDisplayed}
+        contentLabel={modalState}
+        onRequestClose={() => hideModal()}
+        shouldCloseOnOverlayClick={false}
+      >
+        {renderModalBody(modalState)}
+        <button onClick={() => hideModal()}>Close</button>
+      </ReactModal>
+    </>
+  );
 }

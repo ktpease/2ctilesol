@@ -2,7 +2,7 @@ import "./App.css";
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import GameWithParamsHook from "./game/GameWithParamsHook";
+import Game from "./game/Game";
 import Editor from "./editor/Editor";
 
 function App() {
@@ -11,7 +11,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/editor" element={<Editor />} />
-          <Route path="*" element={<GameWithParamsHook />} />
+          <Route path="*" element={<Game />} />
         </Routes>
       </BrowserRouter>
     </div>
