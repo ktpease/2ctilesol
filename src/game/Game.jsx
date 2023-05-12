@@ -9,8 +9,8 @@ import {
   generateRectangularBoardWithPresolvedShuffle,
 } from "./BoardGenerator";
 
-import Tile from "./Tile";
-import PathNode from "./PathNode";
+import GameBoard from "./GameBoard";
+
 import GameTimer from "./GameTimer";
 
 import SettingsModalBody from "./modal/SettingsModalBody";
@@ -19,7 +19,6 @@ import AdvancedSettingsModalBody from "./modal/AdvancedSettingsModalBody";
 import GameWinModalBody from "./modal/GameWinModalBody";
 import GameLoseModalBody from "./modal/GameLoseModalBody";
 
-import "./Game.css";
 import "./Modal.css";
 import "./GameBar.css";
 
@@ -72,6 +71,8 @@ export default class Game extends React.Component {
     };
 
     this.timerRef = React.createRef();
+
+    this.handleTileClick = this.handleTileClick.bind(this);
   }
 
   componentDidMount() {
@@ -109,9 +110,6 @@ export default class Game extends React.Component {
             tileHistory: gameState.tileHistory,
           },
           () => {
-            this.generateHorizontalMap();
-            this.generateVerticalMap();
-
             this.checkAllValidMatches();
 
             const newTimer = new Date();
@@ -310,8 +308,7 @@ export default class Game extends React.Component {
       layoutDescription = "Rectangle";
     }
 
-    if (generatedBoard === null)
-    {
+    if (generatedBoard === null) {
       console.log("Failed to generate board! Cancel board reset.");
       return;
     }
@@ -343,9 +340,6 @@ export default class Game extends React.Component {
         gameEnded: false,
       },
       () => {
-        this.generateHorizontalMap();
-        this.generateVerticalMap();
-
         this.checkAllValidMatches();
         this.timerRef.current.reset();
 
@@ -640,116 +634,23 @@ export default class Game extends React.Component {
     }
   }
 
-  generateHorizontalMap() {
-    const tileMap = [];
-
-    // Standard horizontal board. Used for landscape orientation.
-    for (let y = 0; y < this.state.boardHeight + 2; y++) {
-      tileMap[y] = this.state.tiles.slice(
-        y * (this.state.boardWidth + 2),
-        (y + 1) * (this.state.boardWidth + 2)
-      );
-    }
-
-    this.setState({ horizontalTileMap: tileMap });
-  }
-
-  renderHorizontalMap() {
-    const tileMap = [];
-
-    if (typeof this.state.horizontalTileMap === "undefined") {
-      return;
-    }
-
-    for (let y = 0; y < this.state.horizontalTileMap.length; y++) {
-      tileMap[y] = (
-        <div key={"board-hori-row" + y}>
-          {this.state.horizontalTileMap[y].map((i) =>
-            this.renderTileAndPath(i, "hori")
-          )}
-        </div>
-      );
-    }
-
-    return tileMap;
-  }
-
-  generateVerticalMap() {
-    const tileMap = [];
-
-    // Rotated vertical board. Used for portrait orientation.
-    for (let x = 0; x < this.state.boardWidth + 2; x++) {
-      tileMap[x] = this.state.tiles
-        .filter((_el, index) => index % (this.state.boardWidth + 2) === x)
-        .reverse();
-    }
-
-    this.setState({ verticalTileMap: tileMap });
-  }
-
-  renderVerticalMap() {
-    const tileMap = [];
-
-    if (typeof this.state.verticalTileMap === "undefined") {
-      return;
-    }
-
-    for (let x = 0; x < this.state.verticalTileMap.length; x++) {
-      tileMap[x] = (
-        <div key={"board-vert-row" + x}>
-          {this.state.verticalTileMap[x].map((i) =>
-            this.renderTileAndPath(i, "vert")
-          )}
-        </div>
-      );
-    }
-
-    return tileMap;
-  }
-
-  renderTileAndPath(tileobj, boardprefix) {
-    return (
-      <span key={tileobj.id}>
-        <Tile
-          tile={tileobj.char}
-          glyph={!this.state.useEmoji}
-          selected={tileobj.id === this.state.selectedTile}
-          hintCurrent={
-            this.state.hintedTiles.includes(tileobj) && !tileobj.inRemovalAnim
-          }
-          hintAll={
-            this.state.showAllValidMatches &&
-            this.state.allValidMatchingTiles.includes(tileobj.id)
-          }
-          fade={tileobj.inRemovalAnim}
-          onClick={() => this.handleTileClick(tileobj.id)}
-          fixChromeAndroidEmojiBug={this.state.fixChromeAndroidEmojiBug}
-        />
-        <PathNode node={this.state.pathingTiles[tileobj.id]} />
-        <PathNode node={this.state.pathingTilesAlt[tileobj.id]} />
-      </span>
-    );
-  }
-
   render() {
     return (
       <>
-        <div>
-          <div
-            className={`game-board game-board-horizontal game-board-size-${
-              this.state.boardHeight
-            } ${this.state.useEmoji ? "game-board-emoji" : "game-board-glyph"}`}
-          >
-            {this.renderHorizontalMap()}
-          </div>
-          <div
-            className={`game-board game-board-vertical game-board-size-${
-              this.state.boardHeight
-            } ${this.state.useEmoji ? "game-board-emoji" : "game-board-glyph"}`}
-          >
-            {this.renderVerticalMap()}
-          </div>
-        </div>
+        <GameBoard
+          boardWidth={this.state.boardWidth}
+          boardHeight={this.state.boardHeight}
+          tiles={this.state.tiles}
+          pathingTiles={this.state.pathingTiles}
+          pathingTilesAlt={this.state.pathingTilesAlt}
+          hintedTiles={this.state.hintedTiles}
+          allValidMatchingTiles={this.state.allValidMatchingTiles}
+          selectedTile={this.state.selectedTile}
+          useEmoji={this.state.useEmoji}
+          fixChromeAndroidEmojiBug={this.state.fixChromeAndroidEmojiBug}
+          showAllValidMatches={this.state.showAllValidMatches}
+          handleTileClick={this.handleTileClick}
+        />
         <div className="game-bar">
           <GameTimer ref={this.timerRef} />
           <button
