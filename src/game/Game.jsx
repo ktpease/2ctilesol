@@ -30,11 +30,21 @@ export default function Game() {
 
   // Settings
   const [useEmoji, setUseEmoji] = useState(false);
-  const [allowDeselect, setAllowDeselect] = useState(true);
   const [showMatchingTiles, setShowMatchingTiles] = useState(false);
   const [showAllValidMatches, setShowAllValidMatches] = useState(false);
   const [fixChromeAndroidEmojiBug, setFixChromeAndroidEmojiBug] =
     useState(false);
+
+  const DeselectBehavior = {
+    ON_ANOTHER_TILE: "ON_ANOTHER_TILE",
+    ON_SAME_TILE: "ON_SAME_TILE",
+    ON_ANY_TILE: "ON_ANY_TILE",
+    ON_ANY_SPACE: "ON_ANY_SPACE",
+  };
+
+  const [deselectBehavior, setDeselectBehavior] = useState(
+    DeselectBehavior.ON_RECLICK
+  );
 
   // Game State
   const [gameEnded, setGameEnded] = useState(true);
@@ -75,17 +85,22 @@ export default function Game() {
 
   const timerRef = useRef();
 
+  // First time initialization.
   useEffect(() => {
     checkFontCompatibility();
 
-    const gameState = getStateFromLocal(),
+    const gameState = loadGameState(),
       layout = searchParams?.get("l"),
       seed = searchParams?.get("s"),
       blindShuffle = searchParams?.get("ts") !== null,
       noSinglePairs = searchParams?.get("nsp") !== null;
 
+    // Get the initial board, in order of priority:
+    // - Create from URL search parameters. (Shared hyperlink)
+    // - Recreate from the browser's web storage. (Persistence)
+    // - Create basic 17x8 board. (Default)
     if (layout !== null) {
-      resetBoard(seed, null, null, blindShuffle, noSinglePairs, layout);
+      resetGameState(seed, null, null, blindShuffle, noSinglePairs, layout);
     } else if (
       gameState !== null &&
       "v" in gameState &&
@@ -120,14 +135,15 @@ export default function Game() {
 
         timerRef.current.reset(newTimer);
       } catch {
-        resetBoard(null, 17, 8);
+        resetGameState(null, 17, 8);
       }
     } else {
-      resetBoard();
+      resetGameState();
     }
   }, []);
 
-  function getStateFromLocal() {
+  // Get the current game state from the browser's web stoarge.
+  function loadGameState() {
     // Check if LocalStorage is active.
     if (typeof localStorage !== "undefined") {
       try {
@@ -151,7 +167,8 @@ export default function Game() {
     }
   }
 
-  function saveStateToLocal() {
+  // Save the current game state to the browser's web storage.
+  function saveGameState() {
     // Check if LocalStorage is active.
     if (typeof localStorage !== "undefined") {
       try {
@@ -189,17 +206,17 @@ export default function Game() {
     );
   }
 
+  // Checks with some font issues regarding the Mahjong Tiles Unicode Block.
   function checkFontCompatibility() {
-    // Checks with some font issues regarding the Mahjong Tiles Unicode Block.
-
     // Currently, all mahjong tiles are Non-RGI with the exception of Red Dragon,
     // and the only system font that supports all of these tiles as emojis is the
     // Segoe UI Emoji family, included in Windows 10+.
     //
     // It is unlikely that future Unicode Emoji specifications will support
     // all tiles as RGI, and I'm unsure if other system font providers will
-    // support them. So for now, we'll just assume that only desktop Windows 10+
-    // can run the emoji mode.
+    // support them (whether in the proper orientation or just outright).
+    // So for now, we'll just assume that only desktop Windows 10+ can run the
+    // emoji mode.
 
     // If we don't care that it breaks previous Windows versions, we can just
     // use the is-windows package. But for compatibility, we'll just use the UA-CH
@@ -222,8 +239,8 @@ export default function Game() {
     }
 
     // Chrome for Android has a bug where it'll not respect VS15/U+FE0E and
-    // always render the Red Dragon tile as emoji. For compatibility, just
-    // change it to a red version of the blue White Dragon tile.
+    // always render the Red Dragon tile as emoji. For now, just replace it
+    // with a red version of the blue White Dragon tile.
     if (
       navigator.userAgentData
         ? navigator.userAgentData.brands.some((item) => {
@@ -237,28 +254,29 @@ export default function Game() {
     }
   }
 
-  function resetBoard(seed, width, height, bs, nsp, layoutCode) {
-    const _width = width !== undefined ? width : boardWidth,
-      _height = height !== undefined ? height : boardHeight,
-      _blindShuffle = bs !== undefined ? bs : blindShuffle,
-      _noSinglePairs = nsp !== undefined ? nsp : noSinglePairs;
-
+  // Resets the game state while generating a new board.
+  function resetGameState(
+    seed,
+    width = boardWidth,
+    height = boardHeight,
+    bs = blindShuffle,
+    nsp = noSinglePairs,
+    layoutCode
+  ) {
     let generatedBoard;
-
     let layoutDescription;
 
     if (layoutCode !== null && layoutCode !== undefined) {
-      if (_blindShuffle) {
-        generatedBoard = generateBoardWithSimpleShuffle(
-          seed,
-          layoutCode,
-          _noSinglePairs
-        );
+      // Generate the board based on the provided layout code. Fallback to the
+      // default board if it fails.
+
+      if (bs) {
+        generatedBoard = generateBoardWithSimpleShuffle(seed, layoutCode, nsp);
       } else {
         generatedBoard = generateBoardWithPresolvedShuffle(
           seed,
           layoutCode,
-          _noSinglePairs
+          nsp
         );
       }
 
@@ -278,19 +296,22 @@ export default function Game() {
         layoutDescription = "Custom";
       }
     } else {
-      if (_blindShuffle) {
+      // Generate a basic rectangular board based on the provided width and
+      // height.
+
+      if (bs) {
         generatedBoard = generateRectangularBoardWithSimpleShuffle(
           seed,
-          _width,
-          _height,
-          _noSinglePairs
+          width,
+          height,
+          nsp
         );
       } else {
         generatedBoard = generateRectangularBoardWithPresolvedShuffle(
           seed,
-          _width,
-          _height,
-          _noSinglePairs
+          width,
+          height,
+          nsp
         );
       }
 
@@ -304,17 +325,15 @@ export default function Game() {
 
     layoutDescription += ` ${generatedBoard.width}\u2a2f${
       generatedBoard.height
-    }${_blindShuffle ? " TrueShuffle" : ""}${
-      _noSinglePairs ? " NoSinglePairs" : ""
-    }`;
+    }${bs ? " TrueShuffle" : ""}${nsp ? " NoSinglePairs" : ""}`;
 
     setTiles(generatedBoard.tiles);
     setBoardWidth(generatedBoard.width);
     setBoardHeight(generatedBoard.height);
     setSeed(generatedBoard.seed);
     setLayoutCode(generatedBoard.layoutCode);
-    setBlindShuffle(_blindShuffle);
-    setNoSinglePairs(_noSinglePairs);
+    setBlindShuffle(bs);
+    setNoSinglePairs(nsp);
     setLayoutDescription(layoutDescription);
     setNumTiles(generatedBoard.numTiles);
     setSelectedTile(null);
@@ -328,13 +347,17 @@ export default function Game() {
     timerRef.current.reset();
   }
 
+  // Every time the tile array is updated, save the game state and check the
+  // number of valid matches.
   useEffect(() => {
     if (!gameEnded) {
       checkAllValidMatches();
-      saveStateToLocal();
+      saveGameState();
     }
   }, [tiles]);
 
+  // Check all possible matches for the current board. Display them in debugging
+  // options, and check the game end state when there are no matches remaining.
   function checkAllValidMatches() {
     const allValidMatches = checkAllPossibleMatches(
       tiles,
@@ -342,27 +365,31 @@ export default function Game() {
       boardHeight
     );
 
-    console.log(
-      `Number of Valid Matches: ${allValidMatches.length}` +
-        (showAllValidMatches === true
-          ? ", Valid Matches: " +
-            allValidMatches.reduce(
-              (a, b) =>
-                a.concat(
-                  `[${(b[0] % (boardWidth + 2)) - 1 + 1},${
-                    (b[0] - (b[0] % (boardWidth + 2)) - (boardWidth + 2)) /
-                      (boardWidth + 2) +
-                    1
-                  } <-> ${(b[1] % (boardWidth + 2)) - 1 + 1},${
-                    (b[1] - (b[1] % (boardWidth + 2)) - (boardWidth + 2)) /
-                      (boardWidth + 2) +
-                    1
-                  }] `
-                ),
-              ""
-            )
-          : "")
-    );
+    console.log(`Number of Valid Matches: ${allValidMatches.length}`);
+
+    // Debug: Show all the valid matches in the console.
+    if (showAllValidMatches) {
+      console.log(
+        "Valid Matches: " +
+          allValidMatches.reduce(
+            (a, b) =>
+              a.concat(
+                `[${String.fromCodePoint(0x1f000 + tiles[b[0]].char)}, ${
+                  (b[0] % (boardWidth + 2)) - 1 + 1
+                },${
+                  (b[0] - (b[0] % (boardWidth + 2)) - (boardWidth + 2)) /
+                    (boardWidth + 2) +
+                  1
+                } <-> ${(b[1] % (boardWidth + 2)) - 1 + 1},${
+                  (b[1] - (b[1] % (boardWidth + 2)) - (boardWidth + 2)) /
+                    (boardWidth + 2) +
+                  1
+                }] `
+              ),
+            ""
+          )
+      );
+    }
 
     setAllValidMatchingTiles([...new Set(allValidMatches.flat())]);
 
@@ -377,27 +404,28 @@ export default function Game() {
   }
 
   function handleTileClick(tileId) {
-    // Don't click empty or tiles being removed.
     if (tiles[tileId].char === null || tiles[tileId].inRemovalAnim === true) {
-      return;
-    }
-
-    // Clicking the same tile either de-selects the tile or does nothing.
-    if (selectedTile === tileId) {
-      if (allowDeselect === true) {
+      // Clicked an empty tile.
+      if (deselectBehavior === DeselectBehavior.ON_ANY_SPACE) {
         setSelectedTile(null);
         setHintedTiles([]);
       }
-
-      return;
-    }
-
-    // If selecting a second tile, check to make sure it matches the first,
-    // then check the pathing to see if it's valid, then clear valid matches.
-    if (
+    } else if (selectedTile === tileId) {
+      // Clicked the same tile.
+      if (
+        deselectBehavior === DeselectBehavior.ON_SAME_TILE ||
+        deselectBehavior === DeselectBehavior.ON_ANY_TILE ||
+        deselectBehavior === DeselectBehavior.ON_ANY_SPACE
+      ) {
+        setSelectedTile(null);
+        setHintedTiles([]);
+      }
+    } else if (
       selectedTile !== null &&
       tiles[tileId].char === tiles[selectedTile].char
     ) {
+      // Clicked a matching tile.
+
       const path = checkSimplestPath(
         tileId,
         selectedTile,
@@ -406,11 +434,11 @@ export default function Game() {
         boardHeight
       );
 
+      // Match found.
       if (path !== null) {
-        // Create an updated board, first by removing the tiles in its
-        // fadeout animation, then putting the match in that same animation.
         const newTiles = tiles.slice();
 
+        // Remove tiles that were in their fadeout animation from the board.
         newTiles.forEach((tile) => {
           if (tile.inRemovalAnim === true) {
             tile.inRemovalAnim = false;
@@ -418,16 +446,21 @@ export default function Game() {
           }
         });
 
+        // Change the matched tiles to their fadeout animation.
         newTiles[tileId].inRemovalAnim = true;
         newTiles[selectedTile].inRemovalAnim = true;
 
-        const newTileHistory = tileHistory.slice();
+        setTiles(newTiles);
 
-        newTileHistory.push({
-          char: tiles[tileId].char,
-          tile1: tileId,
-          tile2: selectedTile,
-        });
+        // Push the match into the tile history stack.
+        setTileHistory([
+          ...tileHistory,
+          {
+            char: tiles[tileId].char,
+            tile1: tileId,
+            tile2: selectedTile,
+          },
+        ]);
 
         // Generate the pathing tiles for display.
         const pathingTiles = tiles.map(() => []);
@@ -441,11 +474,6 @@ export default function Game() {
         pathingTiles[selectedTile].push("-start");
         pathingTiles[tileId].push("-end");
 
-        setTiles(newTiles);
-        setSelectedTile(null);
-        setTileHistory(newTileHistory);
-        setHintedTiles([]);
-
         // Switch between primary and alternate pathing maps. This is used
         // as a makeshift solution to consecutive matches using the same tile
         // path, as the CSS animation doesn't get reset.
@@ -458,25 +486,38 @@ export default function Game() {
           setPathingTilesAlt(newTiles.map(() => []));
           setUseAltPathingTiles(true);
         }
+
+        setSelectedTile(null);
+        setHintedTiles([]);
+
         return;
       }
-    }
+    } else {
+      // Clicked a non-matching tile.
+      if (
+        deselectBehavior === DeselectBehavior.ON_ANOTHER_TILE ||
+        deselectBehavior === DeselectBehavior.ON_ANY_TILE ||
+        deselectBehavior === DeselectBehavior.ON_ANY_SPACE
+      ) {
+        setSelectedTile(tileId);
 
-    setSelectedTile(tileId);
+        // Update the hinting system, if it's enabled.
+        if (showMatchingTiles === true) {
+          const hintedTiles = tiles.filter(
+            (t) => t.char === tiles[tileId].char
+          );
 
-    // Update the hinting system, if it's enabled.
-    if (showMatchingTiles === true) {
-      const hintedTiles = tiles.filter((t) => t.char === tiles[tileId].char);
-
-      setHintedTiles(hintedTiles);
-      return;
+          setHintedTiles(hintedTiles);
+        }
+      }
     }
   }
 
+  // Revert the board to the previous state.
   function undoMatch(hideModal) {
     if (tileHistory.length > 0) {
       const newTiles = tiles.slice();
-      const lastMatch = tileHistory.pop();
+      const lastMatch = tileHistory.slice(-1)[0];
 
       newTiles[lastMatch.tile1].char = lastMatch.char;
       newTiles[lastMatch.tile1].inRemovalAnim = false;
@@ -485,6 +526,7 @@ export default function Game() {
       newTiles[lastMatch.tile2].inRemovalAnim = false;
 
       setTiles(newTiles);
+      setTileHistory(tileHistory.slice(0, -1));
       setHintedTiles([]);
       setPathingTiles([]);
       setPathingTilesAlt([]);
@@ -518,7 +560,7 @@ export default function Game() {
             layout={layoutDescription}
             canUndo={tileHistory.length === 0}
             tilesMatchable={allValidMatchingTiles.length}
-            handleResetBoard={resetBoard}
+            handleResetBoard={resetGameState}
             handleUndoMatch={() => {
               undoMatch(true);
             }}
@@ -547,7 +589,7 @@ export default function Game() {
             prevBlindShuffle={blindShuffle}
             prevNoSinglePairs={noSinglePairs}
             prevSeed={seed}
-            handleResetBoard={resetBoard}
+            handleResetBoard={resetGameState}
             backModal={() => showModal("Settings")}
           />
         );
@@ -560,7 +602,7 @@ export default function Game() {
             clearTimeSeconds={timerRef.current.seconds}
             seed={seed}
             layout={layoutDescription}
-            handleResetBoard={resetBoard}
+            handleResetBoard={resetGameState}
             newBoardModal={() => showModal("New Board")}
           />
         );
@@ -572,7 +614,7 @@ export default function Game() {
             layout={layoutDescription}
             canUndo={tileHistory.length === 0}
             handleUndoMatch={() => undoMatch(true)}
-            handleResetBoard={resetBoard}
+            handleResetBoard={resetGameState}
             newBoardModal={() => showModal("New Board")}
           />
         );
@@ -584,18 +626,20 @@ export default function Game() {
   return (
     <>
       <GameBoard
-        boardWidth={boardWidth}
-        boardHeight={boardHeight}
-        tiles={tiles}
-        pathingTiles={pathingTiles}
-        pathingTilesAlt={pathingTilesAlt}
-        hintedTiles={hintedTiles}
-        allValidMatchingTiles={allValidMatchingTiles}
-        selectedTile={selectedTile}
-        useEmoji={useEmoji}
-        fixChromeAndroidEmojiBug={fixChromeAndroidEmojiBug}
-        showAllValidMatches={showAllValidMatches}
-        handleTileClick={handleTileClick}
+        {...{
+          boardWidth,
+          boardHeight,
+          tiles,
+          pathingTiles,
+          pathingTilesAlt,
+          hintedTiles,
+          allValidMatchingTiles,
+          selectedTile,
+          useEmoji,
+          fixChromeAndroidEmojiBug,
+          showAllValidMatches,
+          handleTileClick,
+        }}
       />
 
       <div className="game-bar">
