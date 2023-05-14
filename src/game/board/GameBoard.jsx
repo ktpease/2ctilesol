@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Tile from "./Tile";
 import PathNode from "./PathNode";
 
-import "./Game.css";
+import "./GameBoard.css";
 
 export default function GameBoard({
   boardWidth,

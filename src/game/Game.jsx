@@ -2,15 +2,15 @@ import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import ReactModal from "react-modal";
 
-import { checkSimplestPath, checkAllPossibleMatches } from "./PathLogic";
+import { checkSimplestPath, checkAllPossibleMatches } from "./util/PathLogic";
 import {
   generateBoardWithSimpleShuffle,
   generateBoardWithPresolvedShuffle,
   generateRectangularBoardWithSimpleShuffle,
   generateRectangularBoardWithPresolvedShuffle,
-} from "./BoardGenerator";
+} from "./util/BoardGenerator";
 
-import GameBoard from "./GameBoard";
+import GameBoard from "./board/GameBoard";
 
 import GameTimer from "./GameTimer";
 
@@ -20,7 +20,7 @@ import AdvancedSettingsModalBody from "./modal/AdvancedSettingsModalBody";
 import GameWinModalBody from "./modal/GameWinModalBody";
 import GameLoseModalBody from "./modal/GameLoseModalBody";
 
-import "./Modal.css";
+import "./modal/Modal.css";
 import "./GameBar.css";
 
 ReactModal.setAppElement(document.getElementById("root"));
