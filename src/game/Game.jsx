@@ -39,12 +39,18 @@ export default function Game() {
     ON_ANOTHER_TILE: "ON_ANOTHER_TILE",
     ON_SAME_TILE: "ON_SAME_TILE",
     ON_ANY_TILE: "ON_ANY_TILE",
-    ON_ANY_SPACE: "ON_ANY_SPACE",
   };
 
   const [deselectBehavior, setDeselectBehavior] = useState(
-    DeselectBehavior.ON_RECLICK
+    DeselectBehavior.ON_ANOTHER_TILE
   );
+
+  const EmptySpace = {
+    BLANK: "BLANK",
+    TILE_BACK: "TILE_BACK",
+  };
+
+  const [emptySpace, setEmptySpace] = useState(EmptySpace.BLANK);
 
   // Game State
   const [gameEnded, setGameEnded] = useState(true);
@@ -405,17 +411,13 @@ export default function Game() {
 
   function handleTileClick(tileId) {
     if (tiles[tileId].char === null || tiles[tileId].inRemovalAnim === true) {
-      // Clicked an empty tile.
-      if (deselectBehavior === DeselectBehavior.ON_ANY_SPACE) {
-        setSelectedTile(null);
-        setHintedTiles([]);
-      }
+      // Clicked an empty space.
+      return;
     } else if (selectedTile === tileId) {
       // Clicked the same tile.
       if (
         deselectBehavior === DeselectBehavior.ON_SAME_TILE ||
-        deselectBehavior === DeselectBehavior.ON_ANY_TILE ||
-        deselectBehavior === DeselectBehavior.ON_ANY_SPACE
+        deselectBehavior === DeselectBehavior.ON_ANY_TILE
       ) {
         setSelectedTile(null);
         setHintedTiles([]);
@@ -489,26 +491,20 @@ export default function Game() {
 
         setSelectedTile(null);
         setHintedTiles([]);
-
-        return;
       }
-    } else {
+    } else if (
+      selectedTile === null ||
+      deselectBehavior === DeselectBehavior.ON_ANOTHER_TILE ||
+      deselectBehavior === DeselectBehavior.ON_ANY_TILE
+    ) {
       // Clicked a non-matching tile.
-      if (
-        deselectBehavior === DeselectBehavior.ON_ANOTHER_TILE ||
-        deselectBehavior === DeselectBehavior.ON_ANY_TILE ||
-        deselectBehavior === DeselectBehavior.ON_ANY_SPACE
-      ) {
-        setSelectedTile(tileId);
+      setSelectedTile(tileId);
 
-        // Update the hinting system, if it's enabled.
-        if (showMatchingTiles === true) {
-          const hintedTiles = tiles.filter(
-            (t) => t.char === tiles[tileId].char
-          );
+      // Update the hinting system, if it's enabled.
+      if (showMatchingTiles === true) {
+        const hintedTiles = tiles.filter((t) => t.char === tiles[tileId].char);
 
-          setHintedTiles(hintedTiles);
-        }
+        setHintedTiles(hintedTiles);
       }
     }
   }
