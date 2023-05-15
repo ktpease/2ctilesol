@@ -56,6 +56,13 @@ export default function Game() {
   const [gameEnded, setGameEnded] = useState(true);
 
   // Modal
+  const GameModals = {
+    SETTINGS: "SETTINGS",
+    SETTINGS_ADVANCED: "SETTINGS_ADVANCED",
+    NEW_BOARD: "NEW_BOARD",
+    GAME_WON: "GAME_WON",
+    GAME_LOST: "GAME_LOST",
+  };
   const [modalDisplayed, setModalDisplayed] = useState(false);
   const [modalState, setModalState] = useState(null);
 
@@ -404,8 +411,9 @@ export default function Game() {
       timerRef.current.pause();
       setGameEnded(true);
 
-      if (numTiles - tileHistory.length * 2 > 0) showModal("Game Lost");
-      else showModal("Game Won");
+      if (numTiles - tileHistory.length * 2 > 0)
+        showModal(GameModals.GAME_LOST);
+      else showModal(GameModals.GAME_WON);
     }
   }
 
@@ -549,7 +557,7 @@ export default function Game() {
 
   function renderModalBody(modalState) {
     switch (modalState) {
-      case "Settings":
+      case GameModals.SETTINGS:
         return (
           <SettingsModalBody
             seed={seed}
@@ -560,11 +568,13 @@ export default function Game() {
             handleUndoMatch={() => {
               undoMatch(true);
             }}
-            newBoardModal={() => showModal("New Board")}
-            advancedSettingsModal={() => showModal("Advanced Settings")}
+            newBoardModal={() => showModal(GameModals.NEW_BOARD)}
+            advancedSettingsModal={() =>
+              showModal(GameModals.SETTINGS_ADVANCED)
+            }
           />
         );
-      case "Advanced Settings":
+      case GameModals.SETTINGS_ADVANCED:
         return (
           <AdvancedSettingsModalBody
             toggleHighlightAllMatches={() =>
@@ -574,10 +584,10 @@ export default function Game() {
               setShowMatchingTiles((prevState) => !prevState)
             }
             toggleEmojiMode={() => setUseEmoji((prevState) => !prevState)}
-            backModal={() => showModal("Settings")}
+            backModal={() => showModal(GameModals.SETTINGS)}
           />
         );
-      case "New Board":
+      case GameModals.NEW_BOARD:
         return (
           <NewBoardModalBody
             prevWidth={boardWidth}
@@ -586,10 +596,10 @@ export default function Game() {
             prevNoSinglePairs={noSinglePairs}
             prevSeed={seed}
             handleResetBoard={resetGameState}
-            backModal={() => showModal("Settings")}
+            backModal={() => showModal(GameModals.SETTINGS)}
           />
         );
-      case "Game Won":
+      case GameModals.GAME_WON:
         return (
           <GameWinModalBody
             numTiles={numTiles}
@@ -599,10 +609,10 @@ export default function Game() {
             seed={seed}
             layout={layoutDescription}
             handleResetBoard={resetGameState}
-            newBoardModal={() => showModal("New Board")}
+            newBoardModal={() => showModal(GameModals.NEW_BOARD)}
           />
         );
-      case "Game Lost":
+      case GameModals.GAME_LOST:
         return (
           <GameLoseModalBody
             remainingTiles={numTiles - tileHistory.length * 2}
@@ -644,7 +654,7 @@ export default function Game() {
           className={`settings-button ${
             modalDisplayed ? "settings-button-opened" : ""
           }`}
-          onClick={() => showModal("Settings")}
+          onClick={() => showModal(GameModals.SETTINGS)}
         >
           &#x2699;
         </button>
