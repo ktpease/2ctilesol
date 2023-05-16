@@ -91,8 +91,6 @@ export default function Game() {
 
   // Pathing Maps
   const [pathingTiles, setPathingTiles] = useState([]);
-  const [pathingTilesAlt, setPathingTilesAlt] = useState([]);
-  const [useAltPathingTiles, setUseAltPathingTiles] = useState(false);
 
   const [searchParams] = useSearchParams();
 
@@ -354,7 +352,6 @@ export default function Game() {
     setHintedTiles([]);
     setAllValidMatchingTiles([]);
     setPathingTiles([]);
-    setPathingTilesAlt([]);
     setModalDisplayed(false);
     setGameEnded(false);
     timerRef.current.reset();
@@ -484,18 +481,7 @@ export default function Game() {
         pathingTiles[selectedTile].push("-start");
         pathingTiles[tileId].push("-end");
 
-        // Switch between primary and alternate pathing maps. This is used
-        // as a makeshift solution to consecutive matches using the same tile
-        // path, as the CSS animation doesn't get reset.
-        if (useAltPathingTiles === true) {
-          setPathingTiles(newTiles.map(() => []));
-          setPathingTilesAlt(pathingTiles);
-          setUseAltPathingTiles(false);
-        } else {
-          setPathingTiles(pathingTiles);
-          setPathingTilesAlt(newTiles.map(() => []));
-          setUseAltPathingTiles(true);
-        }
+        setPathingTiles(pathingTiles);
 
         setSelectedTile(null);
         setHintedTiles([]);
@@ -533,7 +519,6 @@ export default function Game() {
       setTileHistory(tileHistory.slice(0, -1));
       setHintedTiles([]);
       setPathingTiles([]);
-      setPathingTilesAlt([]);
       setSelectedTile(null);
       setGameEnded(false);
 
@@ -637,7 +622,6 @@ export default function Game() {
           boardHeight,
           tiles,
           pathingTiles,
-          pathingTilesAlt,
           hintedTiles,
           allValidMatchingTiles,
           selectedTile,

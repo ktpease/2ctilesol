@@ -10,7 +10,6 @@ export default function GameBoard({
   boardHeight,
   tiles,
   pathingTiles,
-  pathingTilesAlt,
   hintedTiles,
   allValidMatchingTiles,
   selectedTile,
@@ -52,9 +51,16 @@ export default function GameBoard({
     setVerticalTileMap(verticalTileMap);
   }, [tiles]);
 
+  // Change the key for the pathing elements so that on a new path, any
+  // current element that's in an animation is not reused, causing an issue
+  // with CSS animation.
+  const [curPathingKey, setCurPathingKey] = useState(1);
+
+  useEffect(() => setCurPathingKey(~curPathingKey), [pathingTiles]);
+
   const renderTileMap = (tileMap, keyprefix) => {
     // For each row in the tile map, create a div with each of the tile
-    // entries as a span, which contains both the corresponding Tile component 
+    // entries as a span, which contains both the corresponding Tile component
     // and pathing node.
     return tileMap.map((row, index) => (
       <div key={keyprefix + "-" + index}>
@@ -72,8 +78,9 @@ export default function GameBoard({
               onClick={() => handleTileClick(val.id)}
               fixChromeAndroidEmojiBug={fixChromeAndroidEmojiBug}
             />
-            <PathNode node={pathingTiles[val.id]} />
-            <PathNode node={pathingTilesAlt[val.id]} />
+            {pathingTiles[val.id] && (
+              <PathNode key={curPathingKey} node={pathingTiles[val.id]} />
+            )}
           </span>
         ))}
       </div>
