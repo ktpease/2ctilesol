@@ -12,9 +12,9 @@
  * to account for the edges.
  * @param {!number} boardWidth Width of the board, excluding the edges.
  * @param {!number} boardHeight Height of the board, excluding the edges.
- * @returns {?{{<segment: number[], dir: string>}}[]} An array of line segments showing
- * one of the simplest paths. Segments are list of tile indexes in order.
- * Dir can be "U", "D", "L", or "R".
+ * @returns {?{{<segment: number[], dir: string>}}[]} An array of line segments 
+ * showing one of the simplest paths. Segments are list of tile indexes in order.
+ * Dir can be the directions from the PathDirection enum.
  */
 export function checkSimplestPath(
   firstTile,
@@ -46,22 +46,25 @@ export function checkSimplestPath(
   // Do not check opposite direction if in the same row or column.
 
   if (tileYdelta !== 0 || tileXdelta > 0) {
-    paths.push([{ segment: [firstTile], dir: "R" }]);
+    paths.push([{ segment: [firstTile], dir: PathDirection.RIGHT }]);
   }
 
   if (tileYdelta !== 0 || tileXdelta < 0) {
-    if (tileXdelta < 0) paths.push([{ segment: [firstTile], dir: "L" }]);
-    else paths.unshift([{ segment: [firstTile], dir: "L" }]);
+    if (tileXdelta < 0)
+      paths.push([{ segment: [firstTile], dir: PathDirection.LEFT }]);
+    else paths.unshift([{ segment: [firstTile], dir: PathDirection.LEFT }]);
   }
 
   if (tileXdelta !== 0 || tileYdelta > 0) {
-    if (tileYdelta >= 0) paths.push([{ segment: [firstTile], dir: "D" }]);
-    else paths.unshift([{ segment: [firstTile], dir: "D" }]);
+    if (tileYdelta >= 0)
+      paths.push([{ segment: [firstTile], dir: PathDirection.DOWN }]);
+    else paths.unshift([{ segment: [firstTile], dir: PathDirection.DOWN }]);
   }
 
   if (tileXdelta !== 0 || tileYdelta < 0) {
-    if (tileYdelta < 0) paths.push([{ segment: [firstTile], dir: "U" }]);
-    else paths.push([{ segment: [firstTile], dir: "U" }]);
+    if (tileYdelta < 0)
+      paths.push([{ segment: [firstTile], dir: PathDirection.UP }]);
+    else paths.push([{ segment: [firstTile], dir: PathDirection.UP }]);
   }
 
   while (paths.length > 0) {
@@ -84,7 +87,7 @@ export function checkSimplestPath(
     let nextTile;
 
     switch (curSegment.dir) {
-      case "R":
+      case PathDirection.RIGHT:
         nextTile = board[lastTile + 1];
 
         // We found the path, or a simpler one!
@@ -127,7 +130,7 @@ export function checkSimplestPath(
               segment: [].concat(i.segment),
               dir: i.dir,
             }));
-            newPath.push({ segment: [nextTile.id], dir: "U" });
+            newPath.push({ segment: [nextTile.id], dir: PathDirection.UP });
             if (tileYdelta < 0) paths.push(newPath);
             else paths.unshift(newPath);
           } else if (
@@ -138,7 +141,7 @@ export function checkSimplestPath(
               segment: [].concat(i.segment),
               dir: i.dir,
             }));
-            newPath.push({ segment: [nextTile.id], dir: "D" });
+            newPath.push({ segment: [nextTile.id], dir: PathDirection.DOWN });
             if (tileYdelta >= 0) paths.push(newPath);
             else paths.unshift(newPath);
           }
@@ -156,7 +159,7 @@ export function checkSimplestPath(
         if (tileXdelta >= 0) paths.push(path);
         else paths.unshift(path);
         continue;
-      case "L":
+      case PathDirection.LEFT:
         nextTile = board[lastTile - 1];
 
         // We found the path, or a simpler one!
@@ -199,7 +202,7 @@ export function checkSimplestPath(
               segment: [].concat(i.segment),
               dir: i.dir,
             }));
-            newPath.push({ segment: [nextTile.id], dir: "U" });
+            newPath.push({ segment: [nextTile.id], dir: PathDirection.UP });
             if (tileYdelta < 0) paths.push(newPath);
             else paths.unshift(newPath);
           } else if (
@@ -210,7 +213,7 @@ export function checkSimplestPath(
               segment: [].concat(i.segment),
               dir: i.dir,
             }));
-            newPath.push({ segment: [nextTile.id], dir: "D" });
+            newPath.push({ segment: [nextTile.id], dir: PathDirection.DOWN });
             if (tileYdelta >= 0) paths.push(newPath);
             else paths.unshift(newPath);
           }
@@ -228,7 +231,7 @@ export function checkSimplestPath(
         if (tileXdelta < 0) paths.push(path);
         else paths.unshift(path);
         continue;
-      case "D":
+      case PathDirection.DOWN:
         nextTile = board[lastTile + boardWidthWithEdges];
 
         // We found the path, or a simpler one!
@@ -271,7 +274,7 @@ export function checkSimplestPath(
               segment: [].concat(i.segment),
               dir: i.dir,
             }));
-            newPath.push({ segment: [nextTile.id], dir: "L" });
+            newPath.push({ segment: [nextTile.id], dir: PathDirection.LEFT });
             if (tileXdelta < 0) paths.push(newPath);
             else paths.unshift(newPath);
           } else if (
@@ -282,7 +285,7 @@ export function checkSimplestPath(
               segment: [].concat(i.segment),
               dir: i.dir,
             }));
-            newPath.push({ segment: [nextTile.id], dir: "R" });
+            newPath.push({ segment: [nextTile.id], dir: PathDirection.RIGHT });
             if (tileXdelta >= 0) paths.push(newPath);
             else paths.unshift(newPath);
           }
@@ -300,7 +303,7 @@ export function checkSimplestPath(
         if (tileYdelta >= 0) paths.push(path);
         else paths.unshift(path);
         continue;
-      case "U":
+      case PathDirection.UP:
         nextTile = board[lastTile - boardWidthWithEdges];
 
         // We found the path, or a simpler one!
@@ -343,7 +346,7 @@ export function checkSimplestPath(
               segment: [].concat(i.segment),
               dir: i.dir,
             }));
-            newPath.push({ segment: [nextTile.id], dir: "L" });
+            newPath.push({ segment: [nextTile.id], dir: PathDirection.LEFT });
             if (tileXdelta < 0) paths.push(newPath);
             else paths.unshift(newPath);
           } else if (
@@ -354,7 +357,7 @@ export function checkSimplestPath(
               segment: [].concat(i.segment),
               dir: i.dir,
             }));
-            newPath.push({ segment: [nextTile.id], dir: "R" });
+            newPath.push({ segment: [nextTile.id], dir: PathDirection.RIGHT });
             if (tileXdelta >= 0) paths.push(newPath);
             else paths.unshift(newPath);
           }
@@ -444,10 +447,10 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
     // Starting paths.
     let paths = [];
 
-    paths.push([{ segment: [tile.id], dir: "R" }]);
-    paths.push([{ segment: [tile.id], dir: "L" }]);
-    paths.push([{ segment: [tile.id], dir: "U" }]);
-    paths.push([{ segment: [tile.id], dir: "D" }]);
+    paths.push([{ segment: [tile.id], dir: PathDirection.RIGHT }]);
+    paths.push([{ segment: [tile.id], dir: PathDirection.LEFT }]);
+    paths.push([{ segment: [tile.id], dir: PathDirection.UP }]);
+    paths.push([{ segment: [tile.id], dir: PathDirection.DOWN }]);
 
     while (paths.length > 0) {
       const path = paths.pop();
@@ -457,7 +460,7 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
       let nextTile;
 
       switch (curSegment.dir) {
-        case "R":
+        case PathDirection.RIGHT:
           nextTile = board[lastTile + 1];
 
           // Did we find a path?
@@ -509,7 +512,7 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
                 segment: [].concat(i.segment),
                 dir: i.dir,
               }));
-              newPath.push({ segment: [nextTile.id], dir: "U" });
+              newPath.push({ segment: [nextTile.id], dir: PathDirection.UP });
               paths.push(newPath);
             }
 
@@ -521,7 +524,7 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
                 segment: [].concat(i.segment),
                 dir: i.dir,
               }));
-              newPath.push({ segment: [nextTile.id], dir: "D" });
+              newPath.push({ segment: [nextTile.id], dir: PathDirection.DOWN });
               paths.push(newPath);
             }
           }
@@ -538,7 +541,7 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
 
           paths.push(path);
           continue;
-        case "L":
+        case PathDirection.LEFT:
           nextTile = board[lastTile - 1];
 
           // Did we find a path?
@@ -590,7 +593,7 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
                 segment: [].concat(i.segment),
                 dir: i.dir,
               }));
-              newPath.push({ segment: [nextTile.id], dir: "U" });
+              newPath.push({ segment: [nextTile.id], dir: PathDirection.UP });
               paths.push(newPath);
             }
 
@@ -602,7 +605,7 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
                 segment: [].concat(i.segment),
                 dir: i.dir,
               }));
-              newPath.push({ segment: [nextTile.id], dir: "D" });
+              newPath.push({ segment: [nextTile.id], dir: PathDirection.DOWN });
               paths.push(newPath);
             }
           }
@@ -619,7 +622,7 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
 
           paths.push(path);
           continue;
-        case "D":
+        case PathDirection.DOWN:
           nextTile = board[lastTile + boardWidthWithEdges];
 
           // Did we find a path?
@@ -670,7 +673,7 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
                 segment: [].concat(i.segment),
                 dir: i.dir,
               }));
-              newPath.push({ segment: [nextTile.id], dir: "L" });
+              newPath.push({ segment: [nextTile.id], dir: PathDirection.LEFT });
               paths.push(newPath);
             }
 
@@ -679,7 +682,10 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
                 segment: [].concat(i.segment),
                 dir: i.dir,
               }));
-              newPath.push({ segment: [nextTile.id], dir: "R" });
+              newPath.push({
+                segment: [nextTile.id],
+                dir: PathDirection.RIGHT,
+              });
               paths.push(newPath);
             }
           }
@@ -697,7 +703,7 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
 
           paths.push(path);
           continue;
-        case "U":
+        case PathDirection.UP:
           nextTile = board[lastTile - boardWidthWithEdges];
 
           // Did we find a path?
@@ -748,7 +754,7 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
                 segment: [].concat(i.segment),
                 dir: i.dir,
               }));
-              newPath.push({ segment: [nextTile.id], dir: "L" });
+              newPath.push({ segment: [nextTile.id], dir: PathDirection.LEFT });
               paths.push(newPath);
             }
 
@@ -757,7 +763,10 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
                 segment: [].concat(i.segment),
                 dir: i.dir,
               }));
-              newPath.push({ segment: [nextTile.id], dir: "R" });
+              newPath.push({
+                segment: [nextTile.id],
+                dir: PathDirection.RIGHT,
+              });
               paths.push(newPath);
             }
           }
@@ -783,3 +792,10 @@ export function checkAllPossibleMatches(board, boardWidth, boardHeight) {
 
   return validMatches;
 }
+
+export const PathDirection = {
+  UP: "U",
+  DOWN: "D",
+  LEFT: "L",
+  RIGHT: "R",
+};
