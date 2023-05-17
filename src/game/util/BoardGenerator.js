@@ -59,7 +59,7 @@ export function generateBoardWithSimpleShuffle(
     ? (Math.random() * Number.MAX_SAFE_INTEGER) >>> 0
     : parseInt(seed, 10) >>> 0;
 
-  const seededRng = new Rand(finalSeed + '');
+  const seededRng = new Rand(finalSeed + "");
 
   const layout = decodeLayoutCode(layoutCode);
 
@@ -68,7 +68,7 @@ export function generateBoardWithSimpleShuffle(
     return null;
   }
 
-  const numTiles = Array.from(layout.layoutMask).reduce(
+  let numTiles = Array.from(layout.layoutMask).reduce(
     (acc, val) => acc + (val === "1" ? 1 : 0),
     0
   );
@@ -124,6 +124,12 @@ export function generateBoardWithSimpleShuffle(
   // Blank out the bottom outer edge.
   for (let x = 0; x < layout.width + 2; x++)
     id = tiles.push({ id: id, char: null, inRemovalAnim: false });
+
+  // If there is an extra tile, remove it.
+  if (chardupe % 2 === 0) {
+    tiles[allValidTiles.pop()].char = null;
+    numTiles--;
+  }
 
   // Shuffle the board.
   for (let i = allValidTiles.length - 1; i > 0; i--) {
@@ -197,7 +203,7 @@ export function generateBoardWithPresolvedShuffle(
     ? (Math.random() * Number.MAX_SAFE_INTEGER) >>> 0
     : parseInt(seed, 10) >>> 0;
 
-  const seededRng = new Rand(finalSeed + '');
+  const seededRng = new Rand(finalSeed + "");
 
   const layout = decodeLayoutCode(layoutCode);
 
@@ -206,7 +212,7 @@ export function generateBoardWithPresolvedShuffle(
     return null;
   }
 
-  const numTiles = Array.from(layout.layoutMask).reduce(
+  let numTiles = Array.from(layout.layoutMask).reduce(
     (acc, val) => acc + (val === "1" ? 1 : 0),
     0
   );
@@ -426,6 +432,14 @@ export function generateBoardWithPresolvedShuffle(
     // Don't match future tile with the matched tile.
     edgeTiles = edgeTiles.filter((x) => x !== matchingTile);
   }
+
+  // Remove unused or unreachable tiles.
+  tiles.forEach((tile) => {
+    if (tile.char === -1) {
+      tile.char = null;
+      numTiles--;
+    }
+  });
 
   return {
     tiles: tiles,
