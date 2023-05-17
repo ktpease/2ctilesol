@@ -16,9 +16,9 @@ export default function Tile({
 
   if (typeof char === "undefined" || char === null || char < 0 || char > 43) {
     return useEmoji ? (
-      <span className="game-tile-glyph game-tile-empty">&#x1F02B;</span>
+      <span className="game-tile-emoji game-tile-empty">&#x1F02B;</span>
     ) : (
-      <span className="game-tile-emoji game-tile-empty">&#x1F02B;&#xFE0E;</span>
+      <span className="game-tile-glyph game-tile-empty">&#x1F02B;&#xFE0E;</span>
     );
   }
 
