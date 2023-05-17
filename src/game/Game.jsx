@@ -25,7 +25,7 @@ import "./GameBar.css";
 
 ReactModal.setAppElement(document.getElementById("root"));
 
-export default function Game() {
+export default function Game({ animateBackground, setAnimateBackground }) {
   const gameStateVer = 5;
 
   // Settings
@@ -553,6 +553,8 @@ export default function Game() {
             handleUndoMatch={() => {
               undoMatch(true);
             }}
+            animateBackground={animateBackground}
+            setAnimateBackground={setAnimateBackground}
             newBoardModal={() => showModal(GameModals.NEW_BOARD)}
             advancedSettingsModal={() =>
               showModal(GameModals.SETTINGS_ADVANCED)

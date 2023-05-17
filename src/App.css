@@ -1,7 +1,6 @@
 .App {
   text-align: center;
-  background-color: hsl(0, 0%, 15%);
-  animation: gameBackgroundColor 120s infinite linear;
+  background-color: hsl(180, 45%, 15%);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -11,7 +10,11 @@
   color: white;
 }
 
-@keyframes gameBackgroundColor {
+.animatedBackground {
+  animation: animatedBackgroundColors 120s infinite linear;
+}
+
+@keyframes animatedBackgroundColors {
   0%, 100% {
     background-color: hsl(180, 45%, 15%);
   }
