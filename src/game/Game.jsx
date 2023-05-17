@@ -150,6 +150,8 @@ export default function Game({
         );
 
         timerRef.current.reset(newTimer);
+
+        setGameEnded(false);
       } catch {
         resetGameState(null, 17, 8);
       }
@@ -525,6 +527,10 @@ export default function Game({
       setHintedTiles([]);
       setPathingTiles([]);
       setSelectedTile(null);
+
+      if (gameEnded)
+        timerRef.current.start();
+
       setGameEnded(false);
 
       if (hideModal) hideModal();
