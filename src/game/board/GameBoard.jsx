@@ -67,14 +67,16 @@ export default function GameBoard({
         {row.map((val) => (
           <span key={val.id}>
             <Tile
-              tile={val.char}
-              glyph={!useEmoji}
-              selected={val.id === selectedTile}
-              hintCurrent={hintedTiles.includes(val) && !val.inRemovalAnim}
-              hintAll={
+              char={val.char}
+              useEmoji={useEmoji}
+              isSelected={val.id === selectedTile}
+              canBeMatchedWithSelected={
+                hintedTiles.includes(val) && !val.inRemovalAnim
+              }
+              canBeMatchedWithOther={
                 showAllValidMatches && allValidMatchingTiles.includes(val.id)
               }
-              fade={val.inRemovalAnim}
+              isFadingOut={val.inRemovalAnim}
               onClick={() => handleTileClick(val.id)}
               fixChromeAndroidEmojiBug={fixChromeAndroidEmojiBug}
             />

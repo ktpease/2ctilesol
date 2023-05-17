@@ -1,84 +1,75 @@
-// The object for each individual tile.
-//
-// Properties consist of:
-// * tile (int) - The tile's face appearance, each corresponding to the
-//    Mahjong Tiles Unicode block (from 1F000 to 1F02B).
-// * glyph (boolean) - Whether we use standard text presentation for the
-//    Tile (true) or the non-standard emoji variant (false).
-// * selected (boolean) - Whether or not the tile is currently selected.
-// * hintCurrent (boolean) - Whether or not the tile is highlighted as a
-//    valid match of a currently selected tile.
-// * hintAll (boolean) - Whether or not the tile is highlighted as a valid
-//    match in general.
-// * pointer (boolean) - Whether or not we use the pointer cursor when
-//    hovering over it.
-// * fade (boolean) - Whether or not we're currently in the removal
-//    fade-out animation.
-// * fixChromeAndroidEmojiBug (boolean) - Change the Red Dragon glyph
-//    to a re-colored White Dragon glyph so that it isn't forced as an
-//    emoji in Chrome on Android.
-//
-// * onClick - Callback reference to when a user clicks or taps on the Tile.
-//
-export default function Tile(props) {
-  // Check if tile is valid to display.
-  let tileNum = parseInt(props.tile, 10);
+// The component for each individual tile, displayed as a mahjong tile from
+// the Mahjong Tiles Unicode block (U+1F000 to U+1F02B).
+export default function Tile({
+  char,
+  useEmoji,
+  isSelected,
+  canBeMatchedWithSelected,
+  canBeMatchedWithOther,
+  showPointer,
+  isFadingOut,
+  fixChromeAndroidEmojiBug,
+  onClick,
+}) {
+  // Check if tile is valid to display. They should be sent in the "char"
+  // property from 0 (U+1F000) to 43 (U+1F02B).
 
-  if (isNaN(tileNum) || tileNum < 0 || tileNum > 43) {
-    return props.glyph ? (
-      <span className="game-tile-glyph game-tile-empty">&#x1F02B;&#xFE0E;</span>
+  if (typeof char === "undefined" || char === null || char < 0 || char > 43) {
+    return useEmoji ? (
+      <span className="game-tile-glyph game-tile-empty">&#x1F02B;</span>
     ) : (
-      <span className="game-tile-emoji game-tile-empty">&#x1F02B;</span>
+      <span className="game-tile-emoji game-tile-empty">&#x1F02B;&#xFE0E;</span>
     );
   }
 
   // Colorize the tile by status.
   let tileStatusClass = "";
 
-  if (props.selected) tileStatusClass = "game-tile-selected";
-  else if (props.hintCurrent) tileStatusClass = "game-tile-hint-current";
-  else if (props.hintAll) tileStatusClass = "game-tile-hint-all";
-  else if (props.fade) tileStatusClass = "game-tile-anim-fadeout";
+  // Whether or not the tile is currently selected.
+  if (isSelected) tileStatusClass = "game-tile-selected";
+  // Whether or not the tile is highlighted as a valid match of a currently selected tile.
+  else if (canBeMatchedWithSelected) tileStatusClass = "game-tile-hint-current";
+  // Whether or not the tile is highlighted as a valid match in general.
+  else if (canBeMatchedWithOther) tileStatusClass = "game-tile-hint-all";
+  // Whether or not we're currently in the removal fade-out animation.
+  else if (isFadingOut) tileStatusClass = "game-tile-anim-fadeout";
 
-  if (props.pointer) tileStatusClass += "game-tile-pointer";
+  // Whether or not we use the pointer cursor when hovering over it.
+  if (showPointer) tileStatusClass += "game-tile-pointer";
 
-  if (props.glyph) {
+  if (useEmoji) {
+    // If we're using the non-standard emoji variant, just display them normally.
+    return (
+      <span className={`game-tile-emoji ${tileStatusClass}`} onClick={onClick}>
+        {String.fromCodePoint(0x1f000 + char)}
+      </span>
+    );
+  } else {
     // If we're using the standard text presentation, make them colorized.
     let tileColorClass = "";
 
-    if ((tileNum >= 7 && tileNum <= 15) || tileNum === 4) {
+    if ((char >= 7 && char <= 15) || char === 4) {
       tileColorClass = "game-tile-glyph-red";
-      if (tileNum === 4 && props.fixChromeAndroidEmojiBug) tileNum = 6;
-    } else if ((tileNum >= 16 && tileNum <= 24) || tileNum === 5) {
+
+      // In certain browsers, change the Red Dragon glyph to a re-colored
+      // White Dragon glyph so that it isn't forced as an emoji.
+      if (char === 4 && fixChromeAndroidEmojiBug) char = 6;
+    } else if ((char >= 16 && char <= 24) || char === 5) {
       tileColorClass = "game-tile-glyph-green";
-    } else if (
-      (tileNum >= 25 && tileNum <= 33) ||
-      tileNum === 6 ||
-      tileNum === 43
-    ) {
+    } else if ((char >= 25 && char <= 33) || char === 6 || char === 43) {
       tileColorClass = "game-tile-glyph-blue";
-    } else if (tileNum >= 34 && tileNum <= 37) {
+    } else if (char >= 34 && char <= 37) {
       tileColorClass = "game-tile-glyph-flowers";
-    } else if (tileNum >= 38 && tileNum <= 41) {
+    } else if (char >= 38 && char <= 41) {
       tileColorClass = "game-tile-glyph-seasons";
     }
 
     return (
       <span
         className={`game-tile-glyph ${tileColorClass} ${tileStatusClass}`}
-        onClick={props.onClick}
+        onClick={onClick}
       >
-        {String.fromCodePoint(0x1f000 + tileNum)}&#xFE0E;
-      </span>
-    );
-  } else {
-    // If we're using the non-standard emoji variant, just display them normally.
-    return (
-      <span
-        className={`game-tile-emoji ${tileStatusClass}`}
-        onClick={props.onClick}
-      >
-        {String.fromCodePoint(0x1f000 + tileNum)}
+        {String.fromCodePoint(0x1f000 + char)}&#xFE0E;
       </span>
     );
   }
