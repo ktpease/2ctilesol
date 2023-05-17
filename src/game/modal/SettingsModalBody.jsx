@@ -1,3 +1,5 @@
+import { HexColorPicker } from "react-colorful";
+
 const SettingsModalBody = (props) => {
   return (
     <div>
@@ -33,6 +35,15 @@ const SettingsModalBody = (props) => {
           <label htmlFor="optAnimatedBg">
             Enable Animated Background (may decrease performance)
           </label>
+        </div>
+      </div>
+      <div>
+        <div>
+          <HexColorPicker
+            color={props.backgroundColor}
+            onChange={props.setBackgroundColor}
+          />
+          <label htmlFor="optBgColor">Change Background Color</label>
         </div>
       </div>
       <div>

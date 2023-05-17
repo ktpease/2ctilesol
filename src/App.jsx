@@ -9,6 +9,7 @@ import Editor from "./editor/Editor";
 function App() {
   const [preload, setPreload] = useState(true);
 
+  const [backgroundColor, setBackgroundColor] = useState("#153737");
   const [animateBackground, setAnimateBackground] = useState(false);
 
   // Get the current state from the browser's web stoarge.
@@ -30,9 +31,8 @@ function App() {
     const appSettingsJson = localStorage.getItem("appSettings");
     const appSettings = JSON.parse(appSettingsJson);
 
-    console.log(appSettings.animateBackground);
-
     if (appSettings !== null) {
+      setBackgroundColor(appSettings.backgroundColor);
       setAnimateBackground(appSettings.animateBackground);
     }
 
@@ -62,19 +62,32 @@ function App() {
     localStorage.setItem(
       "appSettings",
       JSON.stringify({
+        backgroundColor: backgroundColor,
         animateBackground: animateBackground,
       })
     );
-  }, [animateBackground]);
+  }, [backgroundColor, animateBackground]);
 
   return (
-    <div className={`App ${animateBackground && "animatedBackground"}`}>
+    <div
+      className={`App ${animateBackground ? "animatedBackground" : ""}`}
+      style={{ backgroundColor: backgroundColor }}
+    >
       <BrowserRouter>
         <Routes>
           <Route path="/editor" element={<Editor />} />
           <Route
             path="*"
-            element={<Game {...{ animateBackground, setAnimateBackground }} />}
+            element={
+              <Game
+                {...{
+                  backgroundColor,
+                  animateBackground,
+                  setBackgroundColor,
+                  setAnimateBackground,
+                }}
+              />
+            }
           />
         </Routes>
       </BrowserRouter>
