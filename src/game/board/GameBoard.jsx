@@ -11,11 +11,10 @@ export default function GameBoard({
   tiles,
   pathingTiles,
   hintedTiles,
-  allValidMatchingTiles,
+  wholeMatchingTiles,
   selectedTile,
   useEmoji,
   fixChromeAndroidEmojiBug,
-  showAllValidMatches,
   handleTileClick,
 }) {
   // Tile maps, which are used to correlate each tile object with their
@@ -73,9 +72,7 @@ export default function GameBoard({
               canBeMatchedWithSelected={
                 hintedTiles.includes(val) && !val.inRemovalAnim
               }
-              canBeMatchedWithOther={
-                showAllValidMatches && allValidMatchingTiles.includes(val.id)
-              }
+              canBeMatchedWithOther={wholeMatchingTiles.includes(val.id)}
               isFadingOut={val.inRemovalAnim}
               onClick={() => handleTileClick(val.id)}
               fixChromeAndroidEmojiBug={fixChromeAndroidEmojiBug}

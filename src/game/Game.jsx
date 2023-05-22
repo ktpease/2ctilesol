@@ -40,6 +40,7 @@ export default function Game({
   const [showAllValidMatches, setShowAllValidMatches] = useState(false);
   const [fixChromeAndroidEmojiBug, setFixChromeAndroidEmojiBug] =
     useState(false);
+  const [canUseHint, setCanUseHint] = useState(true);
 
   const DeselectBehavior = {
     ON_ANOTHER_TILE: "ON_ANOTHER_TILE",
@@ -95,6 +96,10 @@ export default function Game({
   // Tile Hinting
   const [hintedTiles, setHintedTiles] = useState([]);
   const [allValidMatchingTiles, setAllValidMatchingTiles] = useState([]);
+  const [allValidMatchesAtRandom, setAllValidMatchesAtRandom] = useState([]);
+  const [allValidMatchesRandomCycle, setAllValidMatchesRandomCycle] =
+    useState(0);
+  const [randomMatchDisplayed, setRandomMatchDisplayed] = useState(false);
 
   // Pathing Maps
   const [pathingTiles, setPathingTiles] = useState([]);
@@ -360,6 +365,7 @@ export default function Game({
     setTileHistory([]);
     setHintedTiles([]);
     setAllValidMatchingTiles([]);
+    setAllValidMatchesAtRandom([]);
     setPathingTiles([]);
     setModalDisplayed(false);
     setGameEnded(false);
@@ -411,6 +417,33 @@ export default function Game({
     }
 
     setAllValidMatchingTiles([...new Set(allValidMatches.flat())]);
+
+    // Use Fisher-Yates shuffle to shuffle the valid matches array. That way,
+    // when the player clicks the hint button, it'll display a random match,
+    // with subsequent clicks displaying another random match through the array.
+    const allValidMatchesAtRandom = allValidMatches.slice();
+
+    {
+      let curIndex = allValidMatchesAtRandom.length,
+        randIndex;
+
+      while (curIndex != 0) {
+        randIndex = Math.floor(Math.random() * curIndex);
+        curIndex--;
+
+        [
+          allValidMatchesAtRandom[curIndex],
+          allValidMatchesAtRandom[randIndex],
+        ] = [
+          allValidMatchesAtRandom[randIndex],
+          allValidMatchesAtRandom[curIndex],
+        ];
+      }
+    }
+
+    setAllValidMatchesAtRandom(allValidMatchesAtRandom);
+    setAllValidMatchesRandomCycle(0);
+    setRandomMatchDisplayed(false);
 
     // If there are no matching tiles, then we either won or lost the game.
     if (allValidMatches.length === 0) {
@@ -538,6 +571,16 @@ export default function Game({
     }
   }
 
+  function showOneMatch() {
+    if (!canUseHint) return;
+
+    setRandomMatchDisplayed(true);
+
+    setAllValidMatchesRandomCycle(
+      (allValidMatchesRandomCycle + 1) % allValidMatchesAtRandom.length
+    );
+  }
+
   function showModal(modalState) {
     timerRef.current.pause();
 
@@ -641,11 +684,14 @@ export default function Game({
           tiles,
           pathingTiles,
           hintedTiles,
-          allValidMatchingTiles,
+          wholeMatchingTiles: showAllValidMatches
+            ? allValidMatchingTiles
+            : randomMatchDisplayed
+            ? allValidMatchesAtRandom[allValidMatchesRandomCycle]
+            : [],
           selectedTile,
           useEmoji,
           fixChromeAndroidEmojiBug,
-          showAllValidMatches,
           handleTileClick,
         }}
       />
@@ -672,7 +718,8 @@ export default function Game({
           </button>
           <button
             className="small-button"
-            onClick={() => showModal(GameModals.HELP)}
+            onClick={showOneMatch}
+            disabled={!canUseHint}
           >
             &#x1F4A1;&#xFE0E;
           </button>
