@@ -28,10 +28,12 @@ import "./GameBar.css";
 ReactModal.setAppElement(document.getElementById("root"));
 
 export default function Game({
+  backgroundOption,
   backgroundColor,
-  animateBackground,
+  backgroundImage,
+  setBackgroundOption,
   setBackgroundColor,
-  setAnimateBackground,
+  setBackgroundImage,
 }) {
   const gameStateVer = 5;
 
@@ -548,7 +550,7 @@ export default function Game({
   }
 
   // Revert the board to the previous state.
-  function undoMatch(hideModal = false) {
+  function undoMatch(doHideModal = false) {
     if (tileHistory.length > 0) {
       const newTiles = tiles.slice();
       const lastMatch = tileHistory.slice(-1)[0];
@@ -569,7 +571,7 @@ export default function Game({
 
       setGameEnded(false);
 
-      if (hideModal) hideModal();
+      if (doHideModal) hideModal();
     }
   }
 
@@ -598,10 +600,9 @@ export default function Game({
   }
 
   function renderModalBody(modalState) {
-    console.log(gameEnded);
     switch (modalState) {
       case GameModals.HELP:
-        return <HelpModalBody {...{ useEmoji }} closeModal={hideModal} />;
+        return <HelpModalBody {...{ useEmoji, closeModal: hideModal }} />;
       case GameModals.SETTINGS:
         return (
           <SettingsModalBody
@@ -636,11 +637,15 @@ export default function Game({
       case GameModals.SETTINGS_BACKGROUND:
         return (
           <BackgroundColorModalBody
-            backgroundColor={backgroundColor}
-            setBackgroundColor={setBackgroundColor}
-            animateBackground={animateBackground}
-            setAnimateBackground={setAnimateBackground}
-            backModal={() => showModal(GameModals.SETTINGS)}
+            {...{
+              backgroundOption,
+              backgroundColor,
+              backgroundImage,
+              setBackgroundOption,
+              setBackgroundColor,
+              setBackgroundImage,
+              backModal: () => showModal(GameModals.SETTINGS),
+            }}
           />
         );
       case GameModals.NEW_BOARD:
