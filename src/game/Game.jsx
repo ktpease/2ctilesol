@@ -698,9 +698,7 @@ export default function Game({
 
       <div className="game-bar">
         <button
-          className={`settings-button ${
-            modalDisplayed ? "settings-button-opened" : ""
-          }`}
+          className="game-bar-settings-button"
           onClick={() => showModal(GameModals.SETTINGS)}
         >
           &#x2699;
@@ -710,24 +708,30 @@ export default function Game({
         </div>
         <div>
           <button
-            className="small-button"
+            className="game-bar-button"
             onClick={() => undoMatch(false)}
             disabled={tileHistory.length === 0}
           >
             &#x2B8C;
           </button>
           <button
-            className="small-button"
+            className="game-bar-button"
             onClick={showOneMatch}
             disabled={!canUseHint}
           >
             &#x1F4A1;&#xFE0E;
           </button>
           <button
-            className="small-button"
+            className="game-bar-button"
             onClick={() => showModal(GameModals.HELP)}
           >
             ?
+          </button>
+          <button
+            className="game-bar-button portrait-mode"
+            onClick={() => showModal(GameModals.SETTINGS)}
+          >
+            &#x2699;
           </button>
         </div>
       </div>
