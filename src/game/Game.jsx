@@ -22,6 +22,7 @@ import GameLoseModalBody from "./modal/GameLoseModalBody";
 
 import "./modal/Modal.css";
 import "./GameBar.css";
+import HelpModalBody from "./modal/HelpModalBody";
 
 ReactModal.setAppElement(document.getElementById("root"));
 
@@ -62,6 +63,7 @@ export default function Game({
 
   // Modal
   const GameModals = {
+    HELP: "HELP",
     SETTINGS: "SETTINGS",
     SETTINGS_ADVANCED: "SETTINGS_ADVANCED",
     NEW_BOARD: "NEW_BOARD",
@@ -485,8 +487,8 @@ export default function Game({
           });
         });
 
-        pathingTiles[selectedTile].push("-start");
-        pathingTiles[tileId].push("-end");
+        pathingTiles[tileId].push("-start");
+        pathingTiles[selectedTile].push("-end");
 
         setPathingTiles(pathingTiles);
 
@@ -528,8 +530,7 @@ export default function Game({
       setPathingTiles([]);
       setSelectedTile(null);
 
-      if (gameEnded)
-        timerRef.current.start();
+      if (gameEnded) timerRef.current.start();
 
       setGameEnded(false);
 
@@ -553,6 +554,8 @@ export default function Game({
 
   function renderModalBody(modalState) {
     switch (modalState) {
+      case GameModals.HELP:
+        return <HelpModalBody {...{ useEmoji }} />;
       case GameModals.SETTINGS:
         return (
           <SettingsModalBody
@@ -648,7 +651,6 @@ export default function Game({
       />
 
       <div className="game-bar">
-        <GameTimer ref={timerRef} />
         <button
           className={`settings-button ${
             modalDisplayed ? "settings-button-opened" : ""
@@ -657,13 +659,30 @@ export default function Game({
         >
           &#x2699;
         </button>
-        <button
-          className="undo-button"
-          onClick={() => undoMatch(false)}
-          disabled={tileHistory.length === 0}
-        >
-          &#x21B6;
-        </button>
+        <div>
+          <GameTimer ref={timerRef} />
+        </div>
+        <div>
+          <button
+            className="small-button"
+            onClick={() => undoMatch(false)}
+            disabled={tileHistory.length === 0}
+          >
+            &#x2B8C;
+          </button>
+          <button
+            className="small-button"
+            onClick={() => showModal(GameModals.HELP)}
+          >
+            &#x1F4A1;&#xFE0E;
+          </button>
+          <button
+            className="small-button"
+            onClick={() => showModal(GameModals.HELP)}
+          >
+            ?
+          </button>
+        </div>
       </div>
 
       <ReactModal

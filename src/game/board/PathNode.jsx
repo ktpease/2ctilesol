@@ -1,4 +1,4 @@
-export default function PathNode({ node }) {
+export default function PathNode({ node, fadeout = true }) {
   if (node?.length > 0) {
     let nodeClass = "";
 
@@ -7,7 +7,13 @@ export default function PathNode({ node }) {
       nodeClass = nodeClass.concat(dir);
     });
 
-    return <span className={`game-path ${nodeClass} game-path-anim-fadeout`} />;
+    return (
+      <span
+        className={`game-path ${nodeClass} ${
+          fadeout ? "game-path-anim-fadeout" : ""
+        }`}
+      />
+    );
   }
 
   return null;

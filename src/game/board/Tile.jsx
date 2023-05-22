@@ -14,7 +14,7 @@ export default function Tile({
   // Check if tile is valid to display. They should be sent in the "char"
   // property from 0 (U+1F000) to 43 (U+1F02B).
 
-  if (typeof char === "undefined" || char === null || char < 0 || char > 43) {
+  if (typeof char !== "number" || char < 0 || char > 43) {
     return useEmoji ? (
       <span className="game-tile-emoji game-tile-empty">&#x1F02B;</span>
     ) : (

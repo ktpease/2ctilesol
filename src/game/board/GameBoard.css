@@ -222,31 +222,31 @@
   content: "\2503";
 }
 
-.game-board-horizontal .game-path-L-end:after,
-.game-board-horizontal .game-path-R-start:after,
-.game-board-vertical .game-path-D-end:after,
-.game-board-vertical .game-path-U-start:after {
+.game-board-horizontal .game-path-L-start:after,
+.game-board-horizontal .game-path-R-end:after,
+.game-board-vertical .game-path-D-start:after,
+.game-board-vertical .game-path-U-end:after {
   content: "\2578";
 }
 
-.game-board-horizontal .game-path-U-end:after,
-.game-board-horizontal .game-path-D-start:after,
-.game-board-vertical .game-path-L-end:after,
-.game-board-vertical .game-path-R-start:after {
+.game-board-horizontal .game-path-U-start:after,
+.game-board-horizontal .game-path-D-end:after,
+.game-board-vertical .game-path-L-start:after,
+.game-board-vertical .game-path-R-end:after {
   content: "\2579";
 }
 
-.game-board-horizontal .game-path-R-end:after,
-.game-board-horizontal .game-path-L-start:after,
-.game-board-vertical .game-path-U-end:after,
-.game-board-vertical .game-path-D-start:after {
+.game-board-horizontal .game-path-R-start:after,
+.game-board-horizontal .game-path-L-end:after,
+.game-board-vertical .game-path-U-start:after,
+.game-board-vertical .game-path-D-end:after {
   content: "\257A";
 }
 
-.game-board-horizontal .game-path-D-end:after,
-.game-board-horizontal .game-path-U-start:after,
-.game-board-vertical .game-path-R-end:after,
-.game-board-vertical .game-path-L-start:after {
+.game-board-horizontal .game-path-D-start:after,
+.game-board-horizontal .game-path-U-end:after,
+.game-board-vertical .game-path-R-start:after,
+.game-board-vertical .game-path-L-end:after {
   content: "\257B";
 }
 
