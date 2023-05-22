@@ -104,15 +104,14 @@ export default function GameBoard({
     });
     setVerticalTileStyle({
       fontSize:
-        "min(" +
         (useEmoji
-          ? emojiFontSizeHeights[Math.min(Math.max(boardHeight, 2), 12) - 2]
-          : glyphFontSizeHeights[Math.min(Math.max(boardHeight, 2), 12) - 2]) +
-        "vw, " +
-        (useEmoji
-          ? emojiFontSizeWidths[Math.min(Math.max(boardWidth, 2), 20) - 2]
-          : glyphFontSizeWidths[Math.min(Math.max(boardWidth, 2), 20) - 2]) +
-        "vh)",
+          ? emojiFontSizePortraitWidths[
+              Math.min(Math.max(boardHeight, 2), 12) - 2
+            ]
+          : glyphFontSizePortraitWidths[
+              Math.min(Math.max(boardHeight, 2), 12) - 2
+            ]) + "vw",
+      marginTop: "0.75em",
     });
   }, [tiles, useEmoji]);
 
@@ -159,4 +158,12 @@ const glyphFontSizeWidths = [
 const glyphFontSizeHeights = [
   23.9, 19.5, 16.4, 14.2, 12.5, 11.2, 10.1, 9.2, 8.5, 7.8, 7.3, 6.8, 6.4, 6.0,
   5.7, 5.4, 5.1, 4.9, 4.7,
+];
+
+const emojiFontSizePortraitWidths = [
+  10, 10, 10, 10, 10, 10, 10, 9.5, 8.7, 8.1, 7.5,
+];
+
+const glyphFontSizePortraitWidths = [
+  12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 11.4, 10.4, 9.6, 8.9,
 ];
