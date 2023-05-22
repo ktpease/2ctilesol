@@ -19,10 +19,11 @@ import NewBoardModalBody from "./modal/NewBoardModalBody";
 import AdvancedSettingsModalBody from "./modal/AdvancedSettingsModalBody";
 import GameWinModalBody from "./modal/GameWinModalBody";
 import GameLoseModalBody from "./modal/GameLoseModalBody";
+import HelpModalBody from "./modal/HelpModalBody";
+import BackgroundColorModalBody from "./modal/BackgroundColorModalBody";
 
 import "./modal/Modal.css";
 import "./GameBar.css";
-import HelpModalBody from "./modal/HelpModalBody";
 
 ReactModal.setAppElement(document.getElementById("root"));
 
@@ -67,6 +68,7 @@ export default function Game({
     HELP: "HELP",
     SETTINGS: "SETTINGS",
     SETTINGS_ADVANCED: "SETTINGS_ADVANCED",
+    SETTINGS_BACKGROUND: "SETTINGS_BACKGROUND",
     NEW_BOARD: "NEW_BOARD",
     GAME_WON: "GAME_WON",
     GAME_LOST: "GAME_LOST",
@@ -546,7 +548,7 @@ export default function Game({
   }
 
   // Revert the board to the previous state.
-  function undoMatch(hideModal) {
+  function undoMatch(hideModal = false) {
     if (tileHistory.length > 0) {
       const newTiles = tiles.slice();
       const lastMatch = tileHistory.slice(-1)[0];
@@ -596,9 +598,10 @@ export default function Game({
   }
 
   function renderModalBody(modalState) {
+    console.log(gameEnded);
     switch (modalState) {
       case GameModals.HELP:
-        return <HelpModalBody {...{ useEmoji }} />;
+        return <HelpModalBody {...{ useEmoji }} closeModal={hideModal} />;
       case GameModals.SETTINGS:
         return (
           <SettingsModalBody
@@ -607,16 +610,13 @@ export default function Game({
             canUndo={tileHistory.length === 0}
             tilesMatchable={allValidMatchingTiles.length}
             handleResetBoard={resetGameState}
-            handleUndoMatch={() => {
-              undoMatch(true);
-            }}
-            backgroundColor={backgroundColor}
-            setBackgroundColor={setBackgroundColor}
-            animateBackground={animateBackground}
-            setAnimateBackground={setAnimateBackground}
+            closeModal={hideModal}
             newBoardModal={() => showModal(GameModals.NEW_BOARD)}
             advancedSettingsModal={() =>
               showModal(GameModals.SETTINGS_ADVANCED)
+            }
+            backgroundColorModal={() =>
+              showModal(GameModals.SETTINGS_BACKGROUND)
             }
           />
         );
@@ -630,6 +630,16 @@ export default function Game({
               setShowMatchingTiles((prevState) => !prevState)
             }
             toggleEmojiMode={() => setUseEmoji((prevState) => !prevState)}
+            backModal={() => showModal(GameModals.SETTINGS)}
+          />
+        );
+      case GameModals.SETTINGS_BACKGROUND:
+        return (
+          <BackgroundColorModalBody
+            backgroundColor={backgroundColor}
+            setBackgroundColor={setBackgroundColor}
+            animateBackground={animateBackground}
+            setAnimateBackground={setAnimateBackground}
             backModal={() => showModal(GameModals.SETTINGS)}
           />
         );
@@ -709,7 +719,7 @@ export default function Game({
         <div>
           <button
             className="game-bar-button"
-            onClick={() => undoMatch(false)}
+            onClick={undoMatch}
             disabled={tileHistory.length === 0}
           >
             &#x21A9;
@@ -739,11 +749,11 @@ export default function Game({
       <ReactModal
         isOpen={modalDisplayed}
         contentLabel={modalState}
-        onRequestClose={() => hideModal()}
+        onRequestClose={hideModal}
         shouldCloseOnOverlayClick={false}
+        shouldCloseOnEsc={false}
       >
         {renderModalBody(modalState)}
-        <button onClick={() => hideModal()}>Close</button>
       </ReactModal>
     </>
   );

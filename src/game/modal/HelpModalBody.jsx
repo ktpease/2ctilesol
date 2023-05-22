@@ -3,7 +3,7 @@ import "../board/GameBoard.css";
 import Tile from "../board/Tile";
 import PathNode from "../board/PathNode";
 
-const HelpModalBody = ({ useEmoji }) => {
+const HelpModalBody = ({ useEmoji, closeModal }) => {
   const helpImageBoardStyle = {
     fontSize: "7vmin",
     pointerEvents: "none",
@@ -77,6 +77,9 @@ const HelpModalBody = ({ useEmoji }) => {
           between them so that the path doesn't touch any other tile. This path
           can only have up to three lines, which can form up to two "corners".
         </p>
+      </div>
+      <div>
+        <button onClick={closeModal}>Return to Game</button>
       </div>
     </div>
   );
