@@ -5,7 +5,7 @@ import PathNode from "../board/PathNode";
 
 const HelpModalBody = ({ useEmoji }) => {
   const helpImageBoardStyle = {
-    fontSize: "5vw",
+    fontSize: "7vmin",
     pointerEvents: "none",
     userSelect: "none",
   };
@@ -19,9 +19,7 @@ const HelpModalBody = ({ useEmoji }) => {
           two matching tiles.
         </p>
         <div
-          className={`game-board-horizontal ${
-            useEmoji ? "game-board-emoji" : "game-board-glyph"
-          }`}
+          className={useEmoji ? "game-board-emoji" : "game-board-glyph"}
           style={helpImageBoardStyle}
         >
           <span>

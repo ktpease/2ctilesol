@@ -208,71 +208,71 @@
   z-index: 2;
 }
 
-.game-board-horizontal .game-path-L:after,
-.game-board-horizontal .game-path-R:after,
+.game-path-L:after,
+.game-path-R:after,
 .game-board-vertical .game-path-U:after,
 .game-board-vertical .game-path-D:after {
   content: "\2501";
 }
 
-.game-board-horizontal .game-path-U:after,
-.game-board-horizontal .game-path-D:after,
+.game-path-U:after,
+.game-path-D:after,
 .game-board-vertical .game-path-L:after,
 .game-board-vertical .game-path-R:after {
   content: "\2503";
 }
 
-.game-board-horizontal .game-path-L-start:after,
-.game-board-horizontal .game-path-R-end:after,
+.game-path-L-start:after,
+.game-path-R-end:after,
 .game-board-vertical .game-path-D-start:after,
 .game-board-vertical .game-path-U-end:after {
   content: "\2578";
 }
 
-.game-board-horizontal .game-path-U-start:after,
-.game-board-horizontal .game-path-D-end:after,
+.game-path-U-start:after,
+.game-path-D-end:after,
 .game-board-vertical .game-path-L-start:after,
 .game-board-vertical .game-path-R-end:after {
   content: "\2579";
 }
 
-.game-board-horizontal .game-path-R-start:after,
-.game-board-horizontal .game-path-L-end:after,
+.game-path-R-start:after,
+.game-path-L-end:after,
 .game-board-vertical .game-path-U-start:after,
 .game-board-vertical .game-path-D-end:after {
   content: "\257A";
 }
 
-.game-board-horizontal .game-path-D-start:after,
-.game-board-horizontal .game-path-U-end:after,
+.game-path-D-start:after,
+.game-path-U-end:after,
 .game-board-vertical .game-path-R-start:after,
 .game-board-vertical .game-path-L-end:after {
   content: "\257B";
 }
 
-.game-board-horizontal .game-path-UR:after,
-.game-board-horizontal .game-path-LD:after,
+.game-path-UR:after,
+.game-path-LD:after,
 .game-board-vertical .game-path-DR:after,
 .game-board-vertical .game-path-LU:after {
   content: "\250F";
 }
 
-.game-board-horizontal .game-path-UL:after,
-.game-board-horizontal .game-path-RD:after,
+.game-path-UL:after,
+.game-path-RD:after,
 .game-board-vertical .game-path-UR:after,
 .game-board-vertical .game-path-LD:after {
   content: "\2513";
 }
 
-.game-board-horizontal .game-path-DL:after,
-.game-board-horizontal .game-path-RU:after,
+.game-path-DL:after,
+.game-path-RU:after,
 .game-board-vertical .game-path-UL:after,
 .game-board-vertical .game-path-RD:after {
   content: "\251B";
 }
 
-.game-board-horizontal .game-path-DR:after,
-.game-board-horizontal .game-path-LU:after,
+.game-path-DR:after,
+.game-path-LU:after,
 .game-board-vertical .game-path-DL:after,
 .game-board-vertical .game-path-RU:after {
   content: "\2517";
