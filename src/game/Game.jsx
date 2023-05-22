@@ -712,14 +712,14 @@ export default function Game({
             onClick={() => undoMatch(false)}
             disabled={tileHistory.length === 0}
           >
-            &#x2B8C;
+            &#x21A9;
           </button>
           <button
             className="game-bar-button"
             onClick={showOneMatch}
             disabled={!canUseHint}
           >
-            &#x1F4A1;&#xFE0E;
+            &#x25C8;
           </button>
           <button
             className="game-bar-button"
