@@ -11,11 +11,11 @@
   color: white;
 }
 
-.animatedBackground {
-  animation: animatedBackgroundColors 120s infinite linear;
+.fancyAnimatedBackground {
+  animation: fancyAnimatedBackgroundColors 120s infinite linear;
 }
 
-@keyframes animatedBackgroundColors {
+@keyframes fancyAnimatedBackgroundColors {
   0%, 100% {
     background-color: hsl(180, 45%, 15%);
   }

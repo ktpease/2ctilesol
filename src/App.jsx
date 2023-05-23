@@ -7,9 +7,8 @@ import Game from "./game/Game";
 import Editor from "./editor/Editor";
 
 export const BackgroundOptions = {
-  BACKGROUND_COLOR: "BACKGROUND_COLOR",
-  BACKGROUND_IMAGE: "BACKGROUND_IMAGE",
-  BACKGROUND_ANIMATED: "BACKGROUND_ANIMATED",
+  BACKGROUND_NORMAL: "BACKGROUND_NORMAL",
+  BACKGROUND_FANCY: "BACKGROUND_FANCY",
 };
 
 export const BACKGROUND_COLOR_DEFAULT = "#153737";
@@ -18,7 +17,7 @@ function App() {
   const [preload, setPreload] = useState(true);
 
   const [backgroundOption, setBackgroundOption] = useState(
-    BackgroundOptions.BACKGROUND_COLOR
+    BackgroundOptions.BACKGROUND_NORMAL
   );
 
   const [backgroundColor, setBackgroundColor] = useState(
@@ -88,14 +87,14 @@ function App() {
   return (
     <div
       className={`App ${
-        backgroundOption === BackgroundOptions.BACKGROUND_ANIMATED
+        backgroundOption === BackgroundOptions.BACKGROUND_FANCY
           ? "animatedBackground"
           : ""
       }`}
       style={{
         backgroundColor: backgroundColor,
         backgroundImage:
-          backgroundOption === BackgroundOptions.BACKGROUND_IMAGE &&
+          backgroundOption === BackgroundOptions.BACKGROUND_NORMAL &&
           backgroundImage?.trim()
             ? `url(${backgroundImage})`
             : "",
