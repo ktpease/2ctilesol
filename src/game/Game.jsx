@@ -757,6 +757,7 @@ export default function Game({
         onRequestClose={hideModal}
         shouldCloseOnOverlayClick={false}
         shouldCloseOnEsc={false}
+        className="GameModal"
       >
         {renderModalBody(modalState)}
       </ReactModal>

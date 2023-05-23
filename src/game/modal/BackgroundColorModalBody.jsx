@@ -53,22 +53,12 @@ const BackgroundColorModalBody = ({
             setNewBackgroundImage("");
             setNewBackgroundOption(BackgroundOptions.BACKGROUND_NORMAL);
           }}
-          style={{
-            fontSize: "large",
-            padding: "0.5em",
-          }}
         >
           Reset Background
         </button>
       </div>
-      <hr style={{ margin: "2em 3em" }} />
-      <button
-        onClick={() => setDisplayAdvanced(!displayAdvanced)}
-        style={{
-          fontSize: "large",
-          padding: "0.5em",
-        }}
-      >
+      <hr />
+      <button onClick={() => setDisplayAdvanced(!displayAdvanced)}>
         {displayAdvanced ? "Hide" : "Show"} Advanced Settings
       </button>
       {displayAdvanced && (
@@ -114,7 +104,7 @@ const BackgroundColorModalBody = ({
           </div>
         </>
       )}
-      <hr style={{ margin: "2em 3em" }} />
+      <hr />
       <div>
         <button
           onClick={() => {
@@ -123,22 +113,11 @@ const BackgroundColorModalBody = ({
             setBackgroundImage(newBackgroundImage);
             backModal();
           }}
-          style={{
-            fontSize: "larger",
-            margin: "0 1em",
-            padding: "1em",
-          }}
+          className="large-button"
         >
           Accept Changes
         </button>
-        <button
-          onClick={backModal}
-          style={{
-            fontSize: "larger",
-            margin: "0 1em",
-            padding: "1em",
-          }}
-        >
+        <button onClick={backModal} className="large-button">
           Cancel Changes
         </button>
       </div>
