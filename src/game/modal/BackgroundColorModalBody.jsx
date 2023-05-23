@@ -64,6 +64,9 @@ const BackgroundColorModalBody = ({
         <div>
           <label htmlFor="optBgImage">Background Image URL (optional)</label>
         </div>
+        <button onClick={() => setNewBackgroundImage("")}>
+          Remove Background Image
+        </button>
       </div>
       <div>
         <input

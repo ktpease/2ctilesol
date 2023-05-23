@@ -96,7 +96,7 @@ function App() {
         backgroundColor: backgroundColor,
         backgroundImage:
           backgroundOption === BackgroundOptions.BACKGROUND_IMAGE &&
-          backgroundImage !== null
+          backgroundImage?.trim()
             ? `url(${backgroundImage})`
             : "",
       }}
