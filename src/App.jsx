@@ -97,7 +97,7 @@ function App() {
         backgroundImage:
           backgroundOption === BackgroundOptions.BACKGROUND_IMAGE &&
           backgroundImage !== null
-            ? `url(${encodeURIComponent(backgroundImage)})`
+            ? `url(${backgroundImage})`
             : "",
       }}
     >

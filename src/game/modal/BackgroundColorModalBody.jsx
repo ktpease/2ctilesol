@@ -17,31 +17,8 @@ const BackgroundColorModalBody = ({
   const [newBackgroundOption, setNewBackgroundOption] =
     useState(backgroundOption);
 
-  const PickerStyle = {
-    width: "100%",
-  };
-
   return (
     <div>
-      <div>
-        <input
-          type="checkbox"
-          id="optAnimatedBg"
-          checked={
-            newBackgroundOption === BackgroundOptions.BACKGROUND_ANIMATED
-          }
-          onChange={() =>
-            setNewBackgroundOption(
-              newBackgroundOption === BackgroundOptions.BACKGROUND_ANIMATED
-                ? BackgroundOptions.BACKGROUND_COLOR
-                : BackgroundOptions.BACKGROUND_ANIMATED
-            )
-          }
-        ></input>
-        <label htmlFor="optAnimatedBg">
-          Enable Animated Background (may decrease performance)
-        </label>
-      </div>
       <div>
         <div
           style={{
@@ -71,6 +48,41 @@ const BackgroundColorModalBody = ({
         <button onClick={() => setNewBackgroundColor(BACKGROUND_COLOR_DEFAULT)}>
           Reset Background Color
         </button>
+      </div>
+      <div>
+        <div>
+          <input
+            type="text"
+            id="optBgImage"
+            value={newBackgroundImage}
+            onChange={(e) => setNewBackgroundImage(e.target.value)}
+            style={{
+              width: "70%",
+            }}
+          ></input>
+        </div>
+        <div>
+          <label htmlFor="optBgImage">Background Image URL (optional)</label>
+        </div>
+      </div>
+      <div>
+        <input
+          type="checkbox"
+          id="optAnimatedBg"
+          checked={
+            newBackgroundOption === BackgroundOptions.BACKGROUND_ANIMATED
+          }
+          onChange={() =>
+            setNewBackgroundOption(
+              newBackgroundOption === BackgroundOptions.BACKGROUND_ANIMATED
+                ? BackgroundOptions.BACKGROUND_IMAGE
+                : BackgroundOptions.BACKGROUND_ANIMATED
+            )
+          }
+        ></input>
+        <label htmlFor="optAnimatedBg">
+          Enable Animated Background (may decrease performance)
+        </label>
       </div>
       <div>
         <button
