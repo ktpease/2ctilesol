@@ -14,7 +14,7 @@ import GameBoard from "./board/GameBoard";
 
 import GameTimer from "./GameTimer";
 
-import SettingsModalBody from "./modal/SettingsModalBody";
+import PauseModalBody from "./modal/PauseModalBody";
 import NewBoardModalBody from "./modal/NewBoardModalBody";
 import AdvancedSettingsModalBody from "./modal/AdvancedSettingsModalBody";
 import GameWinModalBody from "./modal/GameWinModalBody";
@@ -68,7 +68,7 @@ export default function Game({
   // Modal
   const GameModals = {
     HELP: "HELP",
-    SETTINGS: "SETTINGS",
+    PAUSE: "PAUSE",
     SETTINGS_ADVANCED: "SETTINGS_ADVANCED",
     SETTINGS_BACKGROUND: "SETTINGS_BACKGROUND",
     NEW_BOARD: "NEW_BOARD",
@@ -603,9 +603,9 @@ export default function Game({
     switch (modalState) {
       case GameModals.HELP:
         return <HelpModalBody {...{ useEmoji, closeModal: hideModal }} />;
-      case GameModals.SETTINGS:
+      case GameModals.PAUSE:
         return (
-          <SettingsModalBody
+          <PauseModalBody
             seed={seed}
             layout={layoutDescription}
             canUndo={tileHistory.length === 0}
@@ -713,10 +713,10 @@ export default function Game({
 
       <div className="game-bar">
         <button
-          className="game-bar-settings-button"
-          onClick={() => showModal(GameModals.SETTINGS)}
+          className="game-bar-pause-button"
+          onClick={() => showModal(GameModals.PAUSE)}
         >
-          &#x2699;
+          II
         </button>
         <div>
           <GameTimer ref={timerRef} />
@@ -744,9 +744,9 @@ export default function Game({
           </button>
           <button
             className="game-bar-button portrait-mode"
-            onClick={() => showModal(GameModals.SETTINGS)}
+            onClick={() => showModal(GameModals.PAUSE)}
           >
-            &#x2699;
+            II
           </button>
         </div>
       </div>

@@ -1,6 +1,7 @@
-const SettingsModalBody = (props) => {
+const PauseModalBody = (props) => {
   return (
     <div>
+      <h1>Paused</h1>
       <div>
         Board #{props.seed}, {props.layout}
       </div>
@@ -16,9 +17,7 @@ const SettingsModalBody = (props) => {
         </button>
       </div>
       <div>
-        <button onClick={props.backgroundColorModal}>
-          Change Background
-        </button>
+        <button onClick={props.backgroundColorModal}>Change Background</button>
       </div>
       <div>
         <button onClick={props.advancedSettingsModal}>Advanced Options</button>
@@ -30,4 +29,4 @@ const SettingsModalBody = (props) => {
   );
 };
 
-export default SettingsModalBody;
+export default PauseModalBody;
