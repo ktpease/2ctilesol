@@ -23,6 +23,10 @@ const PauseModalBody = (props) => {
         <button onClick={props.advancedSettingsModal}>Advanced Options</button>
       </div>
       <div>
+        <button onClick={props.layoutEditModal}>Puzzle Layout Edit</button>
+      </div>
+      <div></div>
+      <div>
         <button onClick={props.closeModal}>Return to Game</button>
       </div>
     </div>

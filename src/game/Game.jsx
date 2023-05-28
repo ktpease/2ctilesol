@@ -21,6 +21,7 @@ import GameWinModalBody from "./modal/GameWinModalBody";
 import GameLoseModalBody from "./modal/GameLoseModalBody";
 import HelpModalBody from "./modal/HelpModalBody";
 import BackgroundColorModalBody from "./modal/BackgroundColorModalBody";
+import LayoutEditModalBody from "./modal/LayoutEditModalBody";
 
 import "./modal/Modal.css";
 import "./GameBar.css";
@@ -71,6 +72,7 @@ export default function Game({
     PAUSE: "PAUSE",
     SETTINGS_ADVANCED: "SETTINGS_ADVANCED",
     SETTINGS_BACKGROUND: "SETTINGS_BACKGROUND",
+    LAYOUT_EDIT: "LAYOUT_EDIT",
     NEW_BOARD: "NEW_BOARD",
     GAME_WON: "GAME_WON",
     GAME_LOST: "GAME_LOST",
@@ -290,23 +292,19 @@ export default function Game({
     height = boardHeight,
     bs = blindShuffle,
     nsp = noSinglePairs,
-    layoutCode
+    code = layoutCode
   ) {
     let generatedBoard;
     let layoutDescription;
 
-    if (layoutCode !== null && layoutCode !== undefined) {
+    if (code !== null && code !== undefined) {
       // Generate the board based on the provided layout code. Fallback to the
       // default board if it fails.
 
       if (bs) {
-        generatedBoard = generateBoardWithSimpleShuffle(seed, layoutCode, nsp);
+        generatedBoard = generateBoardWithSimpleShuffle(seed, code, nsp);
       } else {
-        generatedBoard = generateBoardWithPresolvedShuffle(
-          seed,
-          layoutCode,
-          nsp
-        );
+        generatedBoard = generateBoardWithPresolvedShuffle(seed, code, nsp);
       }
 
       if (generatedBoard === null) {
@@ -619,6 +617,7 @@ export default function Game({
             backgroundColorModal={() =>
               showModal(GameModals.SETTINGS_BACKGROUND)
             }
+            layoutEditModal={() => showModal(GameModals.LAYOUT_EDIT)}
           />
         );
       case GameModals.SETTINGS_ADVANCED:
@@ -631,7 +630,7 @@ export default function Game({
               setShowMatchingTiles((prevState) => !prevState)
             }
             toggleEmojiMode={() => setUseEmoji((prevState) => !prevState)}
-            backModal={() => showModal(GameModals.SETTINGS)}
+            backModal={() => showModal(GameModals.PAUSE)}
           />
         );
       case GameModals.SETTINGS_BACKGROUND:
@@ -644,7 +643,16 @@ export default function Game({
               setBackgroundOption,
               setBackgroundColor,
               setBackgroundImage,
-              backModal: () => showModal(GameModals.SETTINGS),
+              backModal: () => showModal(GameModals.PAUSE),
+            }}
+          />
+        );
+      case GameModals.LAYOUT_EDIT:
+        return (
+          <LayoutEditModalBody
+            {...{
+              startNewGame: resetGameState,
+              backModal: () => showModal(GameModals.PAUSE),
             }}
           />
         );
@@ -657,7 +665,7 @@ export default function Game({
             prevNoSinglePairs={noSinglePairs}
             prevSeed={seed}
             handleResetBoard={resetGameState}
-            backModal={() => showModal(GameModals.SETTINGS)}
+            backModal={() => showModal(GameModals.PAUSE)}
           />
         );
       case GameModals.GAME_WON:
@@ -682,7 +690,7 @@ export default function Game({
             canUndo={tileHistory.length === 0}
             handleUndoMatch={() => undoMatch(true)}
             handleResetBoard={resetGameState}
-            newBoardModal={() => showModal("New Board")}
+            newBoardModal={() => showModal(GameModals.NEW_BOARD)}
           />
         );
       default:

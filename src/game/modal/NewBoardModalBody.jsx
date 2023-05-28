@@ -159,7 +159,8 @@ const NewBoardModalBody = (props) => {
               useCustomSize ? parseInt(customWidth) : boardWidth,
               useCustomSize ? parseInt(customHeight) : boardHeight,
               blindShuffle,
-              noSinglePairs
+              noSinglePairs,
+              null
             )
           }
         >

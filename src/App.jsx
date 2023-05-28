@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Game from "./game/Game";
-import Editor from "./editor/Editor";
 
 export const BackgroundOptions = {
   BACKGROUND_NORMAL: "BACKGROUND_NORMAL",
@@ -102,7 +101,6 @@ function App() {
     >
       <BrowserRouter>
         <Routes>
-          <Route path="/editor" element={<Editor />} />
           <Route
             path="*"
             element={

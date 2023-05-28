@@ -1,6 +1,6 @@
 import Rand from "rand-seed";
 
-const layoutCodeVersionNumber = 1,
+export const layoutCodeVersionNumber = 1,
   layoutCodeRadix = 32,
   layoutCodeRadixBits = 5; // log_2(layoutCodeRadix)
 
