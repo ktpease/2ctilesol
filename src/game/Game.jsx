@@ -84,7 +84,7 @@ export default function Game({
   const [boardWidth, setBoardWidth] = useState(17);
   const [boardHeight, setBoardHeight] = useState(8);
   const [seed, setSeed] = useState(1);
-  const [layoutCode, setLayoutCode] = useState(0);
+  const [layoutCode, setLayoutCode] = useState(null);
   const [blindShuffle, setBlindShuffle] = useState(false);
   const [noSinglePairs, setNoSinglePairs] = useState(false);
   const [layoutDescription, setLayoutDescription] = useState(
