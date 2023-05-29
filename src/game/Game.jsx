@@ -651,6 +651,7 @@ export default function Game({
         return (
           <LayoutEditModalBody
             {...{
+              initialLayout: layoutCode,
               startNewGame: resetGameState,
               backModal: () => showModal(GameModals.PAUSE),
             }}

@@ -862,7 +862,7 @@ function generateLayoutCodeForRectangle(width, height) {
 }
 
 // Decode and validate the layout code.
-function decodeLayoutCode(layoutCode) {
+export function decodeLayoutCode(layoutCode) {
   if (layoutCode === null || layoutCode.length < 5) {
     return null;
   }

@@ -4,11 +4,12 @@ import {
   layoutCodeVersionNumber,
   layoutCodeRadix,
   layoutCodeRadixBits,
+  decodeLayoutCode,
 } from "../util/BoardGenerator";
 
 import "./LayoutEditModalBody.css";
 
-const LayoutEditModalBody = ({ startNewGame, backModal }) => {
+const LayoutEditModalBody = ({ initialLayout, startNewGame, backModal }) => {
   const maxHeight = 12,
     maxWidth = 20;
 
@@ -19,22 +20,40 @@ const LayoutEditModalBody = ({ startNewGame, backModal }) => {
   const [layoutCode, setLayoutCode] = useState(null);
   const [numTiles, setNumTiles] = useState(0);
 
+  useEffect(() => {
+    if (initialLayout != null) {
+      const decodedLayoutObj = decodeLayoutCode(initialLayout);
+
+      const layoutStartX = (maxWidth - decodedLayoutObj.width) >> 1,
+        layoutStartY = (maxHeight - decodedLayoutObj.height) >> 1,
+        layoutStart = layoutStartY * maxWidth,
+        layoutEnd = layoutStart + decodedLayoutObj.height * maxWidth;
+
+      let layoutCursor = 0;
+
+      setLayout(
+        Array.from({ length: maxHeight * maxWidth }, (_, i) => {
+          if (
+            i < layoutStart ||
+            i >= layoutEnd ||
+            i % maxWidth < layoutStartX ||
+            i % maxWidth >= layoutStartX + decodedLayoutObj.width
+          ) {
+            return 0;
+          } else {
+            return parseInt(decodedLayoutObj.layoutMask[layoutCursor++], 10);
+          }
+        })
+      );
+    } else {
+      resetEditor();
+    }
+  }, []);
+
   // Reset to the default board.
   const resetEditor = () => {
-    let blankLayout = [];
-
-    for (let i = 0; i < 20; i++) {
-      for (let j = 0; j < 12; j++) {
-        blankLayout.push(0);
-      }
-    }
-
-    setLayout(blankLayout);
+    setLayout(Array.from({ length: maxHeight * maxWidth }, () => 0));
   };
-
-  useEffect(() => {
-    resetEditor();
-  }, []);
 
   // Toggle the chosen tile type.
   const toggleTile = (id) => {
@@ -175,13 +194,15 @@ const LayoutEditModalBody = ({ startNewGame, backModal }) => {
     <div>
       <h1>Puzzle Layout Edit</h1>
       <div className="layoutEditor">{renderLayout()}</div>
-      <div>{layoutCode}</div>
+      <div>Layout Code: {layoutCode}</div>
       <div>Number of Tiles: {numTiles}</div>
       <div>
         <button onClick={resetEditor}>Reset Editor</button>
       </div>
       <div>
-        <button onClick={() => startNewGame(null, null, null, null, null, layoutCode)}>
+        <button
+          onClick={() => startNewGame(null, null, null, null, null, layoutCode)}
+        >
           Play With Layout
         </button>
       </div>
