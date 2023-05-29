@@ -1,33 +1,50 @@
-const PauseModalBody = (props) => {
+const PauseModalBody = ({
+  seed,
+  layoutDescription,
+  shareUrls,
+  tilesMatchable,
+  resetGameState,
+  hideModal,
+  newBoardModal,
+  advancedSettingsModal,
+  backgroundColorModal,
+  layoutEditModal,
+}) => {
   return (
     <div>
       <h1>Paused</h1>
       <div>
-        Board #{props.seed}, {props.layout}
+        Board #{seed}, {layoutDescription}
+      </div>
+      <div>Current number of tiles that can be matched: {tilesMatchable}</div>
+      <div>
+        <button onClick={newBoardModal}>Start New Board</button>
       </div>
       <div>
-        Current number of tiles that can be matched: {props.tilesMatchable}
-      </div>
-      <div>
-        <button onClick={props.newBoardModal}>Start New Board</button>
-      </div>
-      <div>
-        <button onClick={() => props.handleResetBoard(props.seed)}>
+        <button onClick={() => resetGameState(seed)}>
           Reset Current Board
         </button>
       </div>
       <div>
-        <button onClick={props.backgroundColorModal}>Change Background</button>
+        <button onClick={() => navigator.clipboard.writeText(shareUrls.gameUrl)}>
+          Copy Link to Game
+        </button>
+        <button onClick={() => navigator.clipboard.writeText(shareUrls.layoutUrl)}>
+          Copy Link to Layout
+        </button>
       </div>
       <div>
-        <button onClick={props.advancedSettingsModal}>Advanced Options</button>
+        <button onClick={backgroundColorModal}>Change Background</button>
       </div>
       <div>
-        <button onClick={props.layoutEditModal}>Puzzle Layout Edit</button>
+        <button onClick={advancedSettingsModal}>Advanced Options</button>
+      </div>
+      <div>
+        <button onClick={layoutEditModal}>Puzzle Layout Edit</button>
       </div>
       <div></div>
       <div>
-        <button onClick={props.closeModal}>Return to Game</button>
+        <button onClick={hideModal}>Return to Game</button>
       </div>
     </div>
   );

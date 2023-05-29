@@ -597,6 +597,17 @@ export default function Game({
     setModalDisplayed(false);
   }
 
+  function generateShareUrls() {
+    const layoutUrl = `${window.location.href.split("?")[0]}?l=${layoutCode}`;
+
+    return {
+      layoutUrl,
+      gameUrl: `${layoutUrl}&s=${seed}${blindShuffle ? "&ts" : ""}${
+        noSinglePairs ? "&nsp" : ""
+      }`,
+    };
+  }
+
   function renderModalBody(modalState) {
     switch (modalState) {
       case GameModals.HELP:
@@ -604,33 +615,33 @@ export default function Game({
       case GameModals.PAUSE:
         return (
           <PauseModalBody
-            seed={seed}
-            layout={layoutDescription}
-            canUndo={tileHistory.length === 0}
-            tilesMatchable={allValidMatchingTiles.length}
-            handleResetBoard={resetGameState}
-            closeModal={hideModal}
-            newBoardModal={() => showModal(GameModals.NEW_BOARD)}
-            advancedSettingsModal={() =>
-              showModal(GameModals.SETTINGS_ADVANCED)
-            }
-            backgroundColorModal={() =>
-              showModal(GameModals.SETTINGS_BACKGROUND)
-            }
-            layoutEditModal={() => showModal(GameModals.LAYOUT_EDIT)}
+            {...{
+              seed,
+              layoutDescription,
+              tilesMatchable: allValidMatchingTiles.length,
+              shareUrls: generateShareUrls(),
+              resetGameState,
+              hideModal,
+              newBoardModal: () => showModal(GameModals.NEW_BOARD),
+              advancedSettingsModal: () =>
+                showModal(GameModals.SETTINGS_ADVANCED),
+              backgroundColorModal: () =>
+                showModal(GameModals.SETTINGS_BACKGROUND),
+              layoutEditModal: () => showModal(GameModals.LAYOUT_EDIT),
+            }}
           />
         );
       case GameModals.SETTINGS_ADVANCED:
         return (
           <AdvancedSettingsModalBody
-            toggleHighlightAllMatches={() =>
-              setShowAllValidMatches((prevState) => !prevState)
-            }
-            toggleHighlightMatchesForTile={() =>
-              setShowMatchingTiles((prevState) => !prevState)
-            }
-            toggleEmojiMode={() => setUseEmoji((prevState) => !prevState)}
-            backModal={() => showModal(GameModals.PAUSE)}
+            {...{
+              toggleHighlightAllMatches: () =>
+                setShowAllValidMatches((prevState) => !prevState),
+              toggleHighlightMatchesForTile: () =>
+                setShowMatchingTiles((prevState) => !prevState),
+              toggleEmojiMode: () => setUseEmoji((prevState) => !prevState),
+              backModal: () => showModal(GameModals.PAUSE),
+            }}
           />
         );
       case GameModals.SETTINGS_BACKGROUND:
@@ -660,38 +671,42 @@ export default function Game({
       case GameModals.NEW_BOARD:
         return (
           <NewBoardModalBody
-            prevWidth={boardWidth}
-            prevHeight={boardHeight}
-            prevBlindShuffle={blindShuffle}
-            prevNoSinglePairs={noSinglePairs}
-            prevSeed={seed}
-            handleResetBoard={resetGameState}
-            backModal={() => showModal(GameModals.PAUSE)}
+            {...{
+              prevWidth: boardWidth,
+              prevHeight: boardHeight,
+              prevBlindShuffle: blindShuffle,
+              prevNoSinglePairs: noSinglePairs,
+              prevSeed: seed,
+              handleResetBoard: resetGameState,
+              backModal: () => showModal(GameModals.PAUSE),
+            }}
           />
         );
       case GameModals.GAME_WON:
         return (
           <GameWinModalBody
-            numTiles={numTiles}
-            clearTimeHours={timerRef.current.hours}
-            clearTimeMinutes={timerRef.current.minutes}
-            clearTimeSeconds={timerRef.current.seconds}
-            seed={seed}
-            layout={layoutDescription}
-            handleResetBoard={resetGameState}
-            newBoardModal={() => showModal(GameModals.NEW_BOARD)}
+            {...{
+              numTiles,
+              clearTime: timerRef.current,
+              seed,
+              layoutDescription,
+              handleResetBoard: resetGameState,
+              newBoardModal: () => showModal(GameModals.NEW_BOARD),
+            }}
           />
         );
       case GameModals.GAME_LOST:
         return (
           <GameLoseModalBody
-            remainingTiles={numTiles - tileHistory.length * 2}
-            seed={seed}
-            layout={layoutDescription}
-            canUndo={tileHistory.length === 0}
-            handleUndoMatch={() => undoMatch(true)}
-            handleResetBoard={resetGameState}
-            newBoardModal={() => showModal(GameModals.NEW_BOARD)}
+            {...{
+              remainingTiles: numTiles - tileHistory.length * 2,
+              seed,
+              layoutDescription,
+              canUndo: tileHistory.length === 0,
+              handleUndoMatch: () => undoMatch(true),
+              handleResetBoard: resetGameState,
+              newBoardModal: () => showModal(GameModals.NEW_BOARD),
+            }}
           />
         );
       default:

@@ -1,39 +1,42 @@
-const GameWinModalBody = (props) => {
+const GameWinModalBody = ({
+  numTiles,
+  clearTime,
+  seed,
+  layoutDescription,
+  handleResetBoard,
+  newBoardModal,
+}) => {
   return (
     <div>
       <h1>You Win!</h1>
       <div>
-        You cleared all {props.numTiles} tiles in
-        {props.clearTimeHours
-          ? ` ${props.clearTimeHours} hour${
-              props.clearTimeHours > 1 ? "s" : ""
-            }` + (props.clearTimeMinutes || props.clearTimeSeconds ? "," : "")
+        You cleared all {numTiles} tiles in
+        {clearTime.hours
+          ? ` ${clearTime.hours} hour${clearTime.hours > 1 ? "s" : ""}` +
+            (clearTime.minutes || clearTime.seconds ? "," : "")
           : ""}
-        {props.clearTimeMinutes
-          ? ` ${props.clearTimeMinutes} minute${
-              props.clearTimeMinutes > 1 ? "s" : ""
-            }` + (props.clearTimeSeconds ? "," : "")
+        {clearTime.minutes
+          ? ` ${clearTime.minutes} minute${clearTime.minutes > 1 ? "s" : ""}` +
+            (clearTime.seconds ? "," : "")
           : ""}
-        {props.clearTimeSeconds
-          ? ` ${props.clearTimeSeconds} second${
-              props.clearTimeSeconds > 1 ? "s" : ""
-            }`
+        {clearTime.seconds
+          ? ` ${clearTime.seconds} second${clearTime.seconds > 1 ? "s" : ""}`
           : ""}
         !
       </div>
       <div>
-        Board #{props.seed}, {props.layout}
+        Board #{seed}, {layoutDescription}
       </div>
       <div>
-        <button onClick={props.handleResetBoard}>
+        <button onClick={handleResetBoard}>
           Start New Board with Same Layout
         </button>
       </div>
       <div>
-        <button onClick={props.newBoardModal}>Start New Board</button>
+        <button onClick={newBoardModal}>Start New Board</button>
       </div>
       <div>
-        <button onClick={() => props.handleResetBoard(props.seed)}>
+        <button onClick={() => handleResetBoard(seed)}>
           Reset Current Board
         </button>
       </div>

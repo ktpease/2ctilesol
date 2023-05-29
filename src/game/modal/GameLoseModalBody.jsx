@@ -1,31 +1,39 @@
-const GameLoseModalBody = (props) => {
+const GameLoseModalBody = ({
+  remainingTiles,
+  seed,
+  layoutDescription,
+  canUndo,
+  handleUndoMatch,
+  handleResetBoard,
+  newBoardModal,
+}) => {
   return (
     <div>
       <h1>You Have No Valid Moves!</h1>
       <div>
-        You still have {props.remainingTiles} tiles remaining, but cannot match
-        any more tiles!
+        You still have {remainingTiles} tiles remaining, but cannot match any
+        more tiles!
       </div>
       <div>
-        Board #{props.seed}, {props.layout}
+        Board #{seed}, {layoutDescription}
       </div>
       <div>
-        <button onClick={props.handleUndoMatch} disabled={props.canUndo}>
+        <button onClick={handleUndoMatch} disabled={canUndo}>
           Undo Last Match
         </button>
       </div>
       <div>
-        <button onClick={() => props.handleResetBoard(props.seed)}>
+        <button onClick={() => handleResetBoard(seed)}>
           Reset Current Board
         </button>
       </div>
       <div>
-        <button onClick={props.handleResetBoard}>
+        <button onClick={handleResetBoard}>
           Start New Board with Same Layout
         </button>
       </div>
       <div>
-        <button onClick={props.newBoardModal}>Start New Board</button>
+        <button onClick={newBoardModal}>Start New Board</button>
       </div>
     </div>
   );

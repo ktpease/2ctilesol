@@ -1,13 +1,21 @@
 import React, { useState } from "react";
 
-const NewBoardModalBody = (props) => {
-  const [boardWidth, setBoardWidth] = useState(props.prevWidth);
-  const [boardHeight, setBoardHeight] = useState(props.prevHeight);
-  const [customWidth, setCustomWidth] = useState(props.prevWidth);
-  const [customHeight, setCustomHeight] = useState(props.prevHeight);
-  const [blindShuffle, setBlindShuffle] = useState(props.prevBlindShuffle);
-  const [noSinglePairs, setNoSinglePairs] = useState(props.prevNoSinglePairs);
-  const [seed, setSeed] = useState(props.prevSeed);
+const NewBoardModalBody = ({
+  prevWidth,
+  prevHeight,
+  prevBlindShuffle,
+  prevNoSinglePairs,
+  prevSeed,
+  handleResetBoard,
+  backModal,
+}) => {
+  const [boardWidth, setBoardWidth] = useState(prevWidth);
+  const [boardHeight, setBoardHeight] = useState(prevHeight);
+  const [customWidth, setCustomWidth] = useState(prevWidth);
+  const [customHeight, setCustomHeight] = useState(prevHeight);
+  const [blindShuffle, setBlindShuffle] = useState(prevBlindShuffle);
+  const [noSinglePairs, setNoSinglePairs] = useState(prevNoSinglePairs);
+  const [seed, setSeed] = useState(prevSeed);
 
   const [useCustomSeed, setUseCustomSeed] = useState(false);
   const [useCustomSize, setUseCustomSize] = useState(false);
@@ -114,7 +122,7 @@ const NewBoardModalBody = (props) => {
             onChange={() => setBlindShuffle(!blindShuffle)}
           ></input>
           <label htmlFor="optHard">
-            Enable True Shuffle. This is more difficult as it may generate 
+            Enable True Shuffle. This is more difficult as it may generate
             unwinnable boards!
           </label>
         </div>
@@ -154,7 +162,7 @@ const NewBoardModalBody = (props) => {
         <button
           disabled={!sizeSelected}
           onClick={() =>
-            props.handleResetBoard(
+            handleResetBoard(
               useCustomSeed ? parseInt(seed) : null,
               useCustomSize ? parseInt(customWidth) : boardWidth,
               useCustomSize ? parseInt(customHeight) : boardHeight,
@@ -168,7 +176,7 @@ const NewBoardModalBody = (props) => {
         </button>
       </div>
       <div>
-        <button onClick={props.backModal}>Go Back</button>
+        <button onClick={backModal}>Go Back</button>
       </div>
     </div>
   );
