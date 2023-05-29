@@ -1,7 +1,7 @@
 const GameLoseModalBody = ({
   remainingTiles,
   seed,
-  layoutDescription,
+  layoutCode,
   canUndo,
   handleUndoMatch,
   handleResetBoard,
@@ -15,7 +15,9 @@ const GameLoseModalBody = ({
         more tiles!
       </div>
       <div>
-        Board #{seed}, {layoutDescription}
+        Board #{seed}
+        <br />
+        Layout Code: {layoutCode}
       </div>
       <div>
         <button onClick={handleUndoMatch} disabled={canUndo}>

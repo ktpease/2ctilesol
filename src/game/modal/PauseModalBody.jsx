@@ -1,6 +1,6 @@
 const PauseModalBody = ({
   seed,
-  layoutDescription,
+  layoutCode,
   shareUrls,
   tilesMatchable,
   resetGameState,
@@ -14,23 +14,29 @@ const PauseModalBody = ({
     <div>
       <h1>Paused</h1>
       <div>
-        Board #{seed}, {layoutDescription}
+        Board #{seed}
+        <br />
+        Layout Code: {layoutCode}
       </div>
       <div>Current number of tiles that can be matched: {tilesMatchable}</div>
+      <div>
+        <button
+          onClick={() => navigator.clipboard.writeText(shareUrls.gameUrl)}
+        >
+          Copy Game Link (same board #)
+        </button>
+        <button
+          onClick={() => navigator.clipboard.writeText(shareUrls.layoutUrl)}
+        >
+          Copy Game Link
+        </button>
+      </div>
       <div>
         <button onClick={newBoardModal}>Start New Board</button>
       </div>
       <div>
         <button onClick={() => resetGameState(seed)}>
           Reset Current Board
-        </button>
-      </div>
-      <div>
-        <button onClick={() => navigator.clipboard.writeText(shareUrls.gameUrl)}>
-          Copy Link to Game
-        </button>
-        <button onClick={() => navigator.clipboard.writeText(shareUrls.layoutUrl)}>
-          Copy Link to Layout
         </button>
       </div>
       <div>

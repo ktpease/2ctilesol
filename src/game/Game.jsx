@@ -87,9 +87,6 @@ export default function Game({
   const [layoutCode, setLayoutCode] = useState(null);
   const [blindShuffle, setBlindShuffle] = useState(false);
   const [noSinglePairs, setNoSinglePairs] = useState(false);
-  const [layoutDescription, setLayoutDescription] = useState(
-    "Rectangle 17\u2a2f8"
-  );
 
   // Tile State
   const [tiles, setTiles] = useState([]);
@@ -149,7 +146,6 @@ export default function Game({
         setLayoutCode(gameState.layoutCode);
         setBlindShuffle(gameState.blindShuffle);
         setNoSinglePairs(gameState.noSinglePairs);
-        setLayoutDescription(gameState.layoutDescription);
         setNumTiles(gameState.numTiles);
         setTileHistory(gameState.tileHistory);
 
@@ -225,7 +221,6 @@ export default function Game({
         layoutCode: layoutCode,
         blindShuffle: blindShuffle,
         noSinglePairs: noSinglePairs,
-        layoutDescription: layoutDescription,
         numTiles: numTiles,
         tileHistory: tileHistory,
         timer: {
@@ -295,7 +290,6 @@ export default function Game({
     code = layoutCode
   ) {
     let generatedBoard;
-    let layoutDescription;
 
     if (code !== null && code !== undefined) {
       // Generate the board based on the provided layout code. Fallback to the
@@ -317,10 +311,6 @@ export default function Game({
           17,
           8
         );
-
-        layoutDescription = "Rectangle";
-      } else {
-        layoutDescription = "Custom";
       }
     } else {
       // Generate a basic rectangular board based on the provided width and
@@ -341,18 +331,12 @@ export default function Game({
           nsp
         );
       }
-
-      layoutDescription = "Rectangle";
     }
 
     if (generatedBoard === null) {
       console.log("Failed to generate board! Cancel board reset.");
       return;
     }
-
-    layoutDescription += ` ${generatedBoard.width}\u2a2f${
-      generatedBoard.height
-    }${bs ? " TrueShuffle" : ""}${nsp ? " NoSinglePairs" : ""}`;
 
     setTiles(generatedBoard.tiles);
     setBoardWidth(generatedBoard.width);
@@ -361,7 +345,6 @@ export default function Game({
     setLayoutCode(generatedBoard.layoutCode);
     setBlindShuffle(bs);
     setNoSinglePairs(nsp);
-    setLayoutDescription(layoutDescription);
     setNumTiles(generatedBoard.numTiles);
     setSelectedTile(null);
     setTileHistory([]);
@@ -617,7 +600,7 @@ export default function Game({
           <PauseModalBody
             {...{
               seed,
-              layoutDescription,
+              layoutCode,
               tilesMatchable: allValidMatchingTiles.length,
               shareUrls: generateShareUrls(),
               resetGameState,
@@ -689,7 +672,7 @@ export default function Game({
               numTiles,
               clearTime: timerRef.current,
               seed,
-              layoutDescription,
+              layoutCode,
               handleResetBoard: resetGameState,
               newBoardModal: () => showModal(GameModals.NEW_BOARD),
             }}
@@ -701,7 +684,7 @@ export default function Game({
             {...{
               remainingTiles: numTiles - tileHistory.length * 2,
               seed,
-              layoutDescription,
+              layoutCode,
               canUndo: tileHistory.length === 0,
               handleUndoMatch: () => undoMatch(true),
               handleResetBoard: resetGameState,

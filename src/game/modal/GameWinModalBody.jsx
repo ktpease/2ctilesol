@@ -2,7 +2,7 @@ const GameWinModalBody = ({
   numTiles,
   clearTime,
   seed,
-  layoutDescription,
+  layoutCode,
   handleResetBoard,
   newBoardModal,
 }) => {
@@ -25,7 +25,9 @@ const GameWinModalBody = ({
         !
       </div>
       <div>
-        Board #{seed}, {layoutDescription}
+        Board #{seed}
+        <br />
+        Layout Code: {layoutCode}
       </div>
       <div>
         <button onClick={handleResetBoard}>
