@@ -660,6 +660,7 @@ export default function Game({
               prevBlindShuffle: blindShuffle,
               prevNoSinglePairs: noSinglePairs,
               prevSeed: seed,
+              layoutCode,
               handleResetBoard: resetGameState,
               backModal: () => showModal(GameModals.PAUSE),
             }}
