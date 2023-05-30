@@ -53,7 +53,7 @@ export default function Game({
   };
 
   const [deselectBehavior, setDeselectBehavior] = useState(
-    DeselectBehavior.ON_ANOTHER_TILE
+    DeselectBehavior.ON_ANY_TILE
   );
 
   const EmptySpace = {
@@ -468,8 +468,9 @@ export default function Game({
         boardHeight
       );
 
-      // Match found.
       if (path !== null) {
+        // There is a correct path between them. These tiles are matched!
+
         const newTiles = tiles.slice();
 
         // Remove tiles that were in their fadeout animation from the board.
@@ -512,6 +513,22 @@ export default function Game({
 
         setSelectedTile(null);
         setHintedTiles([]);
+      } else if (
+        deselectBehavior === DeselectBehavior.ON_ANOTHER_TILE ||
+        deselectBehavior === DeselectBehavior.ON_ANY_TILE
+      ) {
+        // There is no correct path. Select it if necessary.
+
+        setSelectedTile(tileId);
+
+        // Update the hinting system, if it's enabled.
+        if (showMatchingTiles === true) {
+          const hintedTiles = tiles.filter(
+            (t) => t.char === tiles[tileId].char
+          );
+
+          setHintedTiles(hintedTiles);
+        }
       }
     } else if (
       selectedTile === null ||
