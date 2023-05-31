@@ -3,6 +3,7 @@ const GameLoseModalBody = ({
   seed,
   layoutCode,
   canUndo,
+  shareUrls,
   handleUndoMatch,
   handleResetBoard,
   newBoardModal,
@@ -36,6 +37,18 @@ const GameLoseModalBody = ({
       </div>
       <div>
         <button onClick={newBoardModal}>Start New Board</button>
+      </div>
+      <div>
+        <button
+          onClick={() => navigator.clipboard.writeText(shareUrls.gameUrl)}
+        >
+          Copy Game Link (same board #)
+        </button>
+        <button
+          onClick={() => navigator.clipboard.writeText(shareUrls.layoutUrl)}
+        >
+          Copy Game Link
+        </button>
       </div>
     </div>
   );

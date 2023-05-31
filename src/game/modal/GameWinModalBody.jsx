@@ -3,6 +3,7 @@ const GameWinModalBody = ({
   clearTime,
   seed,
   layoutCode,
+  shareUrls,
   handleResetBoard,
   newBoardModal,
 }) => {
@@ -40,6 +41,18 @@ const GameWinModalBody = ({
       <div>
         <button onClick={() => handleResetBoard(seed)}>
           Reset Current Board
+        </button>
+      </div>
+      <div>
+        <button
+          onClick={() => navigator.clipboard.writeText(shareUrls.gameUrl)}
+        >
+          Copy Game Link (same board #)
+        </button>
+        <button
+          onClick={() => navigator.clipboard.writeText(shareUrls.layoutUrl)}
+        >
+          Copy Game Link
         </button>
       </div>
     </div>

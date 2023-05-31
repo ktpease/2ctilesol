@@ -79,6 +79,7 @@ export default function Game({
   };
   const [modalDisplayed, setModalDisplayed] = useState(false);
   const [modalState, setModalState] = useState(null);
+  const [prevModalState, setPrevModalState] = useState(null);
 
   // Board Generation Options
   const [boardWidth, setBoardWidth] = useState(17);
@@ -583,12 +584,15 @@ export default function Game({
     );
   }
 
-  function showModal(modalState) {
+  function showModal(newState) {
     timerRef.current.pause();
 
     setModalDisplayed(true);
 
-    if (modalState) setModalState(modalState);
+    if (newState) {
+      setPrevModalState(modalState);
+      setModalState(newState);
+    }
   }
 
   function hideModal() {
@@ -635,12 +639,15 @@ export default function Game({
         return (
           <AdvancedSettingsModalBody
             {...{
+              showAllValidMatches,
+              showMatchingTiles,
+              useEmoji,
               toggleHighlightAllMatches: () =>
                 setShowAllValidMatches((prevState) => !prevState),
               toggleHighlightMatchesForTile: () =>
                 setShowMatchingTiles((prevState) => !prevState),
               toggleEmojiMode: () => setUseEmoji((prevState) => !prevState),
-              backModal: () => showModal(GameModals.PAUSE),
+              backModal: () => showModal(prevModalState),
             }}
           />
         );
@@ -654,7 +661,7 @@ export default function Game({
               setBackgroundOption,
               setBackgroundColor,
               setBackgroundImage,
-              backModal: () => showModal(GameModals.PAUSE),
+              backModal: () => showModal(prevModalState),
             }}
           />
         );
@@ -664,7 +671,7 @@ export default function Game({
             {...{
               initialLayout: layoutCode,
               startNewGame: resetGameState,
-              backModal: () => showModal(GameModals.PAUSE),
+              backModal: () => showModal(prevModalState),
             }}
           />
         );
@@ -679,7 +686,7 @@ export default function Game({
               prevSeed: seed,
               layoutCode,
               handleResetBoard: resetGameState,
-              backModal: () => showModal(GameModals.PAUSE),
+              backModal: () => showModal(prevModalState),
             }}
           />
         );
@@ -691,6 +698,7 @@ export default function Game({
               clearTime: timerRef.current,
               seed,
               layoutCode,
+              shareUrls: generateShareUrls(),
               handleResetBoard: resetGameState,
               newBoardModal: () => showModal(GameModals.NEW_BOARD),
             }}
@@ -704,6 +712,7 @@ export default function Game({
               seed,
               layoutCode,
               canUndo: tileHistory.length === 0,
+              shareUrls: generateShareUrls(),
               handleUndoMatch: () => undoMatch(true),
               handleResetBoard: resetGameState,
               newBoardModal: () => showModal(GameModals.NEW_BOARD),

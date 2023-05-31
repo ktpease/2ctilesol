@@ -43,12 +43,11 @@ const PauseModalBody = ({
         <button onClick={backgroundColorModal}>Change Background</button>
       </div>
       <div>
-        <button onClick={advancedSettingsModal}>Advanced Options</button>
-      </div>
-      <div>
         <button onClick={layoutEditModal}>Puzzle Layout Edit</button>
       </div>
-      <div></div>
+      <div>
+        <button onClick={advancedSettingsModal}>Advanced Options</button>
+      </div>
       <div>
         <button onClick={hideModal}>Return to Game</button>
       </div>
