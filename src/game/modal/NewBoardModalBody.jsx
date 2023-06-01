@@ -4,7 +4,7 @@ const NewBoardModalBody = ({
   prevWidth,
   prevHeight,
   prevBlindShuffle,
-  prevNoSinglePairs,
+  prevAllowSinglePairs,
   prevSeed,
   layoutCode,
   handleResetBoard,
@@ -14,10 +14,21 @@ const NewBoardModalBody = ({
   const [boardHeight, setBoardHeight] = useState(prevHeight);
   const [customWidth, setCustomWidth] = useState(prevWidth);
   const [customHeight, setCustomHeight] = useState(prevHeight);
-  const [blindShuffle, setBlindShuffle] = useState(prevBlindShuffle ?? false);
-  const [noSinglePairs, setNoSinglePairs] = useState(
-    prevNoSinglePairs ?? false
+
+  const DifficultySettingsBits = {
+    USE_HARD_SHUFFLE: 1,
+    ALLOW_SINGLE_PAIRS: 2,
+  };
+
+  const [difficulty, setDifficulty] = useState(
+    (prevBlindShuffle != null && prevBlindShuffle
+      ? DifficultySettingsBits.USE_HARD_SHUFFLE
+      : 0) +
+      (prevAllowSinglePairs != null && prevAllowSinglePairs
+        ? DifficultySettingsBits.ALLOW_SINGLE_PAIRS
+        : 0)
   );
+
   const [seed, setSeed] = useState(prevSeed);
 
   const [newLayoutCode, setNewLayoutCode] = useState(layoutCode);
@@ -26,8 +37,6 @@ const NewBoardModalBody = ({
 
   const [useCustomSeed, setUseCustomSeed] = useState(false);
   const [useCustomSize, setUseCustomSize] = useState(false);
-
-  const [sizeSelected, setSizeSelected] = useState(false);
 
   return (
     <div>
@@ -74,7 +83,6 @@ const NewBoardModalBody = ({
                   setBoardWidth(8);
                   setBoardHeight(5);
                   setUseCustomSize(false);
-                  setSizeSelected(true);
                 }}
               ></input>
               <label htmlFor="sizeShort">Short (8&#x2a2f;5)</label>
@@ -89,7 +97,6 @@ const NewBoardModalBody = ({
                   setBoardWidth(12);
                   setBoardHeight(7);
                   setUseCustomSize(false);
-                  setSizeSelected(true);
                 }}
               ></input>
               <label htmlFor="sizeMedium">Medium (12&#x2a2f;7)</label>
@@ -104,7 +111,6 @@ const NewBoardModalBody = ({
                   setBoardWidth(17);
                   setBoardHeight(8);
                   setUseCustomSize(false);
-                  setSizeSelected(true);
                 }}
               ></input>
               <label htmlFor="sizeLarge">Large (17&#x2a2f;8)</label>
@@ -117,12 +123,16 @@ const NewBoardModalBody = ({
                 value="custom"
                 onChange={() => {
                   setUseCustomSize(true);
-                  setSizeSelected(true);
                 }}
               ></input>
               <label htmlFor="sizeCustom">Custom</label>
             </div>
-            <div style={{ display: useCustomSize ? "block" : "none", paddingTop: "1em" }}>
+            <div
+              style={{
+                display: useCustomSize ? "block" : "none",
+                paddingTop: "1em",
+              }}
+            >
               <input
                 type="range"
                 id="customWidth"
@@ -132,8 +142,10 @@ const NewBoardModalBody = ({
                 onChange={({ target: { value: v } }) => {
                   setCustomWidth(v);
                 }}
-                style={{width: "75%"}}
-              ></input>{customWidth}<br/>
+                style={{ width: "75%" }}
+              ></input>
+              {customWidth}
+              <br />
               <label htmlFor="customWidth">Board Width</label>
             </div>
             <div style={{ display: useCustomSize ? "block" : "none" }}>
@@ -146,8 +158,10 @@ const NewBoardModalBody = ({
                 onChange={({ target: { value: v } }) => {
                   setCustomHeight(v);
                 }}
-                style={{width: "75%"}}
-                ></input>{customHeight}<br/>
+                style={{ width: "75%" }}
+              ></input>
+              {customHeight}
+              <br />
               <label htmlFor="customHeight">Board Height</label>
             </div>
           </>
@@ -173,42 +187,70 @@ const NewBoardModalBody = ({
         <div>
           <input
             type="radio"
-            name="shuffle"
-            id="shuffleNormal"
-            value="normal"
+            name="difficulty"
+            id="difficulty0"
+            value="0"
             onChange={() => {
-              setBlindShuffle(false);
+              setDifficulty(0);
             }}
-            checked={!blindShuffle}
+            checked={difficulty === 0}
           ></input>
-          <label htmlFor="shuffleNormal">
+          <label htmlFor="difficulty0">
             Normal Mode - Always generates winnable boards.
           </label>
         </div>
         <div>
           <input
             type="radio"
-            name="shuffle"
-            id="shuffleHard"
-            value="hard"
+            name="difficulty"
+            id="difficulty1"
+            value="1"
             onChange={() => {
-              setBlindShuffle(true);
+              setDifficulty(DifficultySettingsBits.ALLOW_SINGLE_PAIRS);
             }}
-            checked={blindShuffle}
+            checked={difficulty === DifficultySettingsBits.ALLOW_SINGLE_PAIRS}
           ></input>
-          <label htmlFor="shuffleHard">
-            Hard Mode - True random shuffle, may generate unwinnable boards.
+          <label htmlFor="difficulty1">
+            Slightly Hard Mode - Always generates winnable boards. For smaller
+            boards, it allows single pairs of tiles.
           </label>
         </div>
-        <div style={{ paddingTop: "1em" }}>
+        <div>
           <input
-            type="checkbox"
-            id="optNoSinglePairs"
-            checked={noSinglePairs}
-            onChange={() => setNoSinglePairs(!noSinglePairs)}
+            type="radio"
+            name="difficulty"
+            id="difficulty2"
+            value="2"
+            onChange={() => {
+              setDifficulty(DifficultySettingsBits.USE_HARD_SHUFFLE);
+            }}
+            checked={difficulty === DifficultySettingsBits.USE_HARD_SHUFFLE}
           ></input>
-          <label htmlFor="optNoSinglePairs">
-            Force Multiple Pairs Per Tile. This makes smaller boards easier.
+          <label htmlFor="difficulty2">
+            Hard Mode - True random shuffle that may generate unwinnable boards.
+          </label>
+        </div>
+        <div>
+          <input
+            type="radio"
+            name="difficulty"
+            id="difficulty3"
+            value="3"
+            onChange={() => {
+              setDifficulty(
+                DifficultySettingsBits.USE_HARD_SHUFFLE +
+                  DifficultySettingsBits.ALLOW_SINGLE_PAIRS
+              );
+            }}
+            checked={
+              difficulty ===
+              DifficultySettingsBits.USE_HARD_SHUFFLE +
+                DifficultySettingsBits.ALLOW_SINGLE_PAIRS
+            }
+          ></input>
+          <label htmlFor="difficulty3">
+            Harder Mode - True random shuffle that may generate unwinnable
+            boards. For smaller boards, it allows single pairs of tiles.
           </label>
         </div>
         <div style={{ paddingTop: "1em" }}>
@@ -231,7 +273,7 @@ const NewBoardModalBody = ({
           ></input>
         </div>
       </div>
-      <div style={{paddingTop: "1em"}}>
+      <div style={{ paddingTop: "1em" }}>
         <button
           onClick={() =>
             useSimpleBoard
@@ -239,16 +281,16 @@ const NewBoardModalBody = ({
                   useCustomSeed ? parseInt(seed) : null,
                   useCustomSize ? parseInt(customWidth) : boardWidth,
                   useCustomSize ? parseInt(customHeight) : boardHeight,
-                  blindShuffle,
-                  noSinglePairs,
+                  (difficulty & 1) !== 0,
+                  (difficulty & 2) !== 0,
                   null
                 )
               : handleResetBoard(
                   useCustomSeed ? parseInt(seed) : null,
                   null,
                   null,
-                  blindShuffle,
-                  noSinglePairs,
+                  (difficulty & 1) !== 0,
+                  (difficulty & 2) !== 0,
                   layoutCode
                 )
           }

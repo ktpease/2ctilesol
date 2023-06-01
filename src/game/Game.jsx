@@ -36,7 +36,7 @@ export default function Game({
   setBackgroundColor,
   setBackgroundImage,
 }) {
-  const gameStateVer = 5;
+  const gameStateVer = 6;
 
   // Settings
   const [useEmoji, setUseEmoji] = useState(false);
@@ -87,7 +87,7 @@ export default function Game({
   const [seed, setSeed] = useState(1);
   const [layoutCode, setLayoutCode] = useState(null);
   const [blindShuffle, setBlindShuffle] = useState(false);
-  const [noSinglePairs, setNoSinglePairs] = useState(false);
+  const [allowSinglePairs, setAllowSinglePairs] = useState(false);
 
   // Tile State
   const [tiles, setTiles] = useState([]);
@@ -120,14 +120,14 @@ export default function Game({
       layout = searchParams?.get("l"),
       seed = searchParams?.get("s"),
       blindShuffle = searchParams?.get("ts") !== null,
-      noSinglePairs = searchParams?.get("nsp") !== null;
+      allowSinglePairs = searchParams?.get("sp") !== null;
 
     // Get the initial board, in order of priority:
     // - Create from URL search parameters. (Shared hyperlink)
     // - Recreate from the browser's web storage. (Persistence)
     // - Create basic 17x8 board. (Default)
     if (layout !== null) {
-      resetGameState(seed, null, null, blindShuffle, noSinglePairs, layout);
+      resetGameState(seed, null, null, blindShuffle, allowSinglePairs, layout);
     } else if (
       gameState !== null &&
       "v" in gameState &&
@@ -146,7 +146,7 @@ export default function Game({
         setSeed(gameState.seed);
         setLayoutCode(gameState.layoutCode);
         setBlindShuffle(gameState.blindShuffle);
-        setNoSinglePairs(gameState.noSinglePairs);
+        setAllowSinglePairs(gameState.allowSinglePairs);
         setNumTiles(gameState.numTiles);
         setTileHistory(gameState.tileHistory);
 
@@ -221,7 +221,7 @@ export default function Game({
         seed: seed,
         layoutCode: layoutCode,
         blindShuffle: blindShuffle,
-        noSinglePairs: noSinglePairs,
+        allowSinglePairs: allowSinglePairs,
         numTiles: numTiles,
         tileHistory: tileHistory,
         timer: {
@@ -283,23 +283,31 @@ export default function Game({
 
   // Resets the game state while generating a new board.
   function resetGameState(
-    seed,
-    width = boardWidth,
-    height = boardHeight,
-    bs = blindShuffle,
-    nsp = noSinglePairs,
-    code = layoutCode
+    newSeed,
+    newBoardWidth = boardWidth,
+    newBoardHeight = boardHeight,
+    newBlindShuffle = blindShuffle,
+    newAllowSinglePairs = allowSinglePairs,
+    newLayoutCode = layoutCode
   ) {
     let generatedBoard;
 
-    if (code !== null && code !== undefined) {
+    if (newLayoutCode != null) {
       // Generate the board based on the provided layout code. Fallback to the
       // default board if it fails.
 
-      if (bs) {
-        generatedBoard = generateBoardWithSimpleShuffle(seed, code, nsp);
+      if (newBlindShuffle) {
+        generatedBoard = generateBoardWithSimpleShuffle(
+          newSeed,
+          newLayoutCode,
+          newAllowSinglePairs
+        );
       } else {
-        generatedBoard = generateBoardWithPresolvedShuffle(seed, code, nsp);
+        generatedBoard = generateBoardWithPresolvedShuffle(
+          newSeed,
+          newLayoutCode,
+          newAllowSinglePairs
+        );
       }
 
       if (generatedBoard === null) {
@@ -317,19 +325,19 @@ export default function Game({
       // Generate a basic rectangular board based on the provided width and
       // height.
 
-      if (bs) {
+      if (newBlindShuffle) {
         generatedBoard = generateRectangularBoardWithSimpleShuffle(
-          seed,
-          width,
-          height,
-          nsp
+          newSeed,
+          newBoardWidth,
+          newBoardHeight,
+          newAllowSinglePairs
         );
       } else {
         generatedBoard = generateRectangularBoardWithPresolvedShuffle(
-          seed,
-          width,
-          height,
-          nsp
+          newSeed,
+          newBoardWidth,
+          newBoardHeight,
+          newAllowSinglePairs
         );
       }
     }
@@ -344,8 +352,8 @@ export default function Game({
     setBoardHeight(generatedBoard.height);
     setSeed(generatedBoard.seed);
     setLayoutCode(generatedBoard.layoutCode);
-    setBlindShuffle(bs);
-    setNoSinglePairs(nsp);
+    setBlindShuffle(newBlindShuffle);
+    setAllowSinglePairs(newAllowSinglePairs);
     setNumTiles(generatedBoard.numTiles);
     setSelectedTile(null);
     setTileHistory([]);
@@ -607,7 +615,7 @@ export default function Game({
     return {
       layoutUrl,
       gameUrl: `${layoutUrl}&s=${seed}${blindShuffle ? "&ts" : ""}${
-        noSinglePairs ? "&nsp" : ""
+        allowSinglePairs ? "&sp" : ""
       }`,
     };
   }
@@ -682,7 +690,7 @@ export default function Game({
               prevWidth: boardWidth,
               prevHeight: boardHeight,
               prevBlindShuffle: blindShuffle,
-              prevNoSinglePairs: noSinglePairs,
+              prevAllowSinglePairs: allowSinglePairs,
               prevSeed: seed,
               layoutCode,
               handleResetBoard: resetGameState,

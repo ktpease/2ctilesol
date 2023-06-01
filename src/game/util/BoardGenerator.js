@@ -15,12 +15,12 @@ export function generateRectangularBoardWithSimpleShuffle(
   seed,
   width,
   height,
-  noSinglePairs
+  allowSinglePairs
 ) {
   const layoutCode = generateLayoutCodeForRectangle(width, height);
 
   if (layoutCode !== null)
-    return generateBoardWithSimpleShuffle(seed, layoutCode, noSinglePairs);
+    return generateBoardWithSimpleShuffle(seed, layoutCode, allowSinglePairs);
   else return null;
 }
 
@@ -42,7 +42,7 @@ export function generateRectangularBoardWithSimpleShuffle(
 export function generateBoardWithSimpleShuffle(
   seed,
   layoutCode,
-  noSinglePairs
+  allowSinglePairs
 ) {
   const tiles = [],
     allValidTiles = [];
@@ -99,9 +99,7 @@ export function generateBoardWithSimpleShuffle(
 
     for (let x = 0; x < layout.width; x++) {
       if (layout.layoutMask[tileNum] === "1") {
-        if (
-          (chardupe = (chardupe + 1) % (noSinglePairs === true ? 4 : 2)) === 0
-        ) {
+        if ((chardupe = (chardupe + 1) % (allowSinglePairs ? 2 : 4)) === 0) {
           char = (char + 1) % usedTiles.length;
         }
 
@@ -161,12 +159,16 @@ export function generateRectangularBoardWithPresolvedShuffle(
   seed,
   width,
   height,
-  noSinglePairs
+  allowSinglePairs
 ) {
   const layoutCode = generateLayoutCodeForRectangle(width, height);
 
   if (layoutCode !== null)
-    return generateBoardWithPresolvedShuffle(seed, layoutCode, noSinglePairs);
+    return generateBoardWithPresolvedShuffle(
+      seed,
+      layoutCode,
+      allowSinglePairs
+    );
   else return null;
 }
 
@@ -188,7 +190,7 @@ export function generateRectangularBoardWithPresolvedShuffle(
 export function generateBoardWithPresolvedShuffle(
   seed,
   layoutCode,
-  noSinglePairs
+  allowSinglePairs
 ) {
   const tiles = [];
 
@@ -229,7 +231,7 @@ export function generateBoardWithPresolvedShuffle(
   let allTileValues = [...Array(34).keys()];
 
   // Each value in this array is a representation of a tile pair, based on its
-  // tile value. If "noSinglePairs" is true, then there are at least two pairs
+  // tile value. If "allowSinglePairs" is false, then there are at least two pairs
   // of a tile on a given board for an easier difficulty on smaller boards.
   let orderedTilePairs;
 
@@ -237,7 +239,7 @@ export function generateBoardWithPresolvedShuffle(
   // tiles we use at random.
   if (
     numPairs <
-    (noSinglePairs ? allTileValues.length << 1 : allTileValues.length)
+    (allowSinglePairs ? allTileValues.length : allTileValues.length << 1)
   ) {
     for (let i = allTileValues.length - 1; i > 0; i--) {
       randValue = Math.floor(seededRng.next() * (i + 1));
@@ -249,22 +251,22 @@ export function generateBoardWithPresolvedShuffle(
 
     // Trim the number of tiles used.
     //
-    // NOTE: If "noSinglePairs" is true and we have one extra pair unaccounted
+    // NOTE: If "allowSinglePairs" is false and we have one extra pair unaccounted
     // for, we'll keep with the name and have the extra pair be from one of
     // the chosen tiles (which means there will be 6 instead of 4). If we'd
     // rather have it be a single pair of an unused tile, replace the following:
     // numPairs >> 1           -->       (numPairs + 1) >> 1
     allTileValues = allTileValues.slice(
       0,
-      noSinglePairs ? numPairs >> 1 : numPairs
+      allowSinglePairs ? numPairs : numPairs >> 1
     );
   }
 
   // Pre-fill part of the tile pair array, all the way up to one pair/quad of
   // each tile value.
-  orderedTilePairs = noSinglePairs
-    ? allTileValues.concat(allTileValues)
-    : allTileValues.slice();
+  orderedTilePairs = allowSinglePairs
+    ? allTileValues.slice()
+    : allTileValues.concat(allTileValues);
 
   orderedTilePairs.sort((a, b) => a - b);
 

@@ -70,9 +70,9 @@ export default function GameBoard({
               useEmoji={useEmoji}
               isSelected={val.id === selectedTile}
               canBeMatchedWithSelected={
-                hintedTiles.includes(val) && !val.inRemovalAnim
+                hintedTiles?.includes(val) && !val.inRemovalAnim
               }
-              canBeMatchedWithOther={wholeMatchingTiles.includes(val.id)}
+              canBeMatchedWithOther={wholeMatchingTiles?.includes(val.id)}
               isFadingOut={val.inRemovalAnim}
               onClick={() => handleTileClick(val.id)}
               fixChromeAndroidEmojiBug={fixChromeAndroidEmojiBug}
