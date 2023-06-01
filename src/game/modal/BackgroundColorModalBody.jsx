@@ -13,7 +13,9 @@ const BackgroundColorModalBody = ({
   backModal,
 }) => {
   const [newBackgroundColor, setNewBackgroundColor] = useState(backgroundColor);
-  const [newBackgroundImage, setNewBackgroundImage] = useState(backgroundImage);
+  const [newBackgroundImage, setNewBackgroundImage] = useState(
+    backgroundImage || ""
+  );
   const [newBackgroundOption, setNewBackgroundOption] =
     useState(backgroundOption);
 
@@ -110,7 +112,9 @@ const BackgroundColorModalBody = ({
           onClick={() => {
             setBackgroundOption(newBackgroundOption);
             setBackgroundColor(newBackgroundColor);
-            setBackgroundImage(newBackgroundImage);
+            setBackgroundImage(
+              newBackgroundImage != "" ? newBackgroundImage : null
+            );
             backModal();
           }}
           className="large-button"
