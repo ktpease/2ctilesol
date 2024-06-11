@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 
 import Tile from "./Tile";
 import PathNode from "./PathNode";
@@ -64,7 +64,7 @@ export default function GameBoard({
     return tileMap.map((row, index) => (
       <div key={keyprefix + "-" + index}>
         {row.map((val) => (
-          <span key={val.id}>
+          <Fragment key={val.id}>
             <Tile
               char={val.char}
               useEmoji={useEmoji}
@@ -80,7 +80,7 @@ export default function GameBoard({
             {pathingTiles[val.id] && (
               <PathNode key={curPathingKey} node={pathingTiles[val.id]} />
             )}
-          </span>
+          </Fragment>
         ))}
       </div>
     ));
