@@ -73,11 +73,11 @@ export default function Tile({
       tileColorClass = "game-tile-glyph-seasons";
     }
 
+    // Don't render an empty class attribute if both values are empty.
+    const classNames = ClassNames(tileColorClass, tileStatusClass);
+
     return (
-      <span
-        className={ClassNames(null, [tileColorClass, tileStatusClass])}
-        onClick={onClick}
-      >
+      <span className={classNames === "" ? null : classNames} onClick={onClick}>
         {String.fromCodePoint(0x1f000 + char)}&#xFE0E;
       </span>
     );
