@@ -768,7 +768,17 @@ export default function Game({
           className="game-bar-pause-button"
           onClick={() => showModal(GameModals.PAUSE)}
         >
-          II
+          <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="7vmin"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#000000"
+              strokeWidth="2"
+            >
+              <rect x="6" y="4" width="4" height="16"></rect>
+              <rect x="14" y="4" width="4" height="16"></rect>
+            </svg>
         </button>
         <div>
           <GameTimer ref={timerRef} />
@@ -779,26 +789,67 @@ export default function Game({
             onClick={undoMatch}
             disabled={tileHistory.length === 0}
           >
-            &#x21A9;
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="4vmin"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#000000"
+              strokeWidth="2"
+            >
+              <polygon points="11 19 2 12 11 5 11 19"></polygon>
+              <polygon points="22 19 13 12 22 5 22 19"></polygon>
+            </svg>
           </button>
           <button
             className="game-bar-button"
             onClick={showOneMatch}
             disabled={!canUseHint}
           >
-            &#x25C8;
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="4vmin"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#000000"
+              strokeWidth="2"
+            >
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
           </button>
           <button
             className="game-bar-button"
             onClick={() => showModal(GameModals.HELP)}
           >
-            ?
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="4vmin"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#000000"
+              strokeWidth="2"
+              strokeLinecap="round"
+            >
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
           </button>
           <button
             className="game-bar-button portrait-mode"
             onClick={() => showModal(GameModals.PAUSE)}
           >
-            II
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="4vmin"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#000000"
+              strokeWidth="2"
+            >
+              <rect x="6" y="4" width="4" height="16"></rect>
+              <rect x="14" y="4" width="4" height="16"></rect>
+            </svg>
           </button>
         </div>
       </div>
