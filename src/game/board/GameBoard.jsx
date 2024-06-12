@@ -14,7 +14,7 @@ export default function GameBoard({
   wholeMatchingTiles,
   selectedTile,
   useEmoji,
-  fixChromeAndroidEmojiBug,
+  fixRedDragonBugs,
   handleTileClick,
 }) {
   // Tile maps, which are used to correlate each tile object with their
@@ -75,7 +75,7 @@ export default function GameBoard({
               canBeMatchedWithOther={wholeMatchingTiles?.includes(val.id)}
               isFadingOut={val.inRemovalAnim}
               onClick={() => handleTileClick(val.id)}
-              fixChromeAndroidEmojiBug={fixChromeAndroidEmojiBug}
+              fixRedDragonBugs={fixRedDragonBugs}
             />
             {pathingTiles[val.id] && (
               <PathNode key={curPathingKey} node={pathingTiles[val.id]} />

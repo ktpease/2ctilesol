@@ -9,13 +9,13 @@ export default function Tile({
   canBeMatchedWithSelected,
   canBeMatchedWithOther,
   isFadingOut,
-  fixChromeAndroidEmojiBug,
+  fixRedDragonBugs,
   onClick,
 }) {
   // Check if tile is valid to display. They should be sent in the "char"
   // property from 0 (U+1F000) to 43 (U+1F02B).
 
-  if (typeof char !== "number" || char < 0 || char > 43) {
+  if (typeof char !== "number" || char < 0x00 || char > 0x2b) {
     return (
       <span className="game-tile-empty">&#x1F02B;{!useEmoji && "\uFE0E"}</span>
     );
@@ -34,6 +34,10 @@ export default function Tile({
   else if (isFadingOut) tileStatusClass = "game-tile-anim-fadeout";
 
   if (useEmoji) {
+    // In certain versions of Windows, change the revamped Red Dragon emoji
+    // to one of the Flower emojis (Plum?)
+    if (char === 0x04 && fixRedDragonBugs) char = 0x22;
+
     // If we're using the non-standard emoji variant, just display them normally.
     return (
       <span className={tileStatusClass} onClick={onClick}>
@@ -44,23 +48,27 @@ export default function Tile({
     // If we're using the standard text presentation, make them colorized.
     let tileColorClass;
 
-    if ((char >= 7 && char <= 15) || char === 4) {
+    if ((char >= 0x07 && char <= 0x0f) || char === 0x04) {
       // Characters and Red Dragon
       tileColorClass = "game-tile-glyph-red";
 
       // In certain browsers, change the Red Dragon glyph to a re-colored
       // White Dragon glyph so that it isn't forced as an emoji.
-      if (char === 4 && fixChromeAndroidEmojiBug) char = 6;
-    } else if ((char >= 16 && char <= 24) || char === 5) {
+      if (char === 0x04 && fixRedDragonBugs) char = 0x06;
+    } else if ((char >= 0x10 && char <= 0x18) || char === 0x05) {
       // Bamboos and Green Dragon
       tileColorClass = "game-tile-glyph-green";
-    } else if ((char >= 25 && char <= 33) || char === 6 || char === 43) {
+    } else if (
+      (char >= 0x19 && char <= 0x21) ||
+      char === 0x06 ||
+      char === 0x2b
+    ) {
       // Pins and White Dragon
       tileColorClass = "game-tile-glyph-blue";
-    } else if (char >= 34 && char <= 37) {
+    } else if (char >= 0x22 && char <= 0x25) {
       // Flowers
       tileColorClass = "game-tile-glyph-flowers";
-    } else if (char >= 38 && char <= 41) {
+    } else if (char >= 0x26 && char <= 0x29) {
       // Seasons
       tileColorClass = "game-tile-glyph-seasons";
     }

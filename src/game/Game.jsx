@@ -42,8 +42,7 @@ export default function Game({
   const [useEmoji, setUseEmoji] = useState(false);
   const [showMatchingTiles, setShowMatchingTiles] = useState(false);
   const [showAllValidMatches, setShowAllValidMatches] = useState(false);
-  const [fixChromeAndroidEmojiBug, setFixChromeAndroidEmojiBug] =
-    useState(false);
+  const [fixRedDragonBugs, setFixRedDragonBugs] = useState(false);
   const [canUseHint, setCanUseHint] = useState(true);
 
   const DeselectBehavior = {
@@ -244,25 +243,36 @@ export default function Game({
     // support them (whether in the proper orientation or just outright).
     // So for now, we'll just assume that only desktop Windows 10+ can run the
     // emoji mode.
-
-    // If we don't care that it breaks previous Windows versions, we can just
-    // use the is-windows package. But for compatibility, we'll just use the UA-CH
-    // API.
     if (navigator.userAgentData)
+      // Use the UA-CH API, if able.
       navigator.userAgentData
-        .getHighEntropyValues(["platform", "platformVersion"])
+        .getHighEntropyValues(["platformVersion"])
         .then((ua) => {
-          if (ua.platform === "Windows" && parseInt(ua.platformVersion) >= 10) {
+          if (ua.platform === "Windows" && parseInt(ua.platformVersion) >= 1) {
             console.log("Windows 10+ detected, using emoji tiles.");
             setUseEmoji(true);
+
+            // Windows 11+ changes the angle of the Red Dragon emoji.
+            // Replace with a different emoji.
+            if (parseInt(ua.platformVersion) >= 13) {
+              setFixRedDragonBugs(true);
+            }
           }
         });
     else if (
       window.navigator &&
       /Windows NT \d{2}/.test(window.navigator.userAgent)
     ) {
+      // Check the User Agent directly, if the UA-CH API cannot be accessed.
       console.log("Windows 10+ detected, using emoji tiles.");
       setUseEmoji(true);
+
+      // Windows 11+ changes the angle of the Red Dragon emoji. Although we
+      // should only replace it with a different emoji outside of Windows 10,
+      // they have chosen not to update the UA in favor of switching over to
+      // UA-CH. As it is impossible to use UA to detect modern Windows versions,
+      // just replace the emoji for all modern Windows versions.
+      setFixRedDragonBugs(true);
     }
 
     // Chrome for Android has a bug where it'll not respect VS15/U+FE0E and
@@ -277,7 +287,7 @@ export default function Game({
           window.navigator.userAgent.includes("Chrome") &&
           window.navigator.userAgent.includes("Mobile")
     ) {
-      setFixChromeAndroidEmojiBug(true);
+      setFixRedDragonBugs(true);
     }
   }
 
@@ -748,7 +758,7 @@ export default function Game({
             : [],
           selectedTile,
           useEmoji,
-          fixChromeAndroidEmojiBug,
+          fixRedDragonBugs,
           handleTileClick,
         }}
       />
